@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Skill Management - Companio Volunteer</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../static/css/style.css">
+  <link rel="stylesheet" href="../../static/css/accessibility.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
+    <div class="container-fluid px-lg-4">
+      <a class="navbar-brand" href="../index.html"><i class="fas fa-hand-holding-heart me-2"></i>Companio Volunteer Portal</a>
+      <div class="d-flex align-items-center gap-3 ms-auto">
+        <button class="btn btn-link nav-link p-2 theme-toggle-btn"><i class="theme-toggle-icon fas fa-moon fs-5"></i></button>
+        <a href="dashboard.html" class="btn btn-outline-custom btn-sm">Dashboard</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container-fluid px-lg-4">
+    <div class="row">
+      <aside class="col-lg-2 sidebar d-none d-lg-block">
+        <a href="dashboard.html" class="sidebar-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+        <a href="accepted-requests.html" class="sidebar-link"><i class="fas fa-tasks"></i> Accepted Requests</a>
+        <a href="skills.html" class="sidebar-link active"><i class="fas fa-cogs"></i> Skill Management</a>
+        <a href="availability.html" class="sidebar-link"><i class="fas fa-calendar-alt"></i> Availability Grid</a>
+        <a href="rewards.html" class="sidebar-link"><i class="fas fa-award"></i> Rewards & Badges</a>
+        <a href="chat.html" class="sidebar-link"><i class="fas fa-comments"></i> Live Chat</a>
+        <a href="profile.html" class="sidebar-link"><i class="fas fa-user"></i> Profile</a>
+      </aside>
+
+      <main id="main-content" class="col-lg-10 p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <h1 class="h3 fw-bold mb-1">Skill Management</h1>
+            <p class="text-muted mb-0">Manage and verify skills offered to community members.</p>
+          </div>
+          <button class="btn btn-primary-custom" onclick="showToast('New skill verification request submitted', 'success')"><i class="fas fa-plus me-1"></i>Add New Skill</button>
+        </div>
+
+        <!-- Active Verified Skills -->
+        <div class="row g-4 mb-4">
+          <div class="col-md-6">
+            <div class="card card-custom p-4 border-start border-4 border-success">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <h5 class="fw-bold mb-0">Assistive Technology Setup</h5>
+                <span class="badge bg-success">Admin Verified</span>
+              </div>
+              <p class="text-muted small mb-3">NVDA, JAWS screen reader configuration, voice typing, and mobile accessibility settings.</p>
+              <div class="d-flex justify-content-between align-items-center">
+                <small class="text-muted">Requests Fulfilled: 22</small>
+                <button class="btn btn-sm btn-outline-danger" onclick="showToast('Skill removed from profile', 'info')">Remove Skill</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="card card-custom p-4 border-start border-4 border-success">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <h5 class="fw-bold mb-0">Audio Document Reading</h5>
+                <span class="badge bg-success">Admin Verified</span>
+              </div>
+              <p class="text-muted small mb-3">Reading official mail, textbooks, tax forms, and visual media description.</p>
+              <div class="d-flex justify-content-between align-items-center">
+                <small class="text-muted">Requests Fulfilled: 16</small>
+                <button class="btn btn-sm btn-outline-danger" onclick="showToast('Skill removed from profile', 'info')">Remove Skill</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pending Skill Verifications -->
+        <h5 class="fw-bold mb-3">Skill Verification Queue</h5>
+        <div class="card card-custom p-4">
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <h6 class="fw-bold mb-1">ASL Sign Language Interpretation (Level 2)</h6>
+              <small class="text-muted">Certification document submitted to Admin for verification.</small>
+            </div>
+            <span class="badge bg-warning text-dark px-3 py-2"><i class="fas fa-clock me-1"></i>Under Review</span>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div class="accessibility-bar">
+    <button id="btn-font-increase">A+</button>
+    <button id="btn-font-reset">A</button>
+    <button id="btn-font-decrease">A-</button>
+    <button id="btn-contrast-toggle"><i class="fas fa-adjust"></i></button>
+    <button id="btn-tts-toggle"><i class="fas fa-volume-up"></i></button>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../static/js/main.js"></script>
+</body>
+</html>

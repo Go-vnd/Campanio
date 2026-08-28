@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Volunteer Dashboard - Companio Platform</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../static/css/style.css">
+  <link rel="stylesheet" href="../../static/css/accessibility.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
+    <div class="container-fluid px-lg-4">
+      <a class="navbar-brand" href="../index.html"><i class="fas fa-hand-holding-heart me-2"></i>Companio Volunteer Portal</a>
+      <div class="d-flex align-items-center gap-3 ms-auto">
+        <button class="btn btn-link nav-link p-2 theme-toggle-btn" aria-label="Toggle Theme"><i class="theme-toggle-icon fas fa-moon fs-5"></i></button>
+
+        <div class="dropdown">
+          <a href="#" class="d-flex align-items-center gap-2 text-decoration-none dropdown-toggle" data-bs-toggle="dropdown">
+            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&q=80" alt="David Miller Avatar" class="rounded-circle" width="38" height="38">
+            <span class="fw-bold d-none d-md-inline">David Miller (Volunteer)</span>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end shadow">
+            <li><a class="dropdown-item" href="profile.html"><i class="fas fa-id-card me-2"></i>Volunteer Profile</a></li>
+            <li><a class="dropdown-item" href="rewards.html"><i class="fas fa-award me-2"></i>Badges & Certificates</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger" href="../login.html"><i class="fas fa-sign-out-alt me-2"></i>Log Out</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container-fluid px-lg-4">
+    <div class="row">
+      <!-- Volunteer Sidebar -->
+      <aside class="col-lg-2 sidebar d-none d-lg-block">
+        <div class="small fw-bold text-muted text-uppercase mb-3 px-3">Volunteer Menu</div>
+        <a href="dashboard.html" class="sidebar-link active"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+        <a href="accepted-requests.html" class="sidebar-link"><i class="fas fa-tasks"></i> Accepted Requests</a>
+        <a href="skills.html" class="sidebar-link"><i class="fas fa-cogs"></i> Skill Management</a>
+        <a href="availability.html" class="sidebar-link"><i class="fas fa-calendar-alt"></i> Availability Grid</a>
+        <a href="rewards.html" class="sidebar-link"><i class="fas fa-award"></i> Rewards & Badges</a>
+        <a href="chat.html" class="sidebar-link"><i class="fas fa-comments"></i> Live Chat</a>
+        <a href="profile.html" class="sidebar-link"><i class="fas fa-user"></i> Profile</a>
+      </aside>
+
+      <!-- Main Content -->
+      <main id="main-content" class="col-lg-10 p-4">
+        <!-- Banner -->
+        <div class="card card-custom bg-success text-white p-4 mb-4 border-0 shadow">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <div>
+              <h1 class="h3 fw-bold mb-1">Welcome Back, David! 🌟</h1>
+              <p class="mb-0 text-white-50">You have completed 48 hours of skill exchange assistance this month.</p>
+            </div>
+            <a href="rewards.html" class="btn btn-light text-success fw-bold"><i class="fas fa-certificate me-2"></i>View Downloadable Certificate</a>
+          </div>
+        </div>
+
+        <!-- Volunteer Stats Row -->
+        <div class="row g-4 mb-4">
+          <div class="col-md-3">
+            <div class="card card-custom p-3">
+              <small class="text-muted fw-bold">TOTAL HOURS</small>
+              <h2 class="fw-bold mb-0 text-primary">124 hrs</h2>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card card-custom p-3">
+              <small class="text-muted fw-bold">TASKS COMPLETED</small>
+              <h2 class="fw-bold mb-0 text-success">38</h2>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card card-custom p-3">
+              <small class="text-muted fw-bold">USER RATING</small>
+              <h2 class="fw-bold mb-0 text-warning">4.95 ⭐</h2>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card card-custom p-3">
+              <small class="text-muted fw-bold">EARNED BADGES</small>
+              <h2 class="fw-bold mb-0 text-info">6 Badges</h2>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-4 mb-4">
+          <!-- Hours Graph -->
+          <div class="col-lg-7">
+            <div class="card card-custom p-4 h-100">
+              <h5 class="fw-bold mb-3">Weekly Volunteering Hours</h5>
+              <canvas id="volunteerHoursChart" height="200"></canvas>
+            </div>
+          </div>
+
+          <!-- Active Accepted Task -->
+          <div class="col-lg-5">
+            <div class="card card-custom p-4 h-100">
+              <span class="badge badge-custom badge-warning mb-2 w-auto me-auto">Active Accepted Request</span>
+              <h5 class="fw-bold mb-1">NVDA Tech Setup for Elena Rostova</h5>
+              <p class="text-muted small"><i class="fas fa-clock me-1"></i> Today, 4:00 PM - 5:00 PM</p>
+              <p class="text-muted small">Assisting member with setting up NVDA voice profiles and reading official medical documents.</p>
+              <div class="mt-auto d-flex gap-2">
+                <a href="chat.html" class="btn btn-primary-custom btn-sm flex-grow-1"><i class="fas fa-comments me-1"></i>Chat with Elena</a>
+                <button class="btn btn-outline-success btn-sm" onclick="showToast('Request marked as complete!', 'success')">Mark Complete</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Available Nearby Assistance Requests Queue -->
+        <h4 class="fw-bold mb-3">Matching Nearby Assistance Requests</h4>
+        <div class="row g-4">
+          <div class="col-md-6">
+            <div class="card card-custom p-4">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <span class="badge badge-custom badge-blue">Document Reading</span>
+                <small class="text-muted"><i class="fas fa-map-marker-alt me-1 text-danger"></i> 1.2 miles away</small>
+              </div>
+              <h5 class="fw-bold mb-1">Audio Reading of Bank Statements</h5>
+              <p class="text-muted small mb-3">Requested by Marcus Vance • Preferred Date: Tomorrow, 2:00 PM</p>
+              <button class="btn btn-outline-custom w-100" onclick="showToast('You accepted this request!', 'success')"><i class="fas fa-check me-1"></i>Accept Assistance Request</button>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="card card-custom p-4">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <span class="badge badge-custom badge-blue">Mobility Escort</span>
+                <small class="text-muted"><i class="fas fa-map-marker-alt me-1 text-danger"></i> 3.5 miles away</small>
+              </div>
+              <h5 class="fw-bold mb-1">Escort to Local Pharmacy</h5>
+              <p class="text-muted small mb-3">Requested by Sofia Ramos • Preferred Date: Aug 8, 10:00 AM</p>
+              <button class="btn btn-outline-custom w-100" onclick="showToast('You accepted this request!', 'success')"><i class="fas fa-check me-1"></i>Accept Assistance Request</button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div class="accessibility-bar">
+    <button id="btn-font-increase">A+</button>
+    <button id="btn-font-reset">A</button>
+    <button id="btn-font-decrease">A-</button>
+    <button id="btn-contrast-toggle"><i class="fas fa-adjust"></i></button>
+    <button id="btn-tts-toggle"><i class="fas fa-volume-up"></i></button>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../static/js/main.js"></script>
+  <script src="../../static/js/charts.js"></script>
+</body>
+</html>

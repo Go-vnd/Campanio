@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Request Management - Companio Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../static/css/style.css">
+  <link rel="stylesheet" href="../../static/css/accessibility.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
+    <div class="container-fluid px-lg-4">
+      <a class="navbar-brand text-danger" href="../index.html"><i class="fas fa-user-shield me-2"></i>Companio Admin Control Panel</a>
+      <div class="d-flex align-items-center gap-3 ms-auto">
+        <button class="btn btn-link nav-link p-2 theme-toggle-btn"><i class="theme-toggle-icon fas fa-moon fs-5"></i></button>
+        <a href="dashboard.html" class="btn btn-outline-custom btn-sm">Dashboard</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container-fluid px-lg-4">
+    <div class="row">
+      <aside class="col-lg-2 sidebar d-none d-lg-block">
+        <a href="dashboard.html" class="sidebar-link"><i class="fas fa-chart-pie"></i> Dashboard</a>
+        <a href="users.html" class="sidebar-link"><i class="fas fa-users"></i> User Management</a>
+        <a href="volunteers.html" class="sidebar-link"><i class="fas fa-hands-helping"></i> Volunteer Management</a>
+        <a href="requests.html" class="sidebar-link active"><i class="fas fa-list-alt"></i> Request Management</a>
+        <a href="analytics.html" class="sidebar-link"><i class="fas fa-chart-bar"></i> Reports & Analytics</a>
+        <a href="badges.html" class="sidebar-link"><i class="fas fa-certificate"></i> Badge Management</a>
+      </aside>
+
+      <main id="main-content" class="col-lg-10 p-4">
+        <h1 class="h3 fw-bold mb-4">Global Assistance Request Management</h1>
+
+        <div class="card card-custom p-3 mb-4">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <input type="text" class="form-control" placeholder="Search by request ID, title, requester, or volunteer...">
+            </div>
+            <div class="col-md-3">
+              <select class="form-select">
+                <option value="">All Statuses</option>
+                <option value="pending">Pending Match</option>
+                <option value="in_progress">In Progress</option>
+                <option value="completed">Completed</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <select class="form-select">
+                <option value="">Priority</option>
+                <option value="urgent">Urgent Only</option>
+                <option value="standard">Standard</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="card card-custom overflow-hidden">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Request ID</th>
+                  <th>Task Title</th>
+                  <th>Assistance Seeker</th>
+                  <th>Matched Volunteer</th>
+                  <th>Priority</th>
+                  <th>Status</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="fw-bold">#REQ-8042</td>
+                  <td>NVDA Tech Setup</td>
+                  <td>Elena Rostova</td>
+                  <td>David Miller</td>
+                  <td><span class="badge bg-danger">Urgent</span></td>
+                  <td><span class="badge bg-warning text-dark">In Progress</span></td>
+                  <td class="text-end">
+                    <button class="btn btn-sm btn-outline-custom" onclick="showToast('Re-assigning volunteer...', 'info')">Re-assign</button>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td class="fw-bold">#REQ-7911</td>
+                  <td>Grocery Shopping Escort</td>
+                  <td>Elena Rostova</td>
+                  <td>Sarah Chen</td>
+                  <td><span class="badge bg-secondary">Standard</span></td>
+                  <td><span class="badge bg-success">Completed</span></td>
+                  <td class="text-end">
+                    <button class="btn btn-sm btn-outline-custom" onclick="showToast('Viewing log details', 'info')">View Log</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div class="accessibility-bar">
+    <button id="btn-font-increase">A+</button>
+    <button id="btn-font-reset">A</button>
+    <button id="btn-font-decrease">A-</button>
+    <button id="btn-contrast-toggle"><i class="fas fa-adjust"></i></button>
+    <button id="btn-tts-toggle"><i class="fas fa-volume-up"></i></button>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../static/js/main.js"></script>
+</body>
+</html>

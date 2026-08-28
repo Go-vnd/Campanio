@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Badge & Certificate Management - Companio Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../static/css/style.css">
+  <link rel="stylesheet" href="../../static/css/accessibility.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
+    <div class="container-fluid px-lg-4">
+      <a class="navbar-brand text-danger" href="../index.html"><i class="fas fa-user-shield me-2"></i>Companio Admin Control Panel</a>
+      <div class="d-flex align-items-center gap-3 ms-auto">
+        <button class="btn btn-link nav-link p-2 theme-toggle-btn"><i class="theme-toggle-icon fas fa-moon fs-5"></i></button>
+        <a href="dashboard.html" class="btn btn-outline-custom btn-sm">Dashboard</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container-fluid px-lg-4">
+    <div class="row">
+      <aside class="col-lg-2 sidebar d-none d-lg-block">
+        <a href="dashboard.html" class="sidebar-link"><i class="fas fa-chart-pie"></i> Dashboard</a>
+        <a href="users.html" class="sidebar-link"><i class="fas fa-users"></i> User Management</a>
+        <a href="volunteers.html" class="sidebar-link"><i class="fas fa-hands-helping"></i> Volunteer Management</a>
+        <a href="requests.html" class="sidebar-link"><i class="fas fa-list-alt"></i> Request Management</a>
+        <a href="analytics.html" class="sidebar-link"><i class="fas fa-chart-bar"></i> Reports & Analytics</a>
+        <a href="badges.html" class="sidebar-link active"><i class="fas fa-certificate"></i> Badge Management</a>
+      </aside>
+
+      <main id="main-content" class="col-lg-10 p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <h1 class="h3 fw-bold mb-1">Badge & Digital Certificate Management</h1>
+            <p class="text-muted mb-0">Create new achievement badges and issue verified volunteer certificates.</p>
+          </div>
+          <button class="btn btn-primary-custom" data-bs-toggle="modal" data-bs-target="#createBadgeModal"><i class="fas fa-plus me-1"></i>Create New Badge</button>
+        </div>
+
+        <!-- Badges Table -->
+        <div class="card card-custom overflow-hidden mb-4">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Badge Icon</th>
+                  <th>Badge Title</th>
+                  <th>Requirement Criteria</th>
+                  <th>Awarded Volunteers</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><div class="bg-warning text-dark rounded-circle p-2 d-inline-block"><i class="fas fa-medal fs-4"></i></div></td>
+                  <td class="fw-bold">Master Tech Tutor</td>
+                  <td>20+ Verified Assistive Tech sessions</td>
+                  <td>34 Volunteers</td>
+                  <td class="text-end">
+                    <button class="btn btn-sm btn-outline-custom" onclick="showToast('Badge details updated', 'info')">Edit</button>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td><div class="bg-primary text-white rounded-circle p-2 d-inline-block"><i class="fas fa-clock fs-4"></i></div></td>
+                  <td class="fw-bold">100+ Hours Contributor</td>
+                  <td>100 total hours logged</td>
+                  <td>58 Volunteers</td>
+                  <td class="text-end">
+                    <button class="btn btn-sm btn-outline-custom" onclick="showToast('Badge details updated', 'info')">Edit</button>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td><div class="bg-danger text-white rounded-circle p-2 d-inline-block"><i class="fas fa-heart fs-4"></i></div></td>
+                  <td class="fw-bold">Community Hero</td>
+                  <td>5.0 Star rating with 15+ reviews</td>
+                  <td>82 Volunteers</td>
+                  <td class="text-end">
+                    <button class="btn btn-sm btn-outline-custom" onclick="showToast('Badge details updated', 'info')">Edit</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Create Badge Modal -->
+  <div class="modal fade" id="createBadgeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content card-custom">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold">Create New Digital Badge</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form onsubmit="event.preventDefault(); showToast('New Badge Created Successfully!', 'success'); bootstrap.Modal.getInstance(document.getElementById('createBadgeModal')).hide();">
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Badge Name</label>
+              <input type="text" class="form-control" placeholder="e.g. Sign Language Master" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Award Criteria Description</label>
+              <textarea class="form-control" rows="3" placeholder="Describe requirements to earn badge..." required></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Badge Color Theme</label>
+              <select class="form-select">
+                <option value="primary">Primary Blue</option>
+                <option value="success">Success Green</option>
+                <option value="warning">Warning Gold</option>
+                <option value="danger">Hero Red</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary-custom w-100">Publish Badge</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="accessibility-bar">
+    <button id="btn-font-increase">A+</button>
+    <button id="btn-font-reset">A</button>
+    <button id="btn-font-decrease">A-</button>
+    <button id="btn-contrast-toggle"><i class="fas fa-adjust"></i></button>
+    <button id="btn-tts-toggle"><i class="fas fa-volume-up"></i></button>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../static/js/main.js"></script>
+</body>
+</html>

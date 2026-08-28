@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notifications - Companio</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../static/css/style.css">
+  <link rel="stylesheet" href="../../static/css/accessibility.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
+    <div class="container-fluid px-lg-4">
+      <a class="navbar-brand" href="../index.html"><i class="fas fa-hand-holding-heart me-2"></i>Companio Portal</a>
+      <div class="d-flex align-items-center gap-3 ms-auto">
+        <button class="btn btn-link nav-link p-2 theme-toggle-btn"><i class="theme-toggle-icon fas fa-moon fs-5"></i></button>
+        <a href="dashboard.html" class="btn btn-outline-custom btn-sm">Dashboard</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container-fluid px-lg-4">
+    <div class="row">
+      <aside class="col-lg-2 sidebar d-none d-lg-block">
+        <a href="dashboard.html" class="sidebar-link"><i class="fas fa-th-large"></i> Dashboard</a>
+        <a href="create-request.html" class="sidebar-link"><i class="fas fa-plus-circle"></i> Create Request</a>
+        <a href="request-history.html" class="sidebar-link"><i class="fas fa-history"></i> Request History</a>
+        <a href="chat.html" class="sidebar-link"><i class="fas fa-comments"></i> Messages Chat</a>
+        <a href="notifications.html" class="sidebar-link active"><i class="fas fa-bell"></i> Notifications</a>
+        <a href="feedback.html" class="sidebar-link"><i class="fas fa-star"></i> Feedback</a>
+        <a href="profile.html" class="sidebar-link"><i class="fas fa-user"></i> My Profile</a>
+      </aside>
+
+      <main id="main-content" class="col-lg-10 p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <h1 class="h3 fw-bold mb-1">Real-Time Notifications</h1>
+            <p class="text-muted mb-0">Powered by Django Channels WebSocket updates.</p>
+          </div>
+          <button class="btn btn-outline-custom btn-sm" onclick="showToast('All notifications marked as read', 'info')">Mark All as Read</button>
+        </div>
+
+        <div class="list-group list-group-custom gap-3">
+          <div class="list-group-item card-custom p-3 border-start border-4 border-primary">
+            <div class="d-flex align-items-center gap-3">
+              <div class="bg-primary text-white rounded-circle p-3"><i class="fas fa-user-check fs-5"></i></div>
+              <div class="flex-grow-1">
+                <h6 class="fw-bold mb-1">Request Accepted by David Miller</h6>
+                <p class="text-muted small mb-0">David accepted your request #REQ-8042 (NVDA Tech Setup). Click to open chat.</p>
+              </div>
+              <div class="text-end">
+                <small class="text-muted d-block mb-1">10 mins ago</small>
+                <a href="chat.html" class="btn btn-sm btn-primary-custom">Open Chat</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="list-group-item card-custom p-3 border-start border-4 border-success">
+            <div class="d-flex align-items-center gap-3">
+              <div class="bg-success text-white rounded-circle p-3"><i class="fas fa-award fs-5"></i></div>
+              <div class="flex-grow-1">
+                <h6 class="fw-bold mb-1">Badge Issued to Your Helper</h6>
+                <p class="text-muted small mb-0">Sarah Chen was awarded the "Master Mobility Guide" badge based on your 5-star review!</p>
+              </div>
+              <div class="text-end">
+                <small class="text-muted d-block mb-1">2 hours ago</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="list-group-item card-custom p-3">
+            <div class="d-flex align-items-center gap-3">
+              <div class="bg-info text-white rounded-circle p-3"><i class="fas fa-shield-alt fs-5"></i></div>
+              <div class="flex-grow-1">
+                <h6 class="fw-bold mb-1">Security & Profile Verification Complete</h6>
+                <p class="text-muted small mb-0">Your accessibility profile was verified by Admin. You now have priority matching status.</p>
+              </div>
+              <div class="text-end">
+                <small class="text-muted d-block mb-1">Yesterday</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div class="accessibility-bar">
+    <button id="btn-font-increase">A+</button>
+    <button id="btn-font-reset">A</button>
+    <button id="btn-font-decrease">A-</button>
+    <button id="btn-contrast-toggle"><i class="fas fa-adjust"></i></button>
+    <button id="btn-tts-toggle"><i class="fas fa-volume-up"></i></button>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../static/js/main.js"></script>
+</body>
+</html>
