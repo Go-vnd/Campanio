@@ -1,0 +1,142 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Volunteer Dashboard - Companio Platform</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/accessibility.css' %}">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- Top Navigation Header -->
+  <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
+    <div class="container-fluid px-lg-4">
+      <a class="navbar-brand" href="{% url 'home' %}"><i class="fas fa-hand-holding-heart me-2"></i>Companio Volunteer Portal</a>
+      
+      <div class="d-flex align-items-center gap-3 ms-auto">
+        <button class="btn btn-link nav-link p-2 theme-toggle-btn" aria-label="Toggle Theme"><i class="theme-toggle-icon fas fa-moon fs-5"></i></button>
+
+        <div class="dropdown">
+          <a href="#" class="d-flex align-items-center gap-2 text-decoration-none dropdown-toggle" data-bs-toggle="dropdown">
+            <span class="fw-bold d-none d-md-inline">{{ request.user.username }}</span>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end shadow">
+            <li><a class="dropdown-item" href="{% url 'volunteer_profile' %}"><i class="fas fa-user-cog me-2"></i>Profile Settings</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt me-2"></i>Log Out</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container-fluid px-lg-4">
+    <div class="row">
+      <!-- Sidebar -->
+      <aside class="col-lg-2 sidebar d-none d-lg-block">
+        <a href="{% url 'volunteer_dashboard' %}" class="sidebar-link active"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+        <a href="{% url 'accepted_requests' %}" class="sidebar-link"><i class="fas fa-tasks"></i> Accepted Requests</a>
+        <a href="{% url 'volunteer_skills' %}" class="sidebar-link"><i class="fas fa-cogs"></i> Skill Management</a>
+        <a href="{% url 'volunteer_availability' %}" class="sidebar-link"><i class="fas fa-calendar-alt"></i> Availability Grid</a>
+        <a href="{% url 'volunteer_rewards' %}" class="sidebar-link"><i class="fas fa-award"></i> Rewards & Badges</a>
+        <a href="{% url 'volunteer_chat' %}" class="sidebar-link"><i class="fas fa-comments"></i> Live Chat</a>
+        <a href="{% url 'volunteer_profile' %}" class="sidebar-link"><i class="fas fa-user"></i> Profile</a>
+      </aside>
+
+      <!-- Main Content -->
+      <main id="main-content" class="col-lg-10 p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <h1 class="h3 fw-bold mb-1">Welcome back, {{ request.user.username }}! 👋</h1>
+            <p class="text-muted mb-0">Here is your volunteer activity overview and task schedule.</p>
+          </div>
+          <a href="{% url 'accepted_requests' %}" class="btn btn-primary-custom"><i class="fas fa-tasks me-1"></i>View Accepted Tasks</a>
+        </div>
+
+        <!-- Metric Cards -->
+        <div class="row g-3 mb-4">
+          <div class="col-md-3">
+            <div class="card card-custom p-3 border-start border-4 border-primary">
+              <div class="text-muted small">Hours Contributed</div>
+              <div class="h2 fw-bold mb-0">18.5 hrs</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card card-custom p-3 border-start border-4 border-success">
+              <div class="text-muted small">Tasks Completed</div>
+              <div class="h2 fw-bold mb-0">12</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card card-custom p-3 border-start border-4 border-warning">
+              <div class="text-muted small">Rating Average</div>
+              <div class="h2 fw-bold mb-0">4.9 ★</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card card-custom p-3 border-start border-4 border-info">
+              <div class="text-muted small">Reward Points</div>
+              <div class="h2 fw-bold mb-0">340 pts</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Task List -->
+        <div class="card card-custom p-4">
+          <h5 class="fw-bold mb-3"><i class="fas fa-list-alt me-2 text-primary"></i>Assigned & Accepted Requests</h5>
+          {% if tasks %}
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Scheduled At</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for task in tasks %}
+                    <tr>
+                      <td class="fw-bold">{{ task.title }}</td>
+                      <td><span class="badge bg-secondary">{{ task.category }}</span></td>
+                      <td>{{ task.scheduled_at }}</td>
+                      <td><span class="badge bg-info">{{ task.status }}</span></td>
+                      <td>
+                        <a href="{% url 'volunteer_chat' %}" class="btn btn-sm btn-outline-custom"><i class="fas fa-comments"></i> Chat</a>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <div class="text-center py-4">
+              <i class="fas fa-inbox text-muted fs-1 mb-2"></i>
+              <p class="text-muted">No assistance requests assigned yet.</p>
+            </div>
+          {% endif %}
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div class="accessibility-bar">
+    <button id="btn-font-increase">A+</button>
+    <button id="btn-font-reset">A</button>
+    <button id="btn-font-decrease">A-</button>
+    <button id="btn-contrast-toggle"><i class="fas fa-adjust"></i></button>
+    <button id="btn-tts-toggle"><i class="fas fa-volume-up"></i></button>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

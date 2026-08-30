@@ -1,0 +1,366 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Companio - Volunteer Skill Exchange Platform for People with Disabilities</title>
+  <meta name="description" content="Companio is an accessibility-first skill exchange platform connecting volunteers with people with disabilities for mobility, sign language, reading, and tech support.">
+
+  <!-- Bootstrap 5 CSS CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- FontAwesome 6 Icons CDN -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <!-- Google Fonts: Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/accessibility.css' %}">
+</head>
+<body>
+
+  <!-- Skip to Main Content (WCAG Requirement) -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar navbar-expand-lg navbar-custom sticky-top" aria-label="Main navigation">
+    <div class="container">
+      <a class="navbar-brand" href="{% url 'home' %}">
+        <i class="fas fa-hand-holding-heart me-2"></i>Companio
+      </a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="{% url 'home' %}">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'about' %}">About Us</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'services' %}">Services</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'contact' %}">Contact</a></li>
+        </ul>
+
+        <div class="d-flex align-items-center gap-2">
+          <!-- Role Navigation Dropdown Preview -->
+          <div class="dropdown">
+            <button class="btn btn-outline-custom dropdown-toggle btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="fas fa-layer-group me-1"></i> Demo Portals
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow">
+              <li><h6 class="dropdown-header">Explore Modules</h6></li>
+              <li><a class="dropdown-item" href="{% url 'dashboard' %}"><i class="fas fa-user me-2 text-primary"></i>User Portal</a></li>
+              <li><a class="dropdown-item" href="{% url 'volunteer_dashboard' %}"><i class="fas fa-hands-helping me-2 text-success"></i>Volunteer Portal</a></li>
+              <li><a class="dropdown-item" href="{% url 'admin_dashboard' %}"><i class="fas fa-user-shield me-2 text-danger"></i>Admin Portal</a></li>
+            </ul>
+          </div>
+
+          <button class="btn btn-link nav-link p-2 theme-toggle-btn" aria-label="Toggle Dark / Light Theme" title="Toggle Theme">
+            <i class="theme-toggle-icon fas fa-moon fs-5"></i>
+          </button>
+          
+          <a href="{% url 'login' %}" class="btn btn-outline-custom">Log In</a>
+          <a href="{% url 'register' %}" class="btn btn-primary-custom">Get Started</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content Area -->
+  <main id="main-content">
+    
+    <!-- Hero Section -->
+    <section class="hero-section text-center text-lg-start">
+      <div class="container">
+        <div class="row align-items-center gy-5">
+          <div class="col-lg-6">
+            <span class="badge badge-custom badge-blue mb-3 fs-6"><i class="fas fa-universal-access me-2"></i>Empowering Inclusive Communities</span>
+            <h1 class="hero-title mb-4">Empowering Independence Through Skill Exchange</h1>
+            <p class="lead text-muted mb-4 fs-5">
+              Companio connects individuals with disabilities to passionate volunteers ready to assist with daily tasks, mobility, digital literacy, sign language, and visual reading.
+            </p>
+            <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start">
+              <a href="register.html?role=user" class="btn btn-primary-custom btn-lg"><i class="fas fa-hand-pointer me-2"></i>Request Assistance</a>
+              <a href="register.html?role=volunteer" class="btn btn-outline-custom btn-lg"><i class="fas fa-heart me-2"></i>Become a Volunteer</a>
+            </div>
+            <div class="mt-4 d-flex align-items-center justify-content-center justify-content-lg-start gap-4">
+              <div><h4 class="fw-bold mb-0 text-primary">2,500+</h4><small class="text-muted">Requests Fulfilled</small></div>
+              <div class="border-start ps-4"><h4 class="fw-bold mb-0 text-primary">1,200+</h4><small class="text-muted">Active Volunteers</small></div>
+              <div class="border-start ps-4"><h4 class="fw-bold mb-0 text-primary">99.4%</h4><small class="text-muted">Positive Rating</small></div>
+            </div>
+          </div>
+          <div class="col-lg-6 text-center">
+            <div class="position-relative p-4">
+              <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=700&q=80" alt="Volunteer supporting a person with physical disability using laptop" class="img-fluid rounded-4 shadow-lg border border-3 border-white">
+              <div class="card card-custom position-absolute bottom-0 start-0 p-3 shadow border-0 text-start bg-body" style="max-width: 260px;">
+                <div class="d-flex align-items-center gap-3">
+                  <div class="bg-primary text-white rounded-circle p-3"><i class="fas fa-check-circle fs-4"></i></div>
+                  <div>
+                    <h6 class="mb-0 fw-bold">Live Skill Match</h6>
+                    <small class="text-muted">Verified Assistive Volunteers</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-5 bg-subtle">
+      <div class="container py-4">
+        <div class="text-center mb-5">
+          <span class="badge badge-custom badge-blue mb-2">Core Capabilities</span>
+          <h2 class="fw-bold">Designed for Accessibility & Dignity</h2>
+          <p class="text-muted max-w-600 mx-auto">Our features ensure smooth, safe, and accessible skill exchange for everyone.</p>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-md-4">
+            <div class="card card-custom h-100 p-4">
+              <div class="bg-primary bg-opacity-10 text-primary rounded-3 p-3 mb-3 d-inline-block w-auto">
+                <i class="fas fa-brain fs-3"></i>
+              </div>
+              <h4 class="fw-bold h5">Skill-Based Matching</h4>
+              <p class="text-muted">Our smart engine matches users with volunteers based on location, language, and specific assistance requirements.</p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card card-custom h-100 p-4">
+              <div class="bg-info bg-opacity-10 text-info rounded-3 p-3 mb-3 d-inline-block w-auto">
+                <i class="fas fa-bell fs-3"></i>
+              </div>
+              <h4 class="fw-bold h5">Real-Time Alerts</h4>
+              <p class="text-muted">Instant push and Django Channels real-time updates when a volunteer accepts or updates an assistance request.</p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card card-custom h-100 p-4">
+              <div class="bg-success bg-opacity-10 text-success rounded-3 p-3 mb-3 d-inline-block w-auto">
+                <i class="fas fa-shield-alt fs-3"></i>
+              </div>
+              <h4 class="fw-bold h5">Verified Security</h4>
+              <p class="text-muted">All volunteers undergo identity verification and badge certifications to guarantee safety and peace of mind.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How the Platform Works -->
+    <section class="py-5">
+      <div class="container py-4">
+        <div class="text-center mb-5">
+          <span class="badge badge-custom badge-blue mb-2">Simple Process</span>
+          <h2 class="fw-bold">How Companio Works</h2>
+        </div>
+        <div class="row g-4 text-center">
+          <div class="col-md-3">
+            <div class="p-3">
+              <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px; font-size: 1.5rem; font-weight: bold;">1</div>
+              <h5 class="fw-bold">Post a Request</h5>
+              <p class="text-muted small">Specify what help you need, whether it's reading documents, mobility support, or tech assistance.</p>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="p-3">
+              <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px; font-size: 1.5rem; font-weight: bold;">2</div>
+              <h5 class="fw-bold">Volunteer Match</h5>
+              <p class="text-muted small">A skilled nearby volunteer accepts your request based on matching expertise and availability.</p>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="p-3">
+              <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px; font-size: 1.5rem; font-weight: bold;">3</div>
+              <h5 class="fw-bold">Connect & Exchange</h5>
+              <p class="text-muted small">Coordinate via accessible live chat and receive assistance virtually or in-person safely.</p>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="p-3">
+              <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px; font-size: 1.5rem; font-weight: bold;">4</div>
+              <h5 class="fw-bold">Rate & Badge</h5>
+              <p class="text-muted small">Share feedback and award digital badges to celebrate volunteer dedication.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="py-5 bg-subtle">
+      <div class="container py-4">
+        <div class="text-center mb-5">
+          <span class="badge badge-custom badge-blue mb-2">Community Stories</span>
+          <h2 class="fw-bold">What Our Members Say</h2>
+        </div>
+        <div class="row g-4">
+          <div class="col-md-6">
+            <div class="card card-custom p-4 h-100">
+              <div class="d-flex align-items-center gap-3 mb-3">
+                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80" alt="Elena Rostova" class="rounded-circle" width="55" height="55">
+                <div>
+                  <h6 class="fw-bold mb-0">Elena Rostova</h6>
+                  <small class="text-muted">Visually Impaired Member</small>
+                </div>
+              </div>
+              <p class="fst-italic text-muted">"Companio changed my daily life. I matched with a volunteer who reads physical mail and textbook materials for my university classes twice a week. The platform accessibility is phenomenal!"</p>
+              <div class="text-warning"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card card-custom p-4 h-100">
+              <div class="d-flex align-items-center gap-3 mb-3">
+                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80" alt="Marcus Vance" class="rounded-circle" width="55" height="55">
+                <div>
+                  <h6 class="fw-bold mb-0">Marcus Vance</h6>
+                  <small class="text-muted">Volunteer Sign Language Specialist</small>
+                </div>
+              </div>
+              <p class="fst-italic text-muted">"Volunteering my sign language skills through Companio is seamless. The reward badges and appreciation from members make every hour spent incredibly fulfilling."</p>
+              <div class="text-warning"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Volunteer Recognition Section -->
+    <section class="py-5">
+      <div class="container py-4">
+        <div class="text-center mb-5">
+          <span class="badge badge-custom badge-warning mb-2"><i class="fas fa-award me-1"></i>Wall of Fame</span>
+          <h2 class="fw-bold">Top Recognized Volunteers</h2>
+        </div>
+        <div class="row g-4">
+          <div class="col-md-4">
+            <div class="card card-custom text-center p-4">
+              <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80" alt="Sarah Chen" class="rounded-circle mx-auto mb-3" width="90" height="90">
+              <h5 class="fw-bold mb-1">Sarah Chen</h5>
+              <p class="text-muted small">Mobility & Navigation Helper</p>
+              <div><span class="badge bg-primary rounded-pill"><i class="fas fa-medal me-1"></i>50+ Hours Contributed</span></div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card card-custom text-center p-4">
+              <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80" alt="David Miller" class="rounded-circle mx-auto mb-3" width="90" height="90">
+              <h5 class="fw-bold mb-1">David Miller</h5>
+              <p class="text-muted small">Assistive Tech Tutor</p>
+              <div><span class="badge bg-success rounded-pill"><i class="fas fa-star me-1"></i>Master Skill Badge</span></div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card card-custom text-center p-4">
+              <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80" alt="Amina Patel" class="rounded-circle mx-auto mb-3" width="90" height="90">
+              <h5 class="fw-bold mb-1">Amina Patel</h5>
+              <p class="text-muted small">Audio Reading Assistant</p>
+              <div><span class="badge bg-info rounded-pill"><i class="fas fa-heart me-1"></i>Community Hero</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="py-5 bg-subtle">
+      <div class="container py-4 max-w-800">
+        <div class="text-center mb-5">
+          <span class="badge badge-custom badge-blue mb-2">Help Center</span>
+          <h2 class="fw-bold">Frequently Asked Questions</h2>
+        </div>
+        <div class="accordion accordion-custom" id="faqAccordion">
+          <div class="accordion-item card card-custom mb-3 border-0">
+            <h2 class="accordion-header" id="faqOne">
+              <button class="accordion-button collapsed fw-bold rounded-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                Is Companio completely free to use?
+              </button>
+            </h2>
+            <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="faqOne" data-bs-parent="#faqAccordion">
+              <div class="accordion-body text-muted">
+                Yes! Companio is a non-profit skill exchange platform dedicated to connecting volunteers with individuals who need assistance at zero cost.
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item card card-custom mb-3 border-0">
+            <h2 class="accordion-header" id="faqTwo">
+              <button class="accordion-button collapsed fw-bold rounded-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                How does screen reader and accessibility support work?
+              </button>
+            </h2>
+            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="faqTwo" data-bs-parent="#faqAccordion">
+              <div class="accordion-body text-muted">
+                Our platform strictly adheres to WCAG 2.1 AA/AAA guidelines, featuring high contrast themes, screen-reader friendly ARIA markup, font resizers, and keyboard shortcuts.
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item card card-custom mb-3 border-0">
+            <h2 class="accordion-header" id="faqThree">
+              <button class="accordion-button collapsed fw-bold rounded-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                How are volunteers vetted?
+              </button>
+            </h2>
+            <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="faqThree" data-bs-parent="#faqAccordion">
+              <div class="accordion-body text-muted">
+                Every volunteer must provide official ID verification, complete safety orientation modules, and earn skill badges verified by system administrators before accepting requests.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Sticky Accessibility Toolbar Widget -->
+  <div class="accessibility-bar" aria-label="Accessibility options toolbar">
+    <button id="btn-font-increase" title="Increase Font Size" aria-label="Increase Font Size">A+</button>
+    <button id="btn-font-reset" title="Reset Font Size" aria-label="Reset Font Size">A</button>
+    <button id="btn-font-decrease" title="Decrease Font Size" aria-label="Decrease Font Size">A-</button>
+    <button id="btn-contrast-toggle" title="Toggle High Contrast" aria-label="Toggle High Contrast"><i class="fas fa-adjust"></i></button>
+    <button id="btn-tts-toggle" title="Read Page Title Aloud" aria-label="Read Page Title Aloud"><i class="fas fa-volume-up"></i></button>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer-custom">
+    <div class="container">
+      <div class="row g-4 mb-4">
+        <div class="col-lg-4">
+          <a class="navbar-brand mb-3 d-inline-block" href="#">
+            <i class="fas fa-hand-holding-heart me-2"></i>Companio
+          </a>
+          <p class="text-muted">A modern accessibility-focused volunteer skill exchange platform empowering individuals with disabilities to achieve daily independence.</p>
+        </div>
+        <div class="col-6 col-lg-2 ms-lg-auto">
+          <h6 class="fw-bold mb-3">Quick Links</h6>
+          <ul class="list-unstyled">
+            <li><a href="about.html" class="text-muted text-decoration-none">About Us</a></li>
+            <li><a href="services.html" class="text-muted text-decoration-none">Our Services</a></li>
+            <li><a href="contact.html" class="text-muted text-decoration-none">Contact Support</a></li>
+          </ul>
+        </div>
+        <div class="col-6 col-lg-2">
+          <h6 class="fw-bold mb-3">Portals</h6>
+          <ul class="list-unstyled">
+            <li><a href="user/dashboard.html" class="text-muted text-decoration-none">User Module</a></li>
+            <li><a href="volunteer/dashboard.html" class="text-muted text-decoration-none">Volunteer Module</a></li>
+            <li><a href="admin/dashboard.html" class="text-muted text-decoration-none">Admin Module</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-3">
+          <h6 class="fw-bold mb-3">Accessibility Commitment</h6>
+          <p class="text-muted small">We strive to ensure full digital accessibility for people with physical, sensory, and cognitive disabilities.</p>
+        </div>
+      </div>
+      <div class="border-top pt-4 text-center text-muted small">
+        &copy; 2026 Companio Skill Exchange Platform. All Rights Reserved. Built with Django, Bootstrap 5 & WCAG Standards.
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bootstrap 5 JS Bundle CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Main Custom JS -->
+  <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,111 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Services - Companio Skill Exchange</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/accessibility.css' %}">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
+    <div class="container">
+      <a class="navbar-brand" href="{% url 'home' %}"><i class="fas fa-hand-holding-heart me-2"></i>Companio</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"><span class="navbar-toggler-icon"></span></button>
+      <div class="collapse navbar-collapse" id="navbarContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+          <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'about' %}">About Us</a></li>
+          <li class="nav-item"><a class="nav-link active" href="{% url 'services' %}">Services</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'contact' %}">Contact</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2">
+          <button class="btn btn-link nav-link p-2 theme-toggle-btn"><i class="theme-toggle-icon fas fa-moon fs-5"></i></button>
+          <a href="{% url 'login' %}" class="btn btn-outline-custom">Log In</a>
+          <a href="{% url 'register' %}" class="btn btn-primary-custom">Get Started</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main-content" class="py-5">
+    <div class="container py-4">
+      <div class="text-center mb-5">
+        <span class="badge badge-custom badge-blue mb-2">Our Offerings</span>
+        <h1 class="fw-bold">Assistance Skill Categories</h1>
+        <p class="text-muted">Explore the specialized volunteer skills offered across our platform.</p>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-md-6 col-lg-4">
+          <div class="card card-custom h-100 p-4">
+            <div class="bg-primary text-white rounded-3 p-3 mb-3 d-inline-block w-auto"><i class="fas fa-wheelchair fs-3"></i></div>
+            <h3 class="h5 fw-bold">Mobility & Escort Assistance</h3>
+            <p class="text-muted">Volunteers provide physical escort, wheelchair navigation, grocery shopping help, and transportation support.</p>
+            <a href="user/create-request.html?category=mobility" class="btn btn-outline-custom btn-sm mt-auto">Request Mobility Helper</a>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+          <div class="card card-custom h-100 p-4">
+            <div class="bg-info text-white rounded-3 p-3 mb-3 d-inline-block w-auto"><i class="fas fa-sign-language fs-3"></i></div>
+            <h3 class="h5 fw-bold">Sign Language Interpretation</h3>
+            <p class="text-muted">Certified sign language volunteers for medical appointments, webinars, job interviews, or general social calls.</p>
+            <a href="user/create-request.html?category=sign" class="btn btn-outline-custom btn-sm mt-auto">Request Sign Language</a>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+          <div class="card card-custom h-100 p-4">
+            <div class="bg-success text-white rounded-3 p-3 mb-3 d-inline-block w-auto"><i class="fas fa-book-reader fs-3"></i></div>
+            <h3 class="h5 fw-bold">Audio & Document Reading</h3>
+            <p class="text-muted">Helpers read mail, official documents, textbooks, or convert printed text to clear audio explanations.</p>
+            <a href="user/create-request.html?category=reading" class="btn btn-outline-custom btn-sm mt-auto">Request Document Reader</a>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+          <div class="card card-custom h-100 p-4">
+            <div class="bg-warning text-dark rounded-3 p-3 mb-3 d-inline-block w-auto"><i class="fas fa-laptop-code fs-3"></i></div>
+            <h3 class="h5 fw-bold">Assistive Tech Guidance</h3>
+            <p class="text-muted">Troubleshooting screen readers (NVDA, JAWS), voice control, mobile accessibility settings, and software.</p>
+            <a href="user/create-request.html?category=tech" class="btn btn-outline-custom btn-sm mt-auto">Request Tech Tutor</a>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+          <div class="card card-custom h-100 p-4">
+            <div class="bg-danger text-white rounded-3 p-3 mb-3 d-inline-block w-auto"><i class="fas fa-user-friends fs-3"></i></div>
+            <h3 class="h5 fw-bold">Social Companionship</h3>
+            <p class="text-muted">Friendly voice chats, virtual coffee sessions, book clubs, and social connection to combat isolation.</p>
+            <a href="user/create-request.html?category=companion" class="btn btn-outline-custom btn-sm mt-auto">Request Companion</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div class="accessibility-bar">
+    <button id="btn-font-increase">A+</button>
+    <button id="btn-font-reset">A</button>
+    <button id="btn-font-decrease">A-</button>
+    <button id="btn-contrast-toggle"><i class="fas fa-adjust"></i></button>
+    <button id="btn-tts-toggle"><i class="fas fa-volume-up"></i></button>
+  </div>
+
+  <footer class="footer-custom">
+    <div class="container text-center text-muted">
+      &copy; 2026 Companio Skill Exchange Platform. All Rights Reserved.
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

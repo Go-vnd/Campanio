@@ -1,0 +1,99 @@
+/* ==========================================================================
+   Companio - Accessibility Stylesheet (WCAG 2.1 AA / AAA Compliance)
+   ========================================================================== */
+
+/* Accessibility Toolbar (Sticky / Floating) */
+.accessibility-bar {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9990;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--bg-surface);
+  border: 2px solid var(--primary-blue);
+  padding: 10px;
+  border-radius: 30px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+
+.accessibility-bar button {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: none;
+  background: var(--bg-subtle);
+  color: var(--text-main);
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.accessibility-bar button:hover, 
+.accessibility-bar button:focus {
+  background: var(--primary-blue);
+  color: #ffffff;
+}
+
+/* High Contrast Mode Class */
+body.high-contrast {
+  --bg-main: #000000 !important;
+  --bg-surface: #000000 !important;
+  --bg-card: #000000 !important;
+  --bg-subtle: #1a1a1a !important;
+  --text-main: #ffff00 !important; /* High contrast yellow text */
+  --text-muted: #ffffff !important;
+  --primary-blue: #00ffff !important; /* Cyan primary elements */
+  --border-color: #ffffff !important;
+  --border-focus: #ff00ff !important;
+}
+
+body.high-contrast .card-custom,
+body.high-contrast .navbar-custom,
+body.high-contrast .sidebar {
+  border: 2px solid #ffffff !important;
+}
+
+body.high-contrast .btn-primary-custom {
+  background-color: #00ffff !important;
+  color: #000000 !important;
+  font-weight: bold !important;
+}
+
+/* Screen Reader Only (Visually Hidden) Utility */
+.sr-only, .visually-hidden-custom {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Readable Line Heights & Letter Spacing Boost */
+body.dyslexic-friendly {
+  font-family: 'OpenDyslexic', 'Comic Sans MS', sans-serif !important;
+  letter-spacing: 0.12em !important;
+  word-spacing: 0.16em !important;
+  line-height: 1.8 !important;
+}
+
+/* Focus Indicator Highlighting */
+.accessibility-focus-active *:focus {
+  outline: 4px solid #f59e0b !important;
+  outline-offset: 4px !important;
+}
+
+/* Screen Reader Reading Highlight Animation */
+.reading-highlight {
+  background-color: rgba(253, 224, 71, 0.4) !important;
+  transition: background-color 0.2s ease;
+  border-radius: 4px;
+}

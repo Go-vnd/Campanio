@@ -1,0 +1,117 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Volunteer Live Chat - Companio</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/accessibility.css' %}">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
+    <div class="container-fluid px-lg-4">
+      <a class="navbar-brand" href="{% url 'home' %}"><i class="fas fa-hand-holding-heart me-2"></i>Companio Volunteer Portal</a>
+      <div class="d-flex align-items-center gap-3 ms-auto">
+        <button class="btn btn-link nav-link p-2 theme-toggle-btn"><i class="theme-toggle-icon fas fa-moon fs-5"></i></button>
+        <a href="{% url 'volunteer_dashboard' %}" class="btn btn-outline-custom btn-sm">Dashboard</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container-fluid px-lg-4">
+    <div class="row">
+      <aside class="col-lg-2 sidebar d-none d-lg-block">
+        <a href="{% url 'volunteer_dashboard' %}" class="sidebar-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+        <a href="{% url 'accepted_requests' %}" class="sidebar-link"><i class="fas fa-tasks"></i> Accepted Requests</a>
+        <a href="{% url 'volunteer_skills' %}" class="sidebar-link"><i class="fas fa-cogs"></i> Skill Management</a>
+        <a href="{% url 'volunteer_availability' %}" class="sidebar-link"><i class="fas fa-calendar-alt"></i> Availability Grid</a>
+        <a href="{% url 'volunteer_rewards' %}" class="sidebar-link"><i class="fas fa-award"></i> Rewards & Badges</a>
+        <a href="{% url 'volunteer_chat' %}" class="sidebar-link active"><i class="fas fa-comments"></i> Live Chat</a>
+        <a href="{% url 'volunteer_profile' %}" class="sidebar-link"><i class="fas fa-user"></i> Profile</a>
+      </aside>
+
+      <main id="main-content" class="col-lg-10 p-4">
+        <div class="row g-4">
+          <div class="col-lg-4">
+            <div class="card card-custom p-3 h-100">
+              <h5 class="fw-bold mb-3 px-2">Assistance Chats</h5>
+              <div class="list-group list-group-flush">
+                <a href="#" class="list-group-item list-group-item-action active rounded-3 mb-2 p-3">
+                  <div class="d-flex align-items-center gap-3">
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" class="rounded-circle" width="45" height="45" alt="Elena Rostova">
+                    <div class="flex-grow-1 overflow-hidden">
+                      <div class="d-flex justify-content-between">
+                        <h6 class="fw-bold mb-0">Elena Rostova</h6>
+                        <small>4:12 PM</small>
+                      </div>
+                      <small class="text-truncate d-block">Thank you David! I am ready...</small>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-8">
+            <div class="card card-custom p-0 overflow-hidden">
+              <div class="p-3 border-bottom d-flex align-items-center justify-content-between bg-body-tertiary">
+                <div class="d-flex align-items-center gap-3">
+                  <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" class="rounded-circle" width="42" height="42" alt="Elena Rostova Avatar">
+                  <div>
+                    <h6 class="fw-bold mb-0">Elena Rostova <span class="badge badge-custom badge-success ms-2">Requester</span></h6>
+                    <small class="text-muted">Task: #REQ-8042 (Tech Setup)</small>
+                  </div>
+                </div>
+              </div>
+
+              <div class="chat-container border-0 rounded-0" style="height: 420px;">
+                <div class="chat-messages" id="chat-messages">
+                  <div class="message-bubble message-sent">
+                    <div>Hello Elena! I have accepted your assistance request for NVDA setup today.</div>
+                    <div class="text-end mt-1" style="font-size:0.75rem; opacity:0.8;">3:45 PM</div>
+                  </div>
+
+                  <div class="message-bubble message-received">
+                    <div>Thank you David! I am ready. Please let me know when you arrive.</div>
+                    <div class="text-end mt-1" style="font-size:0.75rem; opacity:0.8;">3:47 PM</div>
+                  </div>
+
+                  <div class="message-bubble message-sent">
+                    <div>I will be arriving at your location in about 15 minutes.</div>
+                    <div class="text-end mt-1" style="font-size:0.75rem; opacity:0.8;">4:12 PM</div>
+                  </div>
+                </div>
+
+                <div class="p-3 border-top bg-body">
+                  <form id="chat-form" class="d-flex gap-2">
+                    <input type="text" id="chat-input" class="form-control form-control-lg" placeholder="Type message to requester..." required autocomplete="off">
+                    <button type="submit" class="btn btn-primary-custom btn-lg"><i class="fas fa-paper-plane"></i></button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div class="accessibility-bar">
+    <button id="btn-font-increase">A+</button>
+    <button id="btn-font-reset">A</button>
+    <button id="btn-font-decrease">A-</button>
+    <button id="btn-contrast-toggle"><i class="fas fa-adjust"></i></button>
+    <button id="btn-tts-toggle"><i class="fas fa-volume-up"></i></button>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="{% static 'js/main.js' %}"></script>
+  <script src="{% static 'js/chat.js' %}"></script>
+</body>
+</html>

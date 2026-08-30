@@ -1,0 +1,117 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Support - Companio Skill Exchange</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/accessibility.css' %}">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
+    <div class="container">
+      <a class="navbar-brand" href="{% url 'home' %}"><i class="fas fa-hand-holding-heart me-2"></i>Companio</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"><span class="navbar-toggler-icon"></span></button>
+      <div class="collapse navbar-collapse" id="navbarContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+          <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'about' %}">About Us</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'services' %}">Services</a></li>
+          <li class="nav-item"><a class="nav-link active" href="{% url 'contact' %}">Contact</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2">
+          <button class="btn btn-link nav-link p-2 theme-toggle-btn"><i class="theme-toggle-icon fas fa-moon fs-5"></i></button>
+          <a href="{% url 'login' %}" class="btn btn-outline-custom">Log In</a>
+          <a href="{% url 'register' %}" class="btn btn-primary-custom">Get Started</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main-content" class="py-5">
+    <div class="container py-4">
+      <div class="row gy-5">
+        <div class="col-lg-5">
+          <span class="badge badge-custom badge-blue mb-2">Get In Touch</span>
+          <h1 class="fw-bold mb-4">We're Here to Assist You</h1>
+          <p class="text-muted mb-4">Have questions about accessibility features, registration, or volunteer safety? Reach out to our dedicated support team.</p>
+
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="bg-primary text-white rounded-circle p-3"><i class="fas fa-envelope fs-5"></i></div>
+            <div>
+              <h6 class="mb-0 fw-bold">Email Support</h6>
+              <small class="text-muted">support@companio-platform.org</small>
+            </div>
+          </div>
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="bg-primary text-white rounded-circle p-3"><i class="fas fa-phone-alt fs-5"></i></div>
+            <div>
+              <h6 class="mb-0 fw-bold">TTY & Voice Hotline</h6>
+              <small class="text-muted">+1 (800) 555-ACCESSIBLE</small>
+            </div>
+          </div>
+          <div class="d-flex align-items-center gap-3">
+            <div class="bg-primary text-white rounded-circle p-3"><i class="fas fa-map-marker-alt fs-5"></i></div>
+            <div>
+              <h6 class="mb-0 fw-bold">Main Headquarters</h6>
+              <small class="text-muted">100 Universal Access Way, Suite 400</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-7">
+          <div class="card card-custom p-4 p-md-5">
+            <h3 class="fw-bold mb-4">Send Us a Message</h3>
+            <form id="contactForm" onsubmit="event.preventDefault(); showToast('Message sent successfully! Our team will respond shortly.', 'success');">
+              <div class="mb-3">
+                <label for="contactName" class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
+                <input type="text" class="form-control form-control-lg" id="contactName" placeholder="Enter your name" required>
+              </div>
+              <div class="mb-3">
+                <label for="contactEmail" class="form-label fw-semibold">Email Address <span class="text-danger">*</span></label>
+                <input type="email" class="form-control form-control-lg" id="contactEmail" placeholder="name@example.com" required>
+              </div>
+              <div class="mb-3">
+                <label for="contactRole" class="form-label fw-semibold">I am a...</label>
+                <select class="form-select form-select-lg" id="contactRole">
+                  <option value="user">Person seeking assistance</option>
+                  <option value="volunteer">Volunteer / Skill Provider</option>
+                  <option value="organization">Partner Organization / Caregiver</option>
+                </select>
+              </div>
+              <div class="mb-4">
+                <label for="contactMessage" class="form-label fw-semibold">Message <span class="text-danger">*</span></label>
+                <textarea class="form-control" id="contactMessage" rows="4" placeholder="How can we help you?" required></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary-custom btn-lg w-100">Send Message <i class="fas fa-paper-plane ms-2"></i></button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div class="accessibility-bar">
+    <button id="btn-font-increase">A+</button>
+    <button id="btn-font-reset">A</button>
+    <button id="btn-font-decrease">A-</button>
+    <button id="btn-contrast-toggle"><i class="fas fa-adjust"></i></button>
+    <button id="btn-tts-toggle"><i class="fas fa-volume-up"></i></button>
+  </div>
+
+  <footer class="footer-custom">
+    <div class="container text-center text-muted">
+      &copy; 2026 Companio Skill Exchange Platform. All Rights Reserved.
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

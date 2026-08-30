@@ -1,0 +1,192 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Companio System Platform</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/accessibility.css' %}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- Admin Header -->
+  <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
+    <div class="container-fluid px-lg-4">
+      <a class="navbar-brand text-danger" href="../index.html"><i class="fas fa-user-shield me-2"></i>Companio Admin Control Panel</a>
+      <div class="d-flex align-items-center gap-3 ms-auto">
+        <button class="btn btn-link nav-link p-2 theme-toggle-btn" aria-label="Toggle Theme"><i class="theme-toggle-icon fas fa-moon fs-5"></i></button>
+
+        <div class="dropdown">
+          <a href="#" class="d-flex align-items-center gap-2 text-decoration-none dropdown-toggle" data-bs-toggle="dropdown">
+            <div class="bg-danger text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width:38px; height:38px;">AD</div>
+            <span class="fw-bold d-none d-md-inline">System Administrator</span>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end shadow">
+            <li><a class="dropdown-item" href="analytics.html"><i class="fas fa-chart-line me-2"></i>System Analytics</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger" href="../login.html"><i class="fas fa-sign-out-alt me-2"></i>Log Out</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container-fluid px-lg-4">
+    <div class="row">
+      <!-- Admin Sidebar -->
+      <aside class="col-lg-2 sidebar d-none d-lg-block">
+        <div class="small fw-bold text-muted text-uppercase mb-3 px-3">Administration</div>
+        <a href="{% url 'admin_dashboard' %}" class="sidebar-link active"><i class="fas fa-chart-pie"></i> Dashboard</a>
+        <a href="{% url 'admin_users' %}" class="sidebar-link"><i class="fas fa-users"></i> User Management</a>
+        <a href="{% url 'admin_volunteers' %}" class="sidebar-link"><i class="fas fa-hands-helping"></i> Volunteer Management</a>
+        <a href="{% url 'admin_requests' %}" class="sidebar-link"><i class="fas fa-list-alt"></i> Request Management</a>
+        <a href="{% url 'admin_analytics' %}" class="sidebar-link"><i class="fas fa-chart-bar"></i> Reports & Analytics</a>
+        <a href="{% url 'admin_badges' %}" class="sidebar-link"><i class="fas fa-certificate"></i> Badge Management</a>
+      </aside>
+
+      <!-- Main Content -->
+      <main id="main-content" class="col-lg-10 p-4">
+        <!-- System Metric Cards -->
+        <div class="row g-4 mb-4">
+          <div class="col-md-3">
+            <div class="card card-custom p-3">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <small class="text-muted fw-bold">TOTAL USERS</small>
+                  <h2 class="fw-bold mb-0">1,840</h2>
+                </div>
+                <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-circle"><i class="fas fa-users fs-4"></i></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <div class="card card-custom p-3">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <small class="text-muted fw-bold">ACTIVE VOLUNTEERS</small>
+                  <h2 class="fw-bold mb-0 text-success">1,250</h2>
+                </div>
+                <div class="bg-success bg-opacity-10 text-success p-3 rounded-circle"><i class="fas fa-user-check fs-4"></i></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <div class="card card-custom p-3">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <small class="text-muted fw-bold">EXCHANGES COMPLETED</small>
+                  <h2 class="fw-bold mb-0 text-info">4,920</h2>
+                </div>
+                <div class="bg-info bg-opacity-10 text-info p-3 rounded-circle"><i class="fas fa-handshake fs-4"></i></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <div class="card card-custom p-3">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <small class="text-muted fw-bold">PENDING APPROVALS</small>
+                  <h2 class="fw-bold mb-0 text-warning">14</h2>
+                </div>
+                <div class="bg-warning bg-opacity-10 text-warning p-3 rounded-circle"><i class="fas fa-clock fs-4"></i></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts Grid -->
+        <div class="row g-4 mb-4">
+          <div class="col-lg-8">
+            <div class="card card-custom p-4 h-100">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">Assistance Exchanges & Registrations Growth</h5>
+                <span class="badge bg-primary">Year 2026</span>
+              </div>
+              <canvas id="requestsTrendChart" height="150"></canvas>
+            </div>
+          </div>
+
+          <div class="col-lg-4">
+            <div class="card card-custom p-4 h-100">
+              <h5 class="fw-bold mb-3">Service Category Breakdown</h5>
+              <canvas id="categoryDistributionChart" height="220"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pending Volunteer Approval Table -->
+        <div class="card card-custom p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0">Volunteer Identity & Verification Queue</h5>
+            <a href="volunteers.html" class="btn btn-sm btn-outline-custom">View All Volunteers</a>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Applicant</th>
+                  <th>Submitted Skills</th>
+                  <th>ID Verification</th>
+                  <th>Date</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div class="fw-bold">Robert Chen</div>
+                    <small class="text-muted">robert.chen@example.com</small>
+                  </td>
+                  <td><span class="badge badge-custom badge-blue me-1">Sign Language</span><span class="badge badge-custom badge-blue">Mobility</span></td>
+                  <td><span class="badge bg-info"><i class="fas fa-file-alt me-1"></i>Passport Uploaded</span></td>
+                  <td>Aug 6, 2026</td>
+                  <td class="text-end">
+                    <button class="btn btn-sm btn-success me-1" onclick="showToast('Volunteer Approved!', 'success')"><i class="fas fa-check"></i> Approve</button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="showToast('Registration Rejected', 'info')"><i class="fas fa-times"></i> Reject</button>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="fw-bold">Jessica Taylor</div>
+                    <small class="text-muted">j.taylor@example.com</small>
+                  </td>
+                  <td><span class="badge badge-custom badge-blue">Assistive Tech Tutor</span></td>
+                  <td><span class="badge bg-info"><i class="fas fa-id-card me-1"></i>Drivers License</span></td>
+                  <td>Aug 5, 2026</td>
+                  <td class="text-end">
+                    <button class="btn btn-sm btn-success me-1" onclick="showToast('Volunteer Approved!', 'success')"><i class="fas fa-check"></i> Approve</button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="showToast('Registration Rejected', 'info')"><i class="fas fa-times"></i> Reject</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div class="accessibility-bar">
+    <button id="btn-font-increase">A+</button>
+    <button id="btn-font-reset">A</button>
+    <button id="btn-font-decrease">A-</button>
+    <button id="btn-contrast-toggle"><i class="fas fa-adjust"></i></button>
+    <button id="btn-tts-toggle"><i class="fas fa-volume-up"></i></button>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="{% static 'js/main.js' %}"></script>
+  <script src="{% static 'js/charts.js' %}"></script>
+</body>
+</html>
