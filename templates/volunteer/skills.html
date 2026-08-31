@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="light">
 <head>
@@ -7,18 +8,18 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../../static/css/style.css">
-  <link rel="stylesheet" href="../../static/css/accessibility.css">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/accessibility.css' %}">
 </head>
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
 
   <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
     <div class="container-fluid px-lg-4">
-      <a class="navbar-brand" href="../index.html"><i class="fas fa-hand-holding-heart me-2"></i>Companio Volunteer Portal</a>
+      <a class="navbar-brand" href="{% url 'home' %}"><i class="fas fa-hand-holding-heart me-2"></i>Companio Volunteer Portal</a>
       <div class="d-flex align-items-center gap-3 ms-auto">
         <button class="btn btn-link nav-link p-2 theme-toggle-btn"><i class="theme-toggle-icon fas fa-moon fs-5"></i></button>
-        <a href="dashboard.html" class="btn btn-outline-custom btn-sm">Dashboard</a>
+        <a href="{% url 'volunteer_dashboard' %}" class="btn btn-outline-custom btn-sm">Dashboard</a>
       </div>
     </div>
   </nav>
@@ -26,13 +27,14 @@
   <div class="container-fluid px-lg-4">
     <div class="row">
       <aside class="col-lg-2 sidebar d-none d-lg-block">
-        <a href="dashboard.html" class="sidebar-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-        <a href="accepted-requests.html" class="sidebar-link"><i class="fas fa-tasks"></i> Accepted Requests</a>
-        <a href="skills.html" class="sidebar-link active"><i class="fas fa-cogs"></i> Skill Management</a>
-        <a href="availability.html" class="sidebar-link"><i class="fas fa-calendar-alt"></i> Availability Grid</a>
-        <a href="rewards.html" class="sidebar-link"><i class="fas fa-award"></i> Rewards & Badges</a>
-        <a href="chat.html" class="sidebar-link"><i class="fas fa-comments"></i> Live Chat</a>
-        <a href="profile.html" class="sidebar-link"><i class="fas fa-user"></i> Profile</a>
+        <div class="small fw-bold text-muted text-uppercase mb-3 px-3">Volunteer Menu</div>
+        <a href="{% url 'volunteer_dashboard' %}" class="sidebar-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+        <a href="{% url 'accepted_requests' %}" class="sidebar-link"><i class="fas fa-tasks"></i> Accepted Requests</a>
+        <a href="{% url 'volunteer_skills' %}" class="sidebar-link active"><i class="fas fa-cogs"></i> Skill Management</a>
+        <a href="{% url 'volunteer_availability' %}" class="sidebar-link"><i class="fas fa-calendar-alt"></i> Availability Grid</a>
+        <a href="{% url 'volunteer_rewards' %}" class="sidebar-link"><i class="fas fa-award"></i> Rewards & Badges</a>
+        <a href="{% url 'volunteer_chat' %}" class="sidebar-link"><i class="fas fa-comments"></i> Live Chat</a>
+        <a href="{% url 'volunteer_profile' %}" class="sidebar-link"><i class="fas fa-user"></i> Profile</a>
       </aside>
 
       <main id="main-content" class="col-lg-10 p-4">
@@ -41,7 +43,7 @@
             <h1 class="h3 fw-bold mb-1">Skill Management</h1>
             <p class="text-muted mb-0">Manage and verify skills offered to community members.</p>
           </div>
-          <button class="btn btn-primary-custom" onclick="showToast('New skill verification request submitted', 'success')"><i class="fas fa-plus me-1"></i>Add New Skill</button>
+          <button class="btn btn-primary-custom" data-bs-toggle="modal" data-bs-target="#addSkillModal"><i class="fas fa-plus me-1"></i>Add New Skill</button>
         </div>
 
         <!-- Active Verified Skills -->
@@ -90,6 +92,43 @@
     </div>
   </div>
 
+  <!-- Add Skill Modal -->
+  <div class="modal fade" id="addSkillModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content card-custom">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold">Submit Skill for Verification</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form onsubmit="event.preventDefault(); showToast('Skill verification request submitted!', 'success'); bootstrap.Modal.getInstance(document.getElementById('addSkillModal')).hide();">
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Skill Category</label>
+              <select class="form-select" required>
+                <option value="">Select Category...</option>
+                <option value="tech">Assistive Technology</option>
+                <option value="sign">Sign Language Interpretation</option>
+                <option value="mobility">Mobility & Navigation Escort</option>
+                <option value="audio">Audio & Document Reading</option>
+                <option value="social">Social Companionship</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Skill Title & Description</label>
+              <textarea class="form-control" rows="3" placeholder="Describe your experience and qualifications..." required></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Certification Document (PDF/Image)</label>
+              <input type="file" class="form-control">
+              <small class="text-muted">Optional proof document for admin verification.</small>
+            </div>
+            <button type="submit" class="btn btn-primary-custom w-100">Submit Skill Request</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="accessibility-bar">
     <button id="btn-font-increase">A+</button>
     <button id="btn-font-reset">A</button>
@@ -99,6 +138,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="../../static/js/main.js"></script>
+  <script src="{% static 'js/main.js' %}"></script>
 </body>
 </html>

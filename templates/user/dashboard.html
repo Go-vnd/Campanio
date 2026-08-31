@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="light">
 <head>
@@ -7,8 +8,8 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../../static/css/style.css">
-  <link rel="stylesheet" href="../../static/css/accessibility.css">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/accessibility.css' %}">
 </head>
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
@@ -16,10 +17,10 @@
   <!-- Top Navigation Header -->
   <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
     <div class="container-fluid px-lg-4">
-      <a class="navbar-brand" href="../index.html"><i class="fas fa-hand-holding-heart me-2"></i>Companio Portal</a>
+      <a class="navbar-brand" href="{% url 'home' %}"><i class="fas fa-hand-holding-heart me-2"></i>Companio Portal</a>
       
       <div class="d-flex align-items-center gap-3 ms-auto">
-        <a href="notifications.html" class="btn btn-link nav-link position-relative p-2" aria-label="Notifications (3 unread)">
+        <a href="{% url 'user_notifications' %}" class="btn btn-link nav-link position-relative p-2" aria-label="Notifications (3 unread)">
           <i class="fas fa-bell fs-5"></i>
           <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">3</span>
         </a>
@@ -27,14 +28,13 @@
 
         <div class="dropdown">
           <a href="#" class="d-flex align-items-center gap-2 text-decoration-none dropdown-toggle" data-bs-toggle="dropdown">
-            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" alt="Elena Rostova Avatar" class="rounded-circle" width="38" height="38">
-            <span class="fw-bold d-none d-md-inline">Elena Rostova</span>
+            <span class="fw-bold d-none d-md-inline">{{ request.user.first_name|default:request.user.username }}</span>
           </a>
           <ul class="dropdown-menu dropdown-menu-end shadow">
-            <li><a class="dropdown-item" href="profile.html"><i class="fas fa-user-cog me-2"></i>Profile Settings</a></li>
-            <li><a class="dropdown-item" href="notifications.html"><i class="fas fa-bell me-2"></i>Notifications</a></li>
+            <li><a class="dropdown-item" href="{% url 'user_profile' %}"><i class="fas fa-user-cog me-2"></i>Profile Settings</a></li>
+            <li><a class="dropdown-item" href="{% url 'user_notifications' %}"><i class="fas fa-bell me-2"></i>Notifications</a></li>
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item text-danger" href="../login.html"><i class="fas fa-sign-out-alt me-2"></i>Log Out</a></li>
+            <li><a class="dropdown-item text-danger" href="{% url 'login' %}"><i class="fas fa-sign-out-alt me-2"></i>Log Out</a></li>
           </ul>
         </div>
       </div>
@@ -46,13 +46,12 @@
       <!-- Sidebar -->
       <aside class="col-lg-2 sidebar d-none d-lg-block">
         <div class="small fw-bold text-muted text-uppercase mb-3 px-3">User Menu</div>
-        <a href="dashboard.html" class="sidebar-link active"><i class="fas fa-th-large"></i> Dashboard</a>
-        <a href="create-request.html" class="sidebar-link"><i class="fas fa-plus-circle"></i> Create Request</a>
-        <a href="request-history.html" class="sidebar-link"><i class="fas fa-history"></i> Request History</a>
-        <a href="chat.html" class="sidebar-link"><i class="fas fa-comments"></i> Messages Chat</a>
-        <a href="notifications.html" class="sidebar-link"><i class="fas fa-bell"></i> Notifications</a>
-        <a href="feedback.html" class="sidebar-link"><i class="fas fa-star"></i> Ratings & Feedback</a>
-        <a href="profile.html" class="sidebar-link"><i class="fas fa-user"></i> My Profile</a>
+        <a href="{% url 'dashboard' %}" class="sidebar-link active"><i class="fas fa-th-large"></i> Dashboard</a>
+        <a href="{% url 'create_request' %}" class="sidebar-link"><i class="fas fa-plus-circle"></i> Create Request</a>
+        <a href="{% url 'request_history' %}" class="sidebar-link"><i class="fas fa-history"></i> Request History</a>
+        <a href="{% url 'user_chat' %}" class="sidebar-link"><i class="fas fa-comments"></i> Messages Chat</a>
+        <a href="{% url 'user_notifications' %}" class="sidebar-link"><i class="fas fa-bell"></i> Notifications</a>
+        <a href="{% url 'user_profile' %}" class="sidebar-link"><i class="fas fa-user"></i> My Profile</a>
       </aside>
 
       <!-- Main Content -->
@@ -61,10 +60,10 @@
         <div class="card card-custom bg-primary text-white p-4 mb-4 border-0 shadow">
           <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
             <div>
-              <h1 class="h3 fw-bold mb-1">Hello, Elena! 👋</h1>
-              <p class="mb-0 text-white-50">You have 1 active assistance request in progress today.</p>
+              <h1 class="h3 fw-bold mb-1">Hello, {{ request.user.first_name|default:request.user.username }}! 👋</h1>
+              <p class="mb-0 text-white-50">Welcome to Companio skill assistance platform.</p>
             </div>
-            <a href="create-request.html" class="btn btn-light text-primary fw-bold btn-lg"><i class="fas fa-plus me-2"></i>Request New Skill Helper</a>
+            <a href="{% url 'create_request' %}" class="btn btn-light text-primary fw-bold btn-lg"><i class="fas fa-plus me-2"></i>Request New Skill Helper</a>
           </div>
         </div>
 
@@ -146,7 +145,7 @@
                 <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&q=80" alt="David Miller Avatar" class="rounded-circle mb-2" width="60" height="60">
                 <h6 class="fw-bold mb-0">David Miller</h6>
                 <small class="text-muted d-block mb-2">Verified Volunteer ⭐ 4.9</small>
-                <a href="chat.html" class="btn btn-primary-custom btn-sm w-100 mb-2"><i class="fas fa-comments me-1"></i>Chat with David</a>
+                <a href="{% url 'user_chat' %}" class="btn btn-primary-custom btn-sm w-100 mb-2"><i class="fas fa-comments me-1"></i>Chat with David</a>
                 <button class="btn btn-outline-danger btn-sm w-100" onclick="showToast('Assistance call initiated', 'info')"><i class="fas fa-phone me-1"></i>Call Volunteer</button>
               </div>
             </div>
@@ -157,25 +156,25 @@
         <h4 class="fw-bold mb-3">Quick Assistance Shortcuts</h4>
         <div class="row g-3">
           <div class="col-6 col-md-3">
-            <a href="create-request.html?type=mobility" class="card card-custom p-3 text-center text-decoration-none text-main h-100">
+            <a href="{% url 'create_request' %}?category=mobility" class="card card-custom p-3 text-center text-decoration-none text-main h-100">
               <i class="fas fa-wheelchair fs-2 text-primary mb-2"></i>
               <h6 class="fw-bold mb-0">Mobility Helper</h6>
             </a>
           </div>
           <div class="col-6 col-md-3">
-            <a href="create-request.html?type=sign" class="card card-custom p-3 text-center text-decoration-none text-main h-100">
+            <a href="{% url 'create_request' %}?category=sign" class="card card-custom p-3 text-center text-decoration-none text-main h-100">
               <i class="fas fa-sign-language fs-2 text-info mb-2"></i>
               <h6 class="fw-bold mb-0">Sign Language</h6>
             </a>
           </div>
           <div class="col-6 col-md-3">
-            <a href="create-request.html?type=reading" class="card card-custom p-3 text-center text-decoration-none text-main h-100">
+            <a href="{% url 'create_request' %}?category=reading" class="card card-custom p-3 text-center text-decoration-none text-main h-100">
               <i class="fas fa-book-reader fs-2 text-success mb-2"></i>
               <h6 class="fw-bold mb-0">Document Reader</h6>
             </a>
           </div>
           <div class="col-6 col-md-3">
-            <a href="create-request.html?type=tech" class="card card-custom p-3 text-center text-decoration-none text-main h-100">
+            <a href="{% url 'create_request' %}?category=tech" class="card card-custom p-3 text-center text-decoration-none text-main h-100">
               <i class="fas fa-headset fs-2 text-warning mb-2"></i>
               <h6 class="fw-bold mb-0">Tech Assistance</h6>
             </a>
@@ -194,6 +193,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="../../static/js/main.js"></script>
+  <script src="{% static 'js/main.js' %}"></script>
 </body>
 </html>

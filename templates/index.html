@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="light">
 <head>
@@ -14,8 +15,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
   <!-- Custom Styles -->
-  <link rel="stylesheet" href="../static/css/style.css">
-  <link rel="stylesheet" href="../static/css/accessibility.css">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/accessibility.css' %}">
 </head>
 <body>
 
@@ -25,7 +26,7 @@
   <!-- Navigation Bar -->
   <nav class="navbar navbar-expand-lg navbar-custom sticky-top" aria-label="Main navigation">
     <div class="container">
-      <a class="navbar-brand" href="index.html">
+      <a class="navbar-brand" href="{% url 'home' %}">
         <i class="fas fa-hand-holding-heart me-2"></i>Companio
       </a>
       <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,23 +35,23 @@
 
       <div class="collapse navbar-collapse" id="navbarContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
-          <li class="nav-item"><a class="nav-link active" aria-current="page" href="index.html">Home</a></li>
-          <li class="nav-item"><a class="nav-link" href="about.html">About Us</a></li>
-          <li class="nav-item"><a class="nav-link" href="services.html">Services</a></li>
-          <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="{% url 'home' %}">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'about' %}">About Us</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'services' %}">Services</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'contact' %}">Contact</a></li>
         </ul>
 
         <div class="d-flex align-items-center gap-2">
           <!-- Role Navigation Dropdown Preview -->
           <div class="dropdown">
             <button class="btn btn-outline-custom dropdown-toggle btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="fas fa-layer-group me-1"></i> Demo Portals
+              <i class="fas fa-layer-group me-1"></i> Quick Portals
             </button>
             <ul class="dropdown-menu dropdown-menu-end shadow">
               <li><h6 class="dropdown-header">Explore Modules</h6></li>
-              <li><a class="dropdown-item" href="user/dashboard.html"><i class="fas fa-user me-2 text-primary"></i>User Portal</a></li>
-              <li><a class="dropdown-item" href="volunteer/dashboard.html"><i class="fas fa-hands-helping me-2 text-success"></i>Volunteer Portal</a></li>
-              <li><a class="dropdown-item" href="admin/dashboard.html"><i class="fas fa-user-shield me-2 text-danger"></i>Admin Portal</a></li>
+              <li><a class="dropdown-item" href="{% url 'dashboard' %}"><i class="fas fa-user me-2 text-primary"></i>User Portal</a></li>
+              <li><a class="dropdown-item" href="{% url 'volunteer_dashboard' %}"><i class="fas fa-hands-helping me-2 text-success"></i>Volunteer Portal</a></li>
+              <li><a class="dropdown-item" href="{% url 'admin_dashboard' %}"><i class="fas fa-user-shield me-2 text-danger"></i>Admin Portal</a></li>
             </ul>
           </div>
 
@@ -58,8 +59,8 @@
             <i class="theme-toggle-icon fas fa-moon fs-5"></i>
           </button>
           
-          <a href="login.html" class="btn btn-outline-custom">Log In</a>
-          <a href="register.html" class="btn btn-primary-custom">Get Started</a>
+          <a href="{% url 'login' %}" class="btn btn-outline-custom">Log In</a>
+          <a href="{% url 'register' %}" class="btn btn-primary-custom">Get Started</a>
         </div>
       </div>
     </div>
@@ -79,8 +80,8 @@
               Companio connects individuals with disabilities to passionate volunteers ready to assist with daily tasks, mobility, digital literacy, sign language, and visual reading.
             </p>
             <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start">
-              <a href="register.html?role=user" class="btn btn-primary-custom btn-lg"><i class="fas fa-hand-pointer me-2"></i>Request Assistance</a>
-              <a href="register.html?role=volunteer" class="btn btn-outline-custom btn-lg"><i class="fas fa-heart me-2"></i>Become a Volunteer</a>
+              <a href="{% url 'register' %}?role=seeker" class="btn btn-primary-custom btn-lg"><i class="fas fa-hand-pointer me-2"></i>Request Assistance</a>
+              <a href="{% url 'register' %}?role=volunteer" class="btn btn-outline-custom btn-lg"><i class="fas fa-heart me-2"></i>Become a Volunteer</a>
             </div>
             <div class="mt-4 d-flex align-items-center justify-content-center justify-content-lg-start gap-4">
               <div><h4 class="fw-bold mb-0 text-primary">2,500+</h4><small class="text-muted">Requests Fulfilled</small></div>
@@ -225,42 +226,6 @@
       </div>
     </section>
 
-    <!-- Volunteer Recognition Section -->
-    <section class="py-5">
-      <div class="container py-4">
-        <div class="text-center mb-5">
-          <span class="badge badge-custom badge-warning mb-2"><i class="fas fa-award me-1"></i>Wall of Fame</span>
-          <h2 class="fw-bold">Top Recognized Volunteers</h2>
-        </div>
-        <div class="row g-4">
-          <div class="col-md-4">
-            <div class="card card-custom text-center p-4">
-              <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80" alt="Sarah Chen" class="rounded-circle mx-auto mb-3" width="90" height="90">
-              <h5 class="fw-bold mb-1">Sarah Chen</h5>
-              <p class="text-muted small">Mobility & Navigation Helper</p>
-              <div><span class="badge bg-primary rounded-pill"><i class="fas fa-medal me-1"></i>50+ Hours Contributed</span></div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="card card-custom text-center p-4">
-              <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80" alt="David Miller" class="rounded-circle mx-auto mb-3" width="90" height="90">
-              <h5 class="fw-bold mb-1">David Miller</h5>
-              <p class="text-muted small">Assistive Tech Tutor</p>
-              <div><span class="badge bg-success rounded-pill"><i class="fas fa-star me-1"></i>Master Skill Badge</span></div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="card card-custom text-center p-4">
-              <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80" alt="Amina Patel" class="rounded-circle mx-auto mb-3" width="90" height="90">
-              <h5 class="fw-bold mb-1">Amina Patel</h5>
-              <p class="text-muted small">Audio Reading Assistant</p>
-              <div><span class="badge bg-info rounded-pill"><i class="fas fa-heart me-1"></i>Community Hero</span></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <!-- FAQ Section -->
     <section class="py-5 bg-subtle">
       <div class="container py-4 max-w-800">
@@ -325,7 +290,7 @@
     <div class="container">
       <div class="row g-4 mb-4">
         <div class="col-lg-4">
-          <a class="navbar-brand mb-3 d-inline-block" href="#">
+          <a class="navbar-brand mb-3 d-inline-block" href="{% url 'home' %}">
             <i class="fas fa-hand-holding-heart me-2"></i>Companio
           </a>
           <p class="text-muted">A modern accessibility-focused volunteer skill exchange platform empowering individuals with disabilities to achieve daily independence.</p>
@@ -333,17 +298,17 @@
         <div class="col-6 col-lg-2 ms-lg-auto">
           <h6 class="fw-bold mb-3">Quick Links</h6>
           <ul class="list-unstyled">
-            <li><a href="about.html" class="text-muted text-decoration-none">About Us</a></li>
-            <li><a href="services.html" class="text-muted text-decoration-none">Our Services</a></li>
-            <li><a href="contact.html" class="text-muted text-decoration-none">Contact Support</a></li>
+            <li><a href="{% url 'about' %}" class="text-muted text-decoration-none">About Us</a></li>
+            <li><a href="{% url 'services' %}" class="text-muted text-decoration-none">Our Services</a></li>
+            <li><a href="{% url 'contact' %}" class="text-muted text-decoration-none">Contact Support</a></li>
           </ul>
         </div>
         <div class="col-6 col-lg-2">
           <h6 class="fw-bold mb-3">Portals</h6>
           <ul class="list-unstyled">
-            <li><a href="user/dashboard.html" class="text-muted text-decoration-none">User Module</a></li>
-            <li><a href="volunteer/dashboard.html" class="text-muted text-decoration-none">Volunteer Module</a></li>
-            <li><a href="admin/dashboard.html" class="text-muted text-decoration-none">Admin Module</a></li>
+            <li><a href="{% url 'dashboard' %}" class="text-muted text-decoration-none">User Module</a></li>
+            <li><a href="{% url 'volunteer_dashboard' %}" class="text-muted text-decoration-none">Volunteer Module</a></li>
+            <li><a href="{% url 'admin_dashboard' %}" class="text-muted text-decoration-none">Admin Module</a></li>
           </ul>
         </div>
         <div class="col-lg-3">
@@ -360,6 +325,6 @@
   <!-- Bootstrap 5 JS Bundle CDN -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <!-- Main Custom JS -->
-  <script src="../static/js/main.js"></script>
+  <script src="{% static 'js/main.js' %}"></script>
 </body>
 </html>

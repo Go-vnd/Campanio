@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="light">
 <head>
@@ -7,18 +8,18 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../../static/css/style.css">
-  <link rel="stylesheet" href="../../static/css/accessibility.css">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/accessibility.css' %}">
 </head>
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
 
   <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
     <div class="container-fluid px-lg-4">
-      <a class="navbar-brand" href="../index.html"><i class="fas fa-hand-holding-heart me-2"></i>Companio Volunteer Portal</a>
+      <a class="navbar-brand" href="{% url 'home' %}"><i class="fas fa-hand-holding-heart me-2"></i>Companio Volunteer Portal</a>
       <div class="d-flex align-items-center gap-3 ms-auto">
         <button class="btn btn-link nav-link p-2 theme-toggle-btn"><i class="theme-toggle-icon fas fa-moon fs-5"></i></button>
-        <a href="dashboard.html" class="btn btn-outline-custom btn-sm">Dashboard</a>
+        <a href="{% url 'volunteer_dashboard' %}" class="btn btn-outline-custom btn-sm">Dashboard</a>
       </div>
     </div>
   </nav>
@@ -26,13 +27,14 @@
   <div class="container-fluid px-lg-4">
     <div class="row">
       <aside class="col-lg-2 sidebar d-none d-lg-block">
-        <a href="dashboard.html" class="sidebar-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-        <a href="accepted-requests.html" class="sidebar-link"><i class="fas fa-tasks"></i> Accepted Requests</a>
-        <a href="skills.html" class="sidebar-link"><i class="fas fa-cogs"></i> Skill Management</a>
-        <a href="availability.html" class="sidebar-link active"><i class="fas fa-calendar-alt"></i> Availability Grid</a>
-        <a href="rewards.html" class="sidebar-link"><i class="fas fa-award"></i> Rewards & Badges</a>
-        <a href="chat.html" class="sidebar-link"><i class="fas fa-comments"></i> Live Chat</a>
-        <a href="profile.html" class="sidebar-link"><i class="fas fa-user"></i> Profile</a>
+        <div class="small fw-bold text-muted text-uppercase mb-3 px-3">Volunteer Menu</div>
+        <a href="{% url 'volunteer_dashboard' %}" class="sidebar-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+        <a href="{% url 'accepted_requests' %}" class="sidebar-link"><i class="fas fa-tasks"></i> Accepted Requests</a>
+        <a href="{% url 'volunteer_skills' %}" class="sidebar-link"><i class="fas fa-cogs"></i> Skill Management</a>
+        <a href="{% url 'volunteer_availability' %}" class="sidebar-link active"><i class="fas fa-calendar-alt"></i> Availability Grid</a>
+        <a href="{% url 'volunteer_rewards' %}" class="sidebar-link"><i class="fas fa-award"></i> Rewards & Badges</a>
+        <a href="{% url 'volunteer_chat' %}" class="sidebar-link"><i class="fas fa-comments"></i> Live Chat</a>
+        <a href="{% url 'volunteer_profile' %}" class="sidebar-link"><i class="fas fa-user"></i> Profile</a>
       </aside>
 
       <main id="main-content" class="col-lg-10 p-4">
@@ -109,6 +111,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="../../static/js/main.js"></script>
+  <script src="{% static 'js/main.js' %}"></script>
 </body>
 </html>

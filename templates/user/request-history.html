@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="light">
 <head>
@@ -7,18 +8,18 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../../static/css/style.css">
-  <link rel="stylesheet" href="../../static/css/accessibility.css">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/accessibility.css' %}">
 </head>
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
 
   <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
     <div class="container-fluid px-lg-4">
-      <a class="navbar-brand" href="../index.html"><i class="fas fa-hand-holding-heart me-2"></i>Companio Portal</a>
+      <a class="navbar-brand" href="{% url 'home' %}"><i class="fas fa-hand-holding-heart me-2"></i>Companio Portal</a>
       <div class="d-flex align-items-center gap-3 ms-auto">
         <button class="btn btn-link nav-link p-2 theme-toggle-btn"><i class="theme-toggle-icon fas fa-moon fs-5"></i></button>
-        <a href="dashboard.html" class="btn btn-outline-custom btn-sm">Dashboard</a>
+        <a href="{% url 'dashboard' %}" class="btn btn-outline-custom btn-sm">Dashboard</a>
       </div>
     </div>
   </nav>
@@ -26,13 +27,13 @@
   <div class="container-fluid px-lg-4">
     <div class="row">
       <aside class="col-lg-2 sidebar d-none d-lg-block">
-        <a href="dashboard.html" class="sidebar-link"><i class="fas fa-th-large"></i> Dashboard</a>
-        <a href="create-request.html" class="sidebar-link"><i class="fas fa-plus-circle"></i> Create Request</a>
-        <a href="request-history.html" class="sidebar-link active"><i class="fas fa-history"></i> Request History</a>
-        <a href="chat.html" class="sidebar-link"><i class="fas fa-comments"></i> Messages Chat</a>
-        <a href="notifications.html" class="sidebar-link"><i class="fas fa-bell"></i> Notifications</a>
-        <a href="feedback.html" class="sidebar-link"><i class="fas fa-star"></i> Feedback</a>
-        <a href="profile.html" class="sidebar-link"><i class="fas fa-user"></i> My Profile</a>
+        <div class="small fw-bold text-muted text-uppercase mb-3 px-3">User Menu</div>
+        <a href="{% url 'dashboard' %}" class="sidebar-link"><i class="fas fa-th-large"></i> Dashboard</a>
+        <a href="{% url 'create_request' %}" class="sidebar-link"><i class="fas fa-plus-circle"></i> Create Request</a>
+        <a href="{% url 'request_history' %}" class="sidebar-link active"><i class="fas fa-history"></i> Request History</a>
+        <a href="{% url 'user_chat' %}" class="sidebar-link"><i class="fas fa-comments"></i> Messages Chat</a>
+        <a href="{% url 'user_notifications' %}" class="sidebar-link"><i class="fas fa-bell"></i> Notifications</a>
+        <a href="{% url 'user_profile' %}" class="sidebar-link"><i class="fas fa-user"></i> My Profile</a>
       </aside>
 
       <main id="main-content" class="col-lg-10 p-4">
@@ -41,7 +42,7 @@
             <h1 class="h3 fw-bold mb-1">Request History</h1>
             <p class="text-muted mb-0">View past and current assistance exchanges.</p>
           </div>
-          <a href="create-request.html" class="btn btn-primary-custom"><i class="fas fa-plus me-1"></i>New Request</a>
+          <a href="{% url 'create_request' %}" class="btn btn-primary-custom"><i class="fas fa-plus me-1"></i>New Request</a>
         </div>
 
         <!-- Filter & Search Bar -->
@@ -58,7 +59,7 @@
                 <option value="">All Statuses</option>
                 <option value="completed">Completed</option>
                 <option value="in_progress">In Progress</option>
-                <option value="cancelled">Cancelled</option>
+                <option value="pending">Pending</option>
               </select>
             </div>
             <div class="col-md-3">
@@ -89,65 +90,50 @@
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td class="fw-bold">#REQ-8042</td>
-                  <td>
-                    <div class="fw-bold">NVDA Screen Reader Configuration</div>
-                    <small class="text-muted">Virtual Assistive Tech Setup</small>
-                  </td>
-                  <td><span class="badge badge-custom badge-blue">Tech Tutor</span></td>
-                  <td>
-                    <div class="d-flex align-items-center gap-2">
-                      <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&q=80" class="rounded-circle" width="30" height="30" alt="David Miller">
-                      <span>David Miller</span>
-                    </div>
-                  </td>
-                  <td>Aug 6, 2026</td>
-                  <td><span class="badge bg-warning text-dark">In Progress</span></td>
-                  <td class="text-end">
-                    <a href="chat.html" class="btn btn-sm btn-outline-custom"><i class="fas fa-comments me-1"></i>Chat</a>
-                  </td>
-                </tr>
-
-                <tr>
-                  <td class="fw-bold">#REQ-7911</td>
-                  <td>
-                    <div class="fw-bold">Grocery Shopping Escort</div>
-                    <small class="text-muted">Physical Mobility Support</small>
-                  </td>
-                  <td><span class="badge badge-custom badge-blue">Mobility</span></td>
-                  <td>
-                    <div class="d-flex align-items-center gap-2">
-                      <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=100&q=80" class="rounded-circle" width="30" height="30" alt="Sarah Chen">
-                      <span>Sarah Chen</span>
-                    </div>
-                  </td>
-                  <td>Aug 2, 2026</td>
-                  <td><span class="badge bg-success">Completed</span></td>
-                  <td class="text-end">
-                    <a href="feedback.html" class="btn btn-sm btn-outline-success"><i class="fas fa-star me-1"></i>Rated 5.0</a>
-                  </td>
-                </tr>
-
-                <tr>
-                  <td class="fw-bold">#REQ-7650</td>
-                  <td>
-                    <div class="fw-bold">Official Document Audio Reading</div>
-                    <small class="text-muted">Reading Tax & Pension Forms</small>
-                  </td>
-                  <td><span class="badge badge-custom badge-blue">Audio Reader</span></td>
-                  <td>
-                    <div class="d-flex align-items-center gap-2">
-                      <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&q=80" class="rounded-circle" width="30" height="30" alt="Amina Patel">
-                      <span>Amina Patel</span>
-                    </div>
-                  </td>
-                  <td>Jul 28, 2026</td>
-                  <td><span class="badge bg-success">Completed</span></td>
-                  <td class="text-end">
-                    <a href="feedback.html" class="btn btn-sm btn-outline-success"><i class="fas fa-star me-1"></i>Rated 5.0</a>
-                  </td>
-                </tr>
+                {% if requests %}
+                  {% for req in requests %}
+                    <tr>
+                      <td class="fw-bold">#REQ-{{ req.id }}</td>
+                      <td>
+                        <div class="fw-bold">{{ req.title }}</div>
+                        <small class="text-muted">{{ req.description|truncatewords:6 }}</small>
+                      </td>
+                      <td><span class="badge badge-custom badge-blue">{{ req.get_category_display|default:req.category }}</span></td>
+                      <td>
+                        {% if req.volunteer %}
+                          <div class="d-flex align-items-center gap-2">
+                            <span class="fw-semibold">{{ req.volunteer.username }}</span>
+                          </div>
+                        {% else %}
+                          <span class="text-muted small">Searching...</span>
+                        {% endif %}
+                      </td>
+                      <td>{{ req.scheduled_at|default:req.created_at|date:"M d, Y" }}</td>
+                      <td>
+                        {% if req.status == 'completed' %}
+                          <span class="badge bg-success">Completed</span>
+                        {% elif req.status == 'accepted' or req.status == 'in_progress' %}
+                          <span class="badge bg-warning text-dark">In Progress</span>
+                        {% else %}
+                          <span class="badge bg-secondary">Pending</span>
+                        {% endif %}
+                      </td>
+                      <td class="text-end">
+                        {% if req.status == 'completed' %}
+                          <a href="{% url 'feedback' req.id %}" class="btn btn-sm btn-outline-success"><i class="fas fa-star me-1"></i>Give Feedback</a>
+                        {% else %}
+                          <a href="{% url 'user_chat' %}" class="btn btn-sm btn-outline-custom"><i class="fas fa-comments me-1"></i>Chat</a>
+                        {% endif %}
+                      </td>
+                    </tr>
+                  {% endfor %}
+                {% else %}
+                  <tr>
+                    <td colspan="7" class="text-center py-4 text-muted">
+                      No assistance requests found in your history. <a href="{% url 'create_request' %}">Create one now</a>!
+                    </td>
+                  </tr>
+                {% endif %}
               </tbody>
             </table>
           </div>
@@ -165,6 +151,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="../../static/js/main.js"></script>
+  <script src="{% static 'js/main.js' %}"></script>
 </body>
 </html>
