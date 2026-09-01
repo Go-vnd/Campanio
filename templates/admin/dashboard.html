@@ -59,7 +59,7 @@
               <div class="d-flex justify-content-between align-items-center">
                 <div>
                   <small class="text-muted fw-bold">TOTAL USERS</small>
-                  <h2 class="fw-bold mb-0">1,840</h2>
+                  <h2 class="fw-bold mb-0">{{ total_users }}</h2>
                 </div>
                 <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-circle"><i class="fas fa-users fs-4"></i></div>
               </div>
@@ -71,7 +71,7 @@
               <div class="d-flex justify-content-between align-items-center">
                 <div>
                   <small class="text-muted fw-bold">ACTIVE VOLUNTEERS</small>
-                  <h2 class="fw-bold mb-0 text-success">1,250</h2>
+                  <h2 class="fw-bold mb-0 text-success">{{ total_volunteers }}</h2>
                 </div>
                 <div class="bg-success bg-opacity-10 text-success p-3 rounded-circle"><i class="fas fa-user-check fs-4"></i></div>
               </div>
@@ -83,7 +83,7 @@
               <div class="d-flex justify-content-between align-items-center">
                 <div>
                   <small class="text-muted fw-bold">EXCHANGES COMPLETED</small>
-                  <h2 class="fw-bold mb-0 text-info">4,920</h2>
+                  <h2 class="fw-bold mb-0 text-info">{{ completed_requests }}</h2>
                 </div>
                 <div class="bg-info bg-opacity-10 text-info p-3 rounded-circle"><i class="fas fa-handshake fs-4"></i></div>
               </div>
@@ -95,7 +95,7 @@
               <div class="d-flex justify-content-between align-items-center">
                 <div>
                   <small class="text-muted fw-bold">PENDING APPROVALS</small>
-                  <h2 class="fw-bold mb-0 text-warning">14</h2>
+                  <h2 class="fw-bold mb-0 text-warning">{{ pending_requests }}</h2>
                 </div>
                 <div class="bg-warning bg-opacity-10 text-warning p-3 rounded-circle"><i class="fas fa-clock fs-4"></i></div>
               </div>

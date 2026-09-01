@@ -55,13 +55,18 @@
                 <button type="submit" class="btn btn-primary-custom btn-lg w-100"><i class="fas fa-paper-plane me-2"></i>Submit Feedback & Award Badge</button>
               </form>
             {% else %}
-              <form onsubmit="event.preventDefault(); showToast('Thank you! Your feedback and 5-star rating have been submitted.', 'success'); setTimeout(() => window.location.href='{% url 'dashboard' %}', 1500);">
+              <form method="post">
+                {% csrf_token %}
                 <!-- Select Completed Service -->
                 <div class="mb-4">
                   <label for="feedbackRequest" class="form-label fw-bold">Select Completed Request</label>
-                  <select class="form-select form-select-lg" id="feedbackRequest" required>
-                    <option value="REQ-7911">Grocery Shopping Escort with Sarah Chen</option>
-                    <option value="REQ-7650">Document Reading with Amina Patel</option>
+                  <select class="form-select form-select-lg" id="feedbackRequest" name="request_id" required>
+                    <option value="">-- Select a completed request --</option>
+                    {% for req in completed_requests %}
+                    <option value="{{ req.id }}">{{ req.title }} with {{ req.volunteer.first_name }} {{ req.volunteer.last_name }}</option>
+                    {% empty %}
+                    <option value="" disabled>No completed requests available</option>
+                    {% endfor %}
                   </select>
                 </div>
 
@@ -81,7 +86,7 @@
                 <!-- Text Review -->
                 <div class="mb-4">
                   <label for="reviewComments" class="form-label fw-bold">Written Testimonial / Comments</label>
-                  <textarea class="form-control" id="reviewComments" rows="4" placeholder="Share how the volunteer assisted you today..."></textarea>
+                  <textarea class="form-control" id="reviewComments" name="testimonial" rows="4" placeholder="Share how the volunteer assisted you today..."></textarea>
                 </div>
 
                 <button type="submit" class="btn btn-primary-custom btn-lg w-100"><i class="fas fa-paper-plane me-2"></i>Submit Feedback & Award Badge</button>

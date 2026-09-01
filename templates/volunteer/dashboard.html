@@ -69,26 +69,26 @@
         <div class="row g-3 mb-4">
           <div class="col-md-3">
             <div class="card card-custom p-3 border-start border-4 border-primary">
-              <div class="text-muted small fw-bold">TOTAL HOURS</div>
-              <div class="h2 fw-bold mb-0 text-primary">124 hrs</div>
+              <div class=\"text-muted small fw-bold\">TASKS COMPLETED</div>
+              <div class="h2 fw-bold mb-0 text-primary">{{ tasks_completed }}</div>
             </div>
           </div>
           <div class="col-md-3">
             <div class="card card-custom p-3 border-start border-4 border-success">
-              <div class="text-muted small fw-bold">TASKS COMPLETED</div>
-              <div class="h2 fw-bold mb-0 text-success">38</div>
+              <div class=\"text-muted small fw-bold\">ASSIGNED REQUESTS</div>
+              <div class="h2 fw-bold mb-0 text-success">{{ total_requests }}</div>
             </div>
           </div>
           <div class="col-md-3">
             <div class="card card-custom p-3 border-start border-4 border-warning">
               <div class="text-muted small fw-bold">RATING AVERAGE</div>
-              <div class="h2 fw-bold mb-0 text-warning">4.95 ⭐</div>
+              <div class="h2 fw-bold mb-0 text-warning">{{ rating_average }} ⭐</div>
             </div>
           </div>
           <div class="col-md-3">
             <div class="card card-custom p-3 border-start border-4 border-info">
               <div class="text-muted small fw-bold">EARNED BADGES</div>
-              <div class="h2 fw-bold mb-0 text-info">6 Badges</div>
+              <div class="h2 fw-bold mb-0 text-info">{{ badges.count }} Badges</div>
             </div>
           </div>
         </div>

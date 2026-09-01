@@ -43,6 +43,7 @@ def user_dashboard(request):
         "accepted_requests": requests.filter(status="accepted").count(),
         "completed_requests": requests.filter(status="completed").count(),
         "recent_requests": requests[:5],
+        "saved_volunteers": 0,  # TODO: Implement saved volunteers feature
         "avg_rating_given": Feedback.objects.filter(seeker=user).aggregate(Avg("rating"))["rating__avg"] or 0,
     }
     return render(request, "user/dashboard.html", context)
@@ -98,31 +99,61 @@ def request_history(request):
     return render(request, "user/request-history.html", context)
 
 @login_required
-def feedback(request, request_id):
+def feedback(request, request_id=None):
     """Submit feedback for completed request"""
     from assistance.forms import FeedbackForm
     
-    assistance_request = get_object_or_404(AssistanceRequest, pk=request_id)
-    
-    # Only seeker can leave feedback
-    if request.user != assistance_request.seeker:
-        messages.error(request, "You can only leave feedback for requests you created.")
-        return redirect("request_history")
-    
-    if request.method == "POST":
-        form = FeedbackForm(request.POST)
-        if form.is_valid():
-            feedback_obj = form.save(commit=False)
-            feedback_obj.seeker = request.user
-            feedback_obj.volunteer = assistance_request.volunteer
-            feedback_obj.request = assistance_request
-            feedback_obj.save()
-            messages.success(request, "Thank you for your feedback!")
+    if request_id:
+        # Feedback for specific request
+        assistance_request = get_object_or_404(AssistanceRequest, pk=request_id)
+        
+        # Only seeker can leave feedback
+        if request.user != assistance_request.seeker:
+            messages.error(request, "You can only leave feedback for requests you created.")
             return redirect("request_history")
+        
+        if request.method == "POST":
+            form = FeedbackForm(request.POST)
+            if form.is_valid():
+                feedback_obj = form.save(commit=False)
+                feedback_obj.seeker = request.user
+                feedback_obj.volunteer = assistance_request.volunteer
+                feedback_obj.request = assistance_request
+                feedback_obj.save()
+                messages.success(request, "Thank you for your feedback!")
+                return redirect("request_history")
+        else:
+            form = FeedbackForm()
+        
+        context = {
+            "form": form,
+            "request_obj": assistance_request,
+        }
     else:
-        form = FeedbackForm()
+        # User selecting which request to leave feedback for
+        completed_requests = AssistanceRequest.objects.filter(
+            seeker=request.user,
+            status="completed"
+        ).select_related("volunteer").order_by("-completed_at")
+        
+        if request.method == "POST":
+            req_id = request.POST.get('request_id')
+            assistance_request = get_object_or_404(AssistanceRequest, pk=req_id, seeker=request.user)
+            form = FeedbackForm(request.POST)
+            if form.is_valid():
+                feedback_obj = form.save(commit=False)
+                feedback_obj.seeker = request.user
+                feedback_obj.volunteer = assistance_request.volunteer
+                feedback_obj.request = assistance_request
+                feedback_obj.save()
+                messages.success(request, "Thank you for your feedback!")
+                return redirect("request_history")
+        
+        context = {
+            "completed_requests": completed_requests,
+        }
     
-    return render(request, "user/feedback.html", {"form": form, "request": assistance_request})
+    return render(request, "user/feedback.html", context)
 
 @login_required
 def user_chat(request):

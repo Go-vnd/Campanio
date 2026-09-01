@@ -77,29 +77,23 @@
                 </tr>
               </thead>
               <tbody>
+                {% for request in requests %}
                 <tr>
-                  <td class="fw-bold">#REQ-8042</td>
-                  <td>NVDA Tech Setup</td>
-                  <td>Elena Rostova</td>
-                  <td>David Miller</td>
-                  <td><span class="badge bg-danger">Urgent</span></td>
-                  <td><span class="badge bg-warning text-dark">In Progress</span></td>
+                  <td class="fw-bold">#REQ-{{ request.id }}</td>
+                  <td>{{ request.title }}</td>
+                  <td>{{ request.user.first_name }} {{ request.user.last_name }}</td>
+                  <td>{% if request.volunteer %}{{ request.volunteer.first_name }} {{ request.volunteer.last_name }}{% else %}<span class="text-muted">Unassigned</span>{% endif %}</td>
+                  <td><span class="badge {% if request.priority == 'urgent' %}bg-danger{% elif request.priority == 'high' %}bg-warning text-dark{% else %}bg-secondary{% endif %}">{{ request.priority|default:"Standard"|title }}</span></td>
+                  <td><span class="badge {% if request.status == 'completed' %}bg-success{% elif request.status == 'in_progress' %}bg-warning text-dark{% elif request.status == 'pending' %}bg-info{% else %}bg-secondary{% endif %}">{{ request.status|default:"Pending"|title }}</span></td>
                   <td class="text-end">
                     <button class="btn btn-sm btn-outline-custom" onclick="showToast('Re-assigning volunteer...', 'info')">Re-assign</button>
                   </td>
                 </tr>
-
+                {% empty %}
                 <tr>
-                  <td class="fw-bold">#REQ-7911</td>
-                  <td>Grocery Shopping Escort</td>
-                  <td>Elena Rostova</td>
-                  <td>Sarah Chen</td>
-                  <td><span class="badge bg-secondary">Standard</span></td>
-                  <td><span class="badge bg-success">Completed</span></td>
-                  <td class="text-end">
-                    <button class="btn btn-sm btn-outline-custom" onclick="showToast('Viewing log details', 'info')">View Log</button>
-                  </td>
+                  <td colspan="7" class="text-center text-muted py-4">No requests found</td>
                 </tr>
+                {% endfor %}
               </tbody>
             </table>
           </div>

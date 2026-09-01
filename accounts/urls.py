@@ -15,6 +15,7 @@ urlpatterns = [
     path("user-dashboard/", user_dashboard, name="user_dashboard"),
     path("create-request/", create_request, name="create_request"),
     path("request-history/", request_history, name="request_history"),
+    path("feedback/", feedback, name="feedback_general"),
     path("feedback/<int:request_id>/", feedback, name="feedback"),
     path("chat/", user_chat, name="user_chat"),
     path("notifications/", user_notifications, name="user_notifications"),

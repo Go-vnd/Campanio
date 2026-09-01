@@ -1,10 +1,11 @@
 from django.urls import path
-from .views import dashboard, accepted_requests, accept_request, skills, availability, rewards, chat, profile
+from .views import dashboard, accepted_requests, accept_request, complete_request, skills, availability, rewards, chat, profile
 
 urlpatterns = [
     path("dashboard/", dashboard, name="volunteer_dashboard"),
     path("accepted/", accepted_requests, name="accepted_requests"),
     path("accept/<int:request_id>/", accept_request, name="accept_request"),
+    path("complete/<int:request_id>/", complete_request, name="complete_request"),
     path("skills/", skills, name="volunteer_skills"),
     path("availability/", availability, name="volunteer_availability"),
     path("rewards/", rewards, name="volunteer_rewards"),

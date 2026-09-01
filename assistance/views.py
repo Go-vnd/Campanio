@@ -1,10 +1,11 @@
 from django.contrib.auth.decorators import login_required
-from django.db.models import Avg, Q
+from django.db.models import Avg, Q, Count
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
 from django.utils import timezone
 
 from .models import AssistanceRequest, Feedback
+from rewards.models import BadgeAward
 
 
 @login_required
@@ -39,8 +40,8 @@ def volunteer_dashboard(request):
         or 0
     )
 
-    # Number of feedback/reward-related records for now
-    earned_badges = 0
+    # Badges earned
+    badges = BadgeAward.objects.filter(user=user)
 
     # Requests which are still available for volunteers
     available_requests = (
@@ -55,8 +56,9 @@ def volunteer_dashboard(request):
     context = {
         "tasks": tasks,
         "tasks_completed": tasks_completed,
+        "total_requests": tasks.count(),
         "rating_average": round(rating_average, 2),
-        "earned_badges": earned_badges,
+        "badges": badges,
         "available_requests": available_requests,
     }
 

@@ -43,31 +43,24 @@
             <div class="card card-custom p-3 h-100">
               <h5 class="fw-bold mb-3 px-2">Assistance Conversations</h5>
               <div class="list-group list-group-flush">
-                <a href="#" class="list-group-item list-group-item-action active rounded-3 mb-2 p-3">
+                {% for conversation in conversations %}
+                <a href="#" class="list-group-item list-group-item-action {% if forloop.first %}active{% endif %} rounded-3 mb-2 p-3">
                   <div class="d-flex align-items-center gap-3">
-                    <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&q=80" class="rounded-circle" width="45" height="45" alt="David Miller">
+                    <img src="https://via.placeholder.com/45" class="rounded-circle" width="45" height="45" alt="{{ conversation.volunteer.first_name }}">
                     <div class="flex-grow-1 overflow-hidden">
                       <div class="d-flex justify-content-between">
-                        <h6 class="fw-bold mb-0">David Miller</h6>
-                        <small>4:12 PM</small>
+                        <h6 class="fw-bold mb-0">{{ conversation.volunteer.first_name }} {{ conversation.volunteer.last_name }}</h6>
+                        <small>{{ conversation.created_at|date:"M d" }}</small>
                       </div>
-                      <small class="text-truncate d-block">I will be arriving at 4:00 PM...</small>
+                      <small class="text-truncate d-block">{{ conversation.title|truncatewords:5 }}</small>
                     </div>
                   </div>
                 </a>
-
-                <a href="#" class="list-group-item list-group-item-action rounded-3 p-3">
-                  <div class="d-flex align-items-center gap-3">
-                    <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=100&q=80" class="rounded-circle" width="45" height="45" alt="Sarah Chen">
-                    <div class="flex-grow-1 overflow-hidden">
-                      <div class="d-flex justify-content-between">
-                        <h6 class="fw-bold mb-0">Sarah Chen</h6>
-                        <small>Yesterday</small>
-                      </div>
-                      <small class="text-muted text-truncate d-block">Thanks for the great feedback!</small>
-                    </div>
-                  </div>
-                </a>
+                {% empty %}
+                <div class="text-center text-muted py-4">
+                  <p>No conversations yet. Create a request to start chatting with a volunteer.</p>
+                </div>
+                {% endfor %}
               </div>
             </div>
           </div>
@@ -75,13 +68,14 @@
           <!-- Main Live Chat Window -->
           <div class="col-lg-8">
             <div class="card card-custom p-0 overflow-hidden">
+              {% if conversations %}
               <!-- Chat Header -->
               <div class="p-3 border-bottom d-flex align-items-center justify-content-between bg-body-tertiary">
                 <div class="d-flex align-items-center gap-3">
-                  <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&q=80" class="rounded-circle" width="42" height="42" alt="David Miller Avatar">
+                  <img src="https://via.placeholder.com/42" class="rounded-circle" width="42" height="42" alt="{{ conversations.0.volunteer.first_name }}">
                   <div>
-                    <h6 class="fw-bold mb-0">David Miller <span class="badge badge-custom badge-success ms-2">Online</span></h6>
-                    <small class="text-muted">Assisting with: #REQ-8042 (Tech Setup)</small>
+                    <h6 class="fw-bold mb-0">{{ conversations.0.volunteer.first_name }} {{ conversations.0.volunteer.last_name }} <span class="badge badge-custom badge-success ms-2">Online</span></h6>
+                    <small class="text-muted">Assisting with: #REQ-{{ conversations.0.id }} ({{ conversations.0.title }})</small>
                   </div>
                 </div>
                 <div class="d-flex gap-2">
@@ -92,19 +86,8 @@
               <!-- Message Stream -->
               <div class="chat-container border-0 rounded-0" style="height: 420px;">
                 <div class="chat-messages" id="chat-messages">
-                  <div class="message-bubble message-received">
-                    <div>Hello Elena! I have accepted your assistance request for NVDA setup today.</div>
-                    <div class="text-end mt-1" style="font-size:0.75rem; opacity:0.8;">3:45 PM</div>
-                  </div>
-
-                  <div class="message-bubble message-sent">
-                    <div>Thank you David! I am ready. Please let me know when you arrive.</div>
-                    <div class="text-end mt-1" style="font-size:0.75rem; opacity:0.8;">3:47 PM</div>
-                  </div>
-
-                  <div class="message-bubble message-received">
-                    <div>I will be arriving at your location in about 15 minutes.</div>
-                    <div class="text-end mt-1" style="font-size:0.75rem; opacity:0.8;">4:12 PM</div>
+                  <div class="text-center text-muted py-4">
+                    <p>Chat messages will appear here. (Feature in development)</p>
                   </div>
                 </div>
 
@@ -117,6 +100,13 @@
                   </form>
                 </div>
               </div>
+              {% else %}
+              <div class="p-5 text-center text-muted">
+                <i class="fas fa-inbox fs-1 mb-3 d-block"></i>
+                <h5>No Active Conversations</h5>
+                <p>Create an assistance request to start chatting with volunteers.</p>
+              </div>
+              {% endif %}
             </div>
           </div>
         </div>

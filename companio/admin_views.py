@@ -34,7 +34,7 @@ def admin_dashboard(request):
 def admin_users(request):
     """User management dashboard"""
     users = User.objects.filter(role="seeker").annotate(
-        request_count=Count("assistance_requests_created")
+        request_count=Count("assistance_requests")
     ).order_by("-created_at")
     
     context = {
@@ -48,15 +48,15 @@ def admin_users(request):
 def admin_volunteers(request):
     """Volunteer management dashboard"""
     volunteers = User.objects.filter(role="volunteer").annotate(
-        completed_tasks=Count("assistance_requests_volunteer", filter=Q(assistance_requests_volunteer__status="completed")),
+        completed_tasks=Count("accepted_requests", filter=Q(accepted_requests__status="completed")),
         avg_rating=Avg("received_feedback__rating"),
-        skills_count=Count("skills")
     ).order_by("-created_at")
     
     context = {
         "volunteers": volunteers,
         "total_volunteers": volunteers.count(),
         "active_volunteers": volunteers.filter(is_active=True).count(),
+        "badges": BadgeAward.objects.all(),  # For template
     }
     return render(request, "admin/volunteers.html", context)
 

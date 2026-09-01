@@ -74,35 +74,26 @@
                 </tr>
               </thead>
               <tbody>
+                {% for user in users %}
                 <tr>
-                  <td class="fw-bold">#USR-1029</td>
+                  <td class="fw-bold">#USR-{{ user.id }}</td>
                   <td>
-                    <div class="fw-bold">Elena Rostova</div>
-                    <small class="text-muted">elena.rostova@example.com</small>
+                    <div class="fw-bold">{{ user.first_name }} {{ user.last_name }}</div>
+                    <small class="text-muted">{{ user.email }}</small>
                   </td>
-                  <td><span class="badge bg-primary">NVDA Screen Reader</span></td>
-                  <td>Jan 15, 2026</td>
+                  <td><span class="badge bg-primary">{{ user.profile.accessibility_preference|default:"No preference" }}</span></td>
+                  <td>{{ user.date_joined|date:"M d, Y" }}</td>
                   <td><span class="badge bg-success">Active</span></td>
                   <td class="text-end">
                     <button class="btn btn-sm btn-outline-custom me-1" onclick="showToast('Viewing User Details...', 'info')"><i class="fas fa-eye"></i></button>
                     <button class="btn btn-sm btn-outline-danger" onclick="showToast('User Suspended', 'warning')"><i class="fas fa-ban"></i></button>
                   </td>
                 </tr>
-
+                {% empty %}
                 <tr>
-                  <td class="fw-bold">#USR-1044</td>
-                  <td>
-                    <div class="fw-bold">Marcus Vance</div>
-                    <small class="text-muted">marcus.vance@example.com</small>
-                  </td>
-                  <td><span class="badge bg-info">Sign Language</span></td>
-                  <td>Mar 10, 2026</td>
-                  <td><span class="badge bg-success">Active</span></td>
-                  <td class="text-end">
-                    <button class="btn btn-sm btn-outline-custom me-1" onclick="showToast('Viewing User Details...', 'info')"><i class="fas fa-eye"></i></button>
-                    <button class="btn btn-sm btn-outline-danger" onclick="showToast('User Suspended', 'warning')"><i class="fas fa-ban"></i></button>
-                  </td>
+                  <td colspan="6" class="text-center text-muted py-4">No users found</td>
                 </tr>
+                {% endfor %}
               </tbody>
             </table>
           </div>

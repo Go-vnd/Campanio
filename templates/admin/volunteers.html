@@ -76,45 +76,31 @@
                 </tr>
               </thead>
               <tbody>
+                {% for volunteer in volunteers %}
                 <tr>
                   <td>
                     <div class="d-flex align-items-center gap-2">
-                      <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&q=80" class="rounded-circle" width="36" height="36" alt="David Miller">
+                      <img src="https://via.placeholder.com/36" class="rounded-circle" width="36" height="36" alt="{{ volunteer.first_name }} {{ volunteer.last_name }}">
                       <div>
-                        <div class="fw-bold">David Miller</div>
-                        <small class="text-muted">david.miller@example.com</small>
+                        <div class="fw-bold">{{ volunteer.first_name }} {{ volunteer.last_name }}</div>
+                        <small class="text-muted">{{ volunteer.email }}</small>
                       </div>
                     </div>
                   </td>
-                  <td><span class="badge badge-custom badge-blue">Tech Tutor</span> <span class="badge badge-custom badge-blue">Audio Reader</span></td>
-                  <td>124 hrs</td>
-                  <td><span class="fw-bold text-warning">4.95 ⭐</span></td>
+                  <td><span class="badge badge-custom badge-blue">{{ volunteer.profile.skills|default:"General Helper" }}</span></td>
+                  <td>{{ volunteer.profile.hours_completed|default:0 }} hrs</td>
+                  <td><span class="fw-bold text-warning">{{ volunteer.profile.rating|default:"N/A" }} ⭐</span></td>
                   <td><span class="badge bg-success">Passed & Cleared</span></td>
                   <td class="text-end">
                     <button class="btn btn-sm btn-outline-custom me-1" onclick="showToast('Viewing Volunteer Profile...', 'info')"><i class="fas fa-eye"></i></button>
                     <button class="btn btn-sm btn-outline-success" onclick="showToast('Certificate Issued!', 'success')"><i class="fas fa-award"></i></button>
                   </td>
                 </tr>
-
+                {% empty %}
                 <tr>
-                  <td>
-                    <div class="d-flex align-items-center gap-2">
-                      <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=100&q=80" class="rounded-circle" width="36" height="36" alt="Sarah Chen">
-                      <div>
-                        <div class="fw-bold">Sarah Chen</div>
-                        <small class="text-muted">sarah.chen@example.com</small>
-                      </div>
-                    </div>
-                  </td>
-                  <td><span class="badge badge-custom badge-blue">Mobility Escort</span></td>
-                  <td>86 hrs</td>
-                  <td><span class="fw-bold text-warning">5.00 ⭐</span></td>
-                  <td><span class="badge bg-success">Passed & Cleared</span></td>
-                  <td class="text-end">
-                    <button class="btn btn-sm btn-outline-custom me-1" onclick="showToast('Viewing Volunteer Profile...', 'info')"><i class="fas fa-eye"></i></button>
-                    <button class="btn btn-sm btn-outline-success" onclick="showToast('Certificate Issued!', 'success')"><i class="fas fa-award"></i></button>
-                  </td>
+                  <td colspan="6" class="text-center text-muted py-4">No volunteers found</td>
                 </tr>
+                {% endfor %}
               </tbody>
             </table>
           </div>
