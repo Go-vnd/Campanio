@@ -134,29 +134,25 @@
         <!-- Available Nearby Assistance Requests Queue -->
         <h4 class="fw-bold mb-3">Matching Nearby Assistance Requests</h4>
         <div class="row g-4">
+          {% for req in available_requests %}
           <div class="col-md-6">
             <div class="card card-custom p-4">
               <div class="d-flex justify-content-between align-items-start mb-2">
-                <span class="badge badge-custom badge-blue">Document Reading</span>
-                <small class="text-muted"><i class="fas fa-map-marker-alt me-1 text-danger"></i> 1.2 miles away</small>
+                <span class="badge badge-custom badge-blue">{{ req.get_category_display }}</span>
+                <small class="text-muted"><i class="fas fa-map-marker-alt me-1 text-danger"></i> {{ req.location|default:"TBD" }}</small>
               </div>
-              <h5 class="fw-bold mb-1">Audio Reading of Bank Statements</h5>
-              <p class="text-muted small mb-3">Requested by Marcus Vance • Preferred Date: Tomorrow, 2:00 PM</p>
-              <button class="btn btn-outline-custom w-100" onclick="showToast('You accepted this request!', 'success')"><i class="fas fa-check me-1"></i>Accept Assistance Request</button>
+              <h5 class="fw-bold mb-1">{{ req.title }}</h5>
+              <p class="text-muted small mb-3">Requested by {{ req.seeker.first_name|default:req.seeker.username }} • Preferred Date: {{ req.scheduled_at|date:"M d, g:i A" }}</p>
+              <a href="{% url 'accept_request' req.id %}" class="btn btn-outline-custom w-100"><i class="fas fa-check me-1"></i>Accept Assistance Request</a>
             </div>
           </div>
-
-          <div class="col-md-6">
-            <div class="card card-custom p-4">
-              <div class="d-flex justify-content-between align-items-start mb-2">
-                <span class="badge badge-custom badge-blue">Mobility Escort</span>
-                <small class="text-muted"><i class="fas fa-map-marker-alt me-1 text-danger"></i> 3.5 miles away</small>
-              </div>
-              <h5 class="fw-bold mb-1">Escort to Local Pharmacy</h5>
-              <p class="text-muted small mb-3">Requested by Sofia Ramos • Preferred Date: Aug 8, 10:00 AM</p>
-              <button class="btn btn-outline-custom w-100" onclick="showToast('You accepted this request!', 'success')"><i class="fas fa-check me-1"></i>Accept Assistance Request</button>
+          {% empty %}
+          <div class="col-12">
+            <div class="text-center p-4">
+              <p class="text-muted mb-0">No requests available at the moment.</p>
             </div>
           </div>
+          {% endfor %}
         </div>
       </main>
     </div>

@@ -43,30 +43,37 @@
             <div class="card card-custom p-3 h-100">
               <h5 class="fw-bold mb-3 px-2">Assistance Chats</h5>
               <div class="list-group list-group-flush">
-                <a href="#" class="list-group-item list-group-item-action active rounded-3 mb-2 p-3">
+                {% for conversation in conversations %}
+                <a href="#" class="list-group-item list-group-item-action {% if forloop.first %}active{% endif %} rounded-3 mb-2 p-3">
                   <div class="d-flex align-items-center gap-3">
-                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" class="rounded-circle" width="45" height="45" alt="Elena Rostova">
+                    <img src="https://ui-avatars.com/api/?name={{ conversation.request.seeker.first_name }}+{{ conversation.request.seeker.last_name }}&background=random" class="rounded-circle" width="45" height="45" alt="{{ conversation.request.seeker.first_name }}">
                     <div class="flex-grow-1 overflow-hidden">
                       <div class="d-flex justify-content-between">
-                        <h6 class="fw-bold mb-0">Elena Rostova</h6>
-                        <small>4:12 PM</small>
+                        <h6 class="fw-bold mb-0">{{ conversation.request.seeker.first_name }} {{ conversation.request.seeker.last_name }}</h6>
+                        <small>{{ conversation.created_at|date:"M d" }}</small>
                       </div>
-                      <small class="text-truncate d-block">Thank you David! I am ready...</small>
+                      <small class="text-truncate d-block">{{ conversation.title|truncatewords:5 }}</small>
                     </div>
                   </div>
                 </a>
+                {% empty %}
+                <div class="text-center text-muted py-4">
+                  <p>No conversations yet.</p>
+                </div>
+                {% endfor %}
               </div>
             </div>
           </div>
 
           <div class="col-lg-8">
             <div class="card card-custom p-0 overflow-hidden">
+              {% if conversations %}
               <div class="p-3 border-bottom d-flex align-items-center justify-content-between bg-body-tertiary">
                 <div class="d-flex align-items-center gap-3">
-                  <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" class="rounded-circle" width="42" height="42" alt="Elena Rostova Avatar">
+                  <img src="https://ui-avatars.com/api/?name={{ conversations.0.request.seeker.first_name }}+{{ conversations.0.request.seeker.last_name }}&background=random" class="rounded-circle" width="42" height="42" alt="{{ conversations.0.request.seeker.first_name }} Avatar">
                   <div>
-                    <h6 class="fw-bold mb-0">Elena Rostova <span class="badge badge-custom badge-success ms-2">Requester</span></h6>
-                    <small class="text-muted">Task: #REQ-8042 (Tech Setup)</small>
+                    <h6 class="fw-bold mb-0">{{ conversations.0.request.seeker.first_name }} {{ conversations.0.request.seeker.last_name }} <span class="badge badge-custom badge-success ms-2">Requester</span></h6>
+                    <small class="text-muted">Task: #REQ-{{ conversations.0.request.id }} ({{ conversations.0.request.title }})</small>
                   </div>
                 </div>
               </div>
@@ -96,6 +103,12 @@
                   </form>
                 </div>
               </div>
+              {% else %}
+              <div class="p-5 text-center text-muted">
+                <i class="fas fa-inbox fs-1 mb-3 d-block"></i>
+                <h5>No Active Conversations</h5>
+              </div>
+              {% endif %}
             </div>
           </div>
         </div>

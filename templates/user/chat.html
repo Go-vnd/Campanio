@@ -46,7 +46,7 @@
                 {% for conversation in conversations %}
                 <a href="#" class="list-group-item list-group-item-action {% if forloop.first %}active{% endif %} rounded-3 mb-2 p-3">
                   <div class="d-flex align-items-center gap-3">
-                    <img src="https://via.placeholder.com/45" class="rounded-circle" width="45" height="45" alt="{{ conversation.volunteer.first_name }}">
+                    <img src="https://ui-avatars.com/api/?name={{ conversation.volunteer.first_name }}+{{ conversation.volunteer.last_name }}&background=random" class="rounded-circle" width="45" height="45" alt="{{ conversation.volunteer.first_name }}">
                     <div class="flex-grow-1 overflow-hidden">
                       <div class="d-flex justify-content-between">
                         <h6 class="fw-bold mb-0">{{ conversation.volunteer.first_name }} {{ conversation.volunteer.last_name }}</h6>
@@ -72,7 +72,7 @@
               <!-- Chat Header -->
               <div class="p-3 border-bottom d-flex align-items-center justify-content-between bg-body-tertiary">
                 <div class="d-flex align-items-center gap-3">
-                  <img src="https://via.placeholder.com/42" class="rounded-circle" width="42" height="42" alt="{{ conversations.0.volunteer.first_name }}">
+                  <img src="https://ui-avatars.com/api/?name={{ conversations.0.volunteer.first_name }}+{{ conversations.0.volunteer.last_name }}&background=random" class="rounded-circle" width="42" height="42" alt="{{ conversations.0.volunteer.first_name }}">
                   <div>
                     <h6 class="fw-bold mb-0">{{ conversations.0.volunteer.first_name }} {{ conversations.0.volunteer.last_name }} <span class="badge badge-custom badge-success ms-2">Online</span></h6>
                     <small class="text-muted">Assisting with: #REQ-{{ conversations.0.id }} ({{ conversations.0.title }})</small>

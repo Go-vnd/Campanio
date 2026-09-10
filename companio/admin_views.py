@@ -35,7 +35,7 @@ def admin_users(request):
     """User management dashboard"""
     users = User.objects.filter(role="seeker").annotate(
         request_count=Count("assistance_requests")
-    ).order_by("-created_at")
+    ).order_by("-date_joined")
     
     context = {
         "users": users,
@@ -50,7 +50,7 @@ def admin_volunteers(request):
     volunteers = User.objects.filter(role="volunteer").annotate(
         completed_tasks=Count("accepted_requests", filter=Q(accepted_requests__status="completed")),
         avg_rating=Avg("received_feedback__rating"),
-    ).order_by("-created_at")
+    ).order_by("-date_joined")
     
     context = {
         "volunteers": volunteers,
@@ -86,7 +86,7 @@ def admin_analytics(request):
                            AssistanceRequest.objects.count() * 100) if AssistanceRequest.objects.count() > 0 else 0,
         "requests_by_category": AssistanceRequest.objects.values("category").annotate(count=Count("id")).order_by("-count"),
         "volunteers_by_skill": Skill.objects.annotate(volunteer_count=Count("volunteers")).order_by("-volunteer_count")[:10],
-        "user_growth": User.objects.filter(role="seeker").values("created_at__month").annotate(count=Count("id")).order_by("created_at__month"),
+        "user_growth": User.objects.filter(role="seeker").values("date_joined__month").annotate(count=Count("id")).order_by("date_joined__month"),
     }
     return render(request, "admin/analytics.html", context)
 

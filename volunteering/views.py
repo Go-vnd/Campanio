@@ -72,6 +72,11 @@ def availability(request): return render(request,"volunteer/availability.html")
 @login_required
 def rewards(request): return render(request,"volunteer/rewards.html")
 @login_required
-def chat(request): return render(request,"volunteer/chat.html")
+def chat(request):
+    from chat.models import Conversation
+    conversations = Conversation.objects.filter(
+        request__volunteer=request.user
+    ).select_related("request__seeker").order_by("-created_at")
+    return render(request, "volunteer/chat.html", {"conversations": conversations})
 @login_required
 def profile(request): return render(request,"volunteer/profile.html")

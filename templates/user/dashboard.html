@@ -144,9 +144,9 @@
             {% if recent_requests.0.volunteer %}
             <div class="col-md-4 border-start ps-md-4 mt-3 mt-md-0">
               <div class="text-center p-3 bg-subtle rounded-3">
-                <img src="https://via.placeholder.com/60" alt="{{ recent_requests.0.volunteer.first_name }} Avatar" class="rounded-circle mb-2" width="60" height="60">
+                <img src="https://ui-avatars.com/api/?name={{ recent_requests.0.volunteer.first_name }}+{{ recent_requests.0.volunteer.last_name }}&background=random" alt="{{ recent_requests.0.volunteer.first_name }} Avatar" class="rounded-circle mb-2" width="60" height="60">
                 <h6 class="fw-bold mb-0">{{ recent_requests.0.volunteer.first_name }} {{ recent_requests.0.volunteer.last_name }}</h6>
-                <small class="text-muted d-block mb-2">Verified Volunteer ⭐ {{ recent_requests.0.volunteer.profile.rating|default:4.5 }}</small>
+                <small class="text-muted d-block mb-2">Verified Volunteer ⭐ {{ recent_requests.0.volunteer.volunteer_stats.rating_average|default:0 }}</small>
                 <a href="{% url 'user_chat' %}" class="btn btn-primary-custom btn-sm w-100"><i class="fas fa-comments me-1"></i>Chat</a>
               </div>
             </div>
