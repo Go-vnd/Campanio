@@ -49,38 +49,25 @@
         <!-- Badges Grid -->
         <h4 class="fw-bold mb-3">Earned Digital Badges</h4>
         <div class="row g-4 mb-5">
+          {% for award in badges %}
           <div class="col-md-4 col-lg-3">
-            <div class="card card-custom p-4 text-center">
-              <div class="bg-warning bg-opacity-10 text-warning rounded-circle p-4 mx-auto mb-3" style="width: 80px; height: 80px;">
+            <div class="card card-custom p-4 text-center h-100">
+              <div class="bg-warning bg-opacity-10 text-warning rounded-circle p-4 mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
                 <i class="fas fa-medal fs-1"></i>
               </div>
-              <h5 class="fw-bold h6 mb-1">Master Tech Tutor</h5>
-              <small class="text-muted d-block mb-2">Awarded for 20+ Assistive Tech sessions</small>
-              <span class="badge bg-success">Verified Badge</span>
+              <h5 class="fw-bold h6 mb-1">{{ award.badge.title }}</h5>
+              <small class="text-muted d-block mb-2">{{ award.badge.criteria }}</small>
+              <span class="badge bg-success">Awarded {{ award.awarded_at|date:"M d, Y" }}</span>
             </div>
           </div>
-
-          <div class="col-md-4 col-lg-3">
-            <div class="card card-custom p-4 text-center">
-              <div class="bg-primary bg-opacity-10 text-primary rounded-circle p-4 mx-auto mb-3" style="width: 80px; height: 80px;">
-                <i class="fas fa-clock fs-1"></i>
-              </div>
-              <h5 class="fw-bold h6 mb-1">100+ Hours Contributor</h5>
-              <small class="text-muted d-block mb-2">Dedicated community service</small>
-              <span class="badge bg-success">Verified Badge</span>
+          {% empty %}
+          <div class="col-12">
+            <div class="card card-custom p-4 text-center text-muted">
+              <i class="fas fa-award fs-1 mb-2 opacity-50"></i>
+              <p class="mb-0">No digital badges earned yet. Complete assistance requests and receive positive feedback to earn badges!</p>
             </div>
           </div>
-
-          <div class="col-md-4 col-lg-3">
-            <div class="card card-custom p-4 text-center">
-              <div class="bg-danger bg-opacity-10 text-danger rounded-circle p-4 mx-auto mb-3" style="width: 80px; height: 80px;">
-                <i class="fas fa-heart fs-1"></i>
-              </div>
-              <h5 class="fw-bold h6 mb-1">Community Hero</h5>
-              <small class="text-muted d-block mb-2">5.0 Star Rating streak</small>
-              <span class="badge bg-success">Verified Badge</span>
-            </div>
-          </div>
+          {% endfor %}
         </div>
       </main>
     </div>
