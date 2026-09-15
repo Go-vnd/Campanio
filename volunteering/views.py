@@ -66,6 +66,8 @@ def complete_request(request, request_id):
     
     return redirect("accepted_requests")
 
+from django.contrib import messages
+
 @login_required
 def skills(request):
     if request.method == "POST":
@@ -74,7 +76,10 @@ def skills(request):
             skill = form.save(commit=False)
             skill.volunteer = request.user
             skill.save()
+            messages.success(request, f"Skill '{skill.name}' added successfully and submitted for review.")
             return redirect("volunteer_skills")
+        else:
+            messages.error(request, "Please check the entered skill details.")
     else:
         form = SkillForm()
         
@@ -85,7 +90,9 @@ def skills(request):
 def remove_skill(request, skill_id):
     if request.method == "POST":
         skill = get_object_or_404(Skill, pk=skill_id, volunteer=request.user)
+        skill_name = skill.name
         skill.delete()
+        messages.success(request, f"Skill '{skill_name}' removed successfully.")
     return redirect("volunteer_skills")
 @login_required
 def availability(request): return render(request,"volunteer/availability.html")

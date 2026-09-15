@@ -41,7 +41,7 @@ def volunteer_dashboard(request):
     )
 
     # Badges earned
-    badges = BadgeAward.objects.filter(user=user)
+    badges = BadgeAward.objects.filter(volunteer=user)
 
     # Requests which are still available for volunteers
     available_requests = (

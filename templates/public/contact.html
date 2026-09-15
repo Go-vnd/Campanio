@@ -68,18 +68,29 @@
         <div class="col-lg-7">
           <div class="card card-custom p-4 p-md-5">
             <h3 class="fw-bold mb-4">Send Us a Message</h3>
-            <form id="contactForm" onsubmit="event.preventDefault(); showToast('Message sent successfully! Our team will respond shortly.', 'success');">
+
+            {% if messages %}
+              {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                  {{ message }}
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+              {% endfor %}
+            {% endif %}
+
+            <form id="contactForm" method="post" action="{% url 'contact' %}">
+              {% csrf_token %}
               <div class="mb-3">
                 <label for="contactName" class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
-                <input type="text" class="form-control form-control-lg" id="contactName" placeholder="Enter your name" required>
+                <input type="text" name="name" class="form-control form-control-lg" id="contactName" placeholder="Enter your name" required>
               </div>
               <div class="mb-3">
                 <label for="contactEmail" class="form-label fw-semibold">Email Address <span class="text-danger">*</span></label>
-                <input type="email" class="form-control form-control-lg" id="contactEmail" placeholder="name@example.com" required>
+                <input type="email" name="email" class="form-control form-control-lg" id="contactEmail" placeholder="name@example.com" required>
               </div>
               <div class="mb-3">
                 <label for="contactRole" class="form-label fw-semibold">I am a...</label>
-                <select class="form-select form-select-lg" id="contactRole">
+                <select name="role" class="form-select form-select-lg" id="contactRole">
                   <option value="user">Person seeking assistance</option>
                   <option value="volunteer">Volunteer / Skill Provider</option>
                   <option value="organization">Partner Organization / Caregiver</option>
@@ -87,7 +98,7 @@
               </div>
               <div class="mb-4">
                 <label for="contactMessage" class="form-label fw-semibold">Message <span class="text-danger">*</span></label>
-                <textarea class="form-control" id="contactMessage" rows="4" placeholder="How can we help you?" required></textarea>
+                <textarea name="message" class="form-control" id="contactMessage" rows="4" placeholder="How can we help you?" required></textarea>
               </div>
               <button type="submit" class="btn btn-primary-custom btn-lg w-100">Send Message <i class="fas fa-paper-plane ms-2"></i></button>
             </form>

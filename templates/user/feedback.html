@@ -45,13 +45,45 @@
               <p class="text-muted">Your feedback rewards dedicated volunteers with digital certificates and community badges.</p>
             </div>
 
+            {% if messages %}
+              {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                  {{ message }}
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+              {% endfor %}
+            {% endif %}
+
             {% if form and request_obj %}
               <form method="post">
                 {% csrf_token %}
                 <div class="mb-4">
-                  <label class="form-label fw-bold">Completed Request: {{ request_obj.title }}</label>
+                  <div class="alert alert-info">
+                    <i class="fas fa-hand-holding-heart me-2"></i>Giving feedback for: <strong>{{ request_obj.title }}</strong> 
+                    {% if request_obj.volunteer %}with <strong>{{ request_obj.volunteer.first_name }} {{ request_obj.volunteer.last_name }}</strong>{% endif %}
+                  </div>
                 </div>
-                {{ form.as_p }}
+
+                <!-- Interactive Star Rating -->
+                <div class="text-center mb-4">
+                  <label class="form-label fw-bold d-block mb-2">Overall Satisfaction Rating</label>
+                  <input type="hidden" name="rating" id="ratingInput" required>
+                  <div class="fs-1 text-warning gap-2 d-flex justify-content-center cursor-pointer" id="starRatingContainer">
+                    <i class="far fa-star rating-star" data-value="1"></i>
+                    <i class="far fa-star rating-star" data-value="2"></i>
+                    <i class="far fa-star rating-star" data-value="3"></i>
+                    <i class="far fa-star rating-star" data-value="4"></i>
+                    <i class="far fa-star rating-star" data-value="5"></i>
+                  </div>
+                  <small class="text-muted d-block mt-1">Click to select star rating (5/5 Excellent)</small>
+                </div>
+
+                <!-- Text Review -->
+                <div class="mb-4">
+                  <label for="reviewComments" class="form-label fw-bold">Written Testimonial / Comments</label>
+                  <textarea class="form-control" id="reviewComments" name="testimonial" rows="4" placeholder="Share how the volunteer assisted you today..."></textarea>
+                </div>
+
                 <button type="submit" class="btn btn-primary-custom btn-lg w-100"><i class="fas fa-paper-plane me-2"></i>Submit Feedback & Award Badge</button>
               </form>
             {% else %}

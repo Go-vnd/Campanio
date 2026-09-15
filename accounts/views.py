@@ -13,9 +13,13 @@ def register(request):
         form = RegisterForm(request.POST)
         if form.is_valid():
             user = form.save()
-            Profile.objects.create(user=user)
+            profile, _ = Profile.objects.get_or_create(user=user)
+            pref = request.POST.get("accessibility_preference")
+            if pref:
+                profile.accessibility_preferences = {"preference": pref}
+                profile.save()
             login(request, user)
-            return redirect("/accounts/dashboard/")
+            return redirect("dashboard")
     else:
         form = RegisterForm()
     return render(request, "accounts/register.html", {"form": form})
@@ -122,6 +126,8 @@ def feedback(request, request_id=None):
                 feedback_obj.save()
                 messages.success(request, "Thank you for your feedback!")
                 return redirect("request_history")
+            else:
+                messages.error(request, "Please provide a valid rating (1 to 5).")
         else:
             form = FeedbackForm()
         
@@ -138,6 +144,9 @@ def feedback(request, request_id=None):
         
         if request.method == "POST":
             req_id = request.POST.get('request_id')
+            if not req_id:
+                messages.error(request, "Please select a completed request.")
+                return redirect("feedback_general")
             assistance_request = get_object_or_404(AssistanceRequest, pk=req_id, seeker=request.user)
             form = FeedbackForm(request.POST)
             if form.is_valid():
@@ -148,6 +157,8 @@ def feedback(request, request_id=None):
                 feedback_obj.save()
                 messages.success(request, "Thank you for your feedback!")
                 return redirect("request_history")
+            else:
+                messages.error(request, "Please provide a valid rating (1 to 5).")
         
         context = {
             "completed_requests": completed_requests,
