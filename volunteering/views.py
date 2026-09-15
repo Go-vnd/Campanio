@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.db.models import Avg, Count
 from assistance.models import AssistanceRequest, Feedback
-from rewards.models import BadgeAward
+from rewards.models import BadgeAward, Certificate
 from .models import Skill, Availability
 
 @login_required
@@ -70,7 +70,10 @@ def skills(request): return render(request,"volunteer/skills.html")
 @login_required
 def availability(request): return render(request,"volunteer/availability.html")
 @login_required
-def rewards(request): return render(request,"volunteer/rewards.html")
+def rewards(request):
+    badges = BadgeAward.objects.filter(volunteer=request.user).select_related("badge")
+    certificates = Certificate.objects.filter(volunteer=request.user)
+    return render(request, "volunteer/rewards.html", {"badges": badges, "certificates": certificates})
 @login_required
 def chat(request):
     from chat.models import Conversation

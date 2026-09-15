@@ -10,7 +10,7 @@ class Badge(models.Model):
         return self.title
 
 class BadgeAward(models.Model):
-    badge = models.ForeignKey(Badge, on_delete=models.CASCADE)
+    badge = models.ForeignKey(Badge, on_delete=models.CASCADE, related_name="badge_awards")
     volunteer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="badge_awards")
     awarded_at = models.DateTimeField(auto_now_add=True)
 
