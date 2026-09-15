@@ -14,9 +14,10 @@
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
 
+  <!-- Admin Header -->
   <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
     <div class="container-fluid px-lg-4">
-      <a class="navbar-brand text-danger" href="{% url 'home' %}"><i class="fas fa-user-shield me-2"></i>Companio Admin Control Panel</a>
+      <a class="navbar-brand text-danger" href="{% url 'admin_dashboard' %}"><i class="fas fa-user-shield me-2"></i>Companio Admin Control Panel</a>
       <div class="d-flex align-items-center gap-3 ms-auto">
         <button class="btn btn-link nav-link p-2 theme-toggle-btn"><i class="theme-toggle-icon fas fa-moon fs-5"></i></button>
         <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-custom btn-sm">Dashboard</a>
@@ -34,64 +35,185 @@
         <a href="{% url 'admin_requests' %}" class="sidebar-link active"><i class="fas fa-list-alt"></i> Request Management</a>
         <a href="{% url 'admin_analytics' %}" class="sidebar-link"><i class="fas fa-chart-bar"></i> Reports & Analytics</a>
         <a href="{% url 'admin_badges' %}" class="sidebar-link"><i class="fas fa-certificate"></i> Badge Management</a>
+        <a href="{% url 'admin_contact_messages' %}" class="sidebar-link"><i class="fas fa-envelope"></i> Support Inquiries</a>
       </aside>
 
       <main id="main-content" class="col-lg-10 p-4">
-        <h1 class="h3 fw-bold mb-4">Global Assistance Request Management</h1>
+        <!-- Django Messages -->
+        {% if messages %}
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show mb-4" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+        {% endif %}
 
-        <div class="card card-custom p-3 mb-4">
-          <div class="row g-3">
-            <div class="col-md-6">
-              <input type="text" class="form-control" placeholder="Search by request ID, title, requester, or volunteer...">
-            </div>
-            <div class="col-md-3">
-              <select class="form-select">
-                <option value="">All Statuses</option>
-                <option value="pending">Pending Match</option>
-                <option value="in_progress">In Progress</option>
-                <option value="completed">Completed</option>
-              </select>
-            </div>
-            <div class="col-md-3">
-              <select class="form-select">
-                <option value="">Priority</option>
-                <option value="urgent">Urgent Only</option>
-                <option value="standard">Standard</option>
-              </select>
-            </div>
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+          <div>
+            <h1 class="h3 fw-bold mb-1">Global Assistance Request Management</h1>
+            <p class="text-muted mb-0">Oversee requests, assign volunteers, and monitor exchange progress.</p>
           </div>
         </div>
 
+        <!-- Search & Filter Form -->
+        <div class="card card-custom p-3 mb-4">
+          <form method="GET" action="{% url 'admin_requests' %}" class="row g-3">
+            <div class="col-md-5">
+              <div class="input-group">
+                <span class="input-group-text bg-body"><i class="fas fa-search text-muted"></i></span>
+                <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Search by ID, title, seeker, or volunteer...">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <select name="status" class="form-select">
+                <option value="">All Statuses</option>
+                <option value="pending" {% if selected_status == 'pending' %}selected{% endif %}>Pending Volunteer Match</option>
+                <option value="accepted" {% if selected_status == 'accepted' %}selected{% endif %}>Accepted by Volunteer</option>
+                <option value="in_progress" {% if selected_status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                <option value="completed" {% if selected_status == 'completed' %}selected{% endif %}>Completed</option>
+                <option value="cancelled" {% if selected_status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <select name="priority" class="form-select">
+                <option value="">All Priorities</option>
+                <option value="urgent" {% if selected_priority == 'urgent' %}selected{% endif %}>Urgent Only</option>
+                <option value="normal" {% if selected_priority == 'normal' %}selected{% endif %}>Normal</option>
+              </select>
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+              <button type="submit" class="btn btn-primary-custom w-100">Filter</button>
+              {% if query or selected_status or selected_priority %}
+                <a href="{% url 'admin_requests' %}" class="btn btn-outline-secondary" title="Reset Filters"><i class="fas fa-undo"></i></a>
+              {% endif %}
+            </div>
+          </form>
+        </div>
+
+        <!-- Requests Table -->
         <div class="card card-custom overflow-hidden">
           <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
               <thead class="table-light">
                 <tr>
                   <th>Request ID</th>
-                  <th>Task Title</th>
+                  <th>Task Title & Category</th>
                   <th>Assistance Seeker</th>
-                  <th>Matched Volunteer</th>
+                  <th>Assigned Volunteer</th>
                   <th>Priority</th>
                   <th>Status</th>
                   <th class="text-end">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {% for request in requests %}
+                {% for req in requests %}
                 <tr>
-                  <td class="fw-bold">#REQ-{{ request.id }}</td>
-                  <td>{{ request.title }}</td>
-                  <td>{{ request.user.first_name }} {{ request.user.last_name }}</td>
-                  <td>{% if request.volunteer %}{{ request.volunteer.first_name }} {{ request.volunteer.last_name }}{% else %}<span class="text-muted">Unassigned</span>{% endif %}</td>
-                  <td><span class="badge {% if request.priority == 'urgent' %}bg-danger{% elif request.priority == 'high' %}bg-warning text-dark{% else %}bg-secondary{% endif %}">{{ request.priority|default:"Standard"|title }}</span></td>
-                  <td><span class="badge {% if request.status == 'completed' %}bg-success{% elif request.status == 'in_progress' %}bg-warning text-dark{% elif request.status == 'pending' %}bg-info{% else %}bg-secondary{% endif %}">{{ request.status|default:"Pending"|title }}</span></td>
+                  <td class="fw-bold">#REQ-{{ req.id }}</td>
+                  <td>
+                    <div class="fw-bold">{{ req.title }}</div>
+                    <small class="badge badge-custom badge-blue text-capitalize">{{ req.get_category_display|default:req.category }}</small>
+                  </td>
+                  <td>
+                    <div class="fw-bold">{{ req.seeker.get_full_name|default:req.seeker.username }}</div>
+                    <small class="text-muted">{{ req.seeker.email }}</small>
+                  </td>
+                  <td>
+                    {% if req.volunteer %}
+                      <div class="fw-bold text-success"><i class="fas fa-user-check me-1"></i>{{ req.volunteer.get_full_name|default:req.volunteer.username }}</div>
+                      <small class="text-muted">{{ req.volunteer.email }}</small>
+                    {% else %}
+                      <span class="badge bg-secondary">Unassigned</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if req.priority == 'urgent' %}
+                      <span class="badge bg-danger"><i class="fas fa-exclamation-triangle me-1"></i>Urgent</span>
+                    {% else %}
+                      <span class="badge bg-secondary">Normal</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if req.status == 'completed' %}
+                      <span class="badge bg-success">Completed</span>
+                    {% elif req.status == 'accepted' %}
+                      <span class="badge bg-primary">Accepted</span>
+                    {% elif req.status == 'in_progress' %}
+                      <span class="badge bg-warning text-dark">In Progress</span>
+                    {% elif req.status == 'cancelled' %}
+                      <span class="badge bg-danger">Cancelled</span>
+                    {% else %}
+                      <span class="badge bg-info text-dark">Pending Match</span>
+                    {% endif %}
+                  </td>
                   <td class="text-end">
-                    <button class="btn btn-sm btn-outline-custom" onclick="showToast('Re-assigning volunteer...', 'info')">Re-assign</button>
+                    <button class="btn btn-sm btn-outline-custom" data-bs-toggle="modal" data-bs-target="#manageReqModal{{ req.id }}">
+                      <i class="fas fa-edit me-1"></i>Manage
+                    </button>
                   </td>
                 </tr>
+
+                <!-- Manage / Reassign Request Modal -->
+                <div class="modal fade" id="manageReqModal{{ req.id }}" tabindex="-1" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content card-custom">
+                      <div class="modal-header">
+                        <h5 class="modal-title fw-bold"><i class="fas fa-tasks text-primary me-2"></i>Manage Request #REQ-{{ req.id }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <form method="POST" action="{% url 'admin_request_assign' req.id %}" class="admin-action-form">
+                        {% csrf_token %}
+                        <div class="modal-body text-start">
+                          <div class="mb-3">
+                            <h6 class="fw-bold mb-1">{{ req.title }}</h6>
+                            <p class="text-muted small mb-2">{{ req.description }}</p>
+                            <div class="small bg-body p-2 rounded border">
+                              <div><strong>Scheduled:</strong> {{ req.scheduled_at|date:"M d, Y, h:i A" }}</div>
+                              <div><strong>Location:</strong> {{ req.location|default:"Virtual Session" }}</div>
+                              {% if req.accessibility_instructions %}
+                                <div><strong>Accessibility Instructions:</strong> {{ req.accessibility_instructions }}</div>
+                              {% endif %}
+                            </div>
+                          </div>
+
+                          <div class="mb-3">
+                            <label class="form-label fw-bold small">Assign / Re-assign Volunteer</label>
+                            <select name="volunteer_id" class="form-select">
+                              <option value="unassigned" {% if not req.volunteer %}selected{% endif %}>-- Unassigned (Keep in matching pool) --</option>
+                              {% for vol in volunteers %}
+                                <option value="{{ vol.id }}" {% if req.volunteer_id == vol.id %}selected{% endif %}>
+                                  {{ vol.get_full_name|default:vol.username }} ({{ vol.email }})
+                                </option>
+                              {% endfor %}
+                            </select>
+                          </div>
+
+                          <div class="mb-3">
+                            <label class="form-label fw-bold small">Update Request Status</label>
+                            <select name="status" class="form-select">
+                              <option value="pending" {% if req.status == 'pending' %}selected{% endif %}>Pending Match</option>
+                              <option value="accepted" {% if req.status == 'accepted' %}selected{% endif %}>Accepted</option>
+                              <option value="in_progress" {% if req.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                              <option value="completed" {% if req.status == 'completed' %}selected{% endif %}>Completed</option>
+                              <option value="cancelled" {% if req.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                          <button type="submit" class="btn btn-primary-custom">Save Changes</button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+
                 {% empty %}
                 <tr>
-                  <td colspan="7" class="text-center text-muted py-4">No requests found</td>
+                  <td colspan="7" class="text-center text-muted py-4">
+                    <i class="fas fa-clipboard-list fs-1 d-block mb-2 opacity-50"></i>
+                    No requests found matching your filter criteria.
+                  </td>
                 </tr>
                 {% endfor %}
               </tbody>

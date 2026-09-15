@@ -1,0 +1,184 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Support Inquiries - Companio Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/accessibility.css' %}">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- Admin Header -->
+  <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
+    <div class="container-fluid px-lg-4">
+      <a class="navbar-brand text-danger" href="{% url 'admin_dashboard' %}"><i class="fas fa-user-shield me-2"></i>Companio Admin Control Panel</a>
+      <div class="d-flex align-items-center gap-3 ms-auto">
+        <button class="btn btn-link nav-link p-2 theme-toggle-btn"><i class="theme-toggle-icon fas fa-moon fs-5"></i></button>
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-custom btn-sm">Dashboard</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container-fluid px-lg-4">
+    <div class="row">
+      <aside class="col-lg-2 sidebar d-none d-lg-block">
+        <div class="small fw-bold text-muted text-uppercase mb-3 px-3">Administration</div>
+        <a href="{% url 'admin_dashboard' %}" class="sidebar-link"><i class="fas fa-chart-pie"></i> Dashboard</a>
+        <a href="{% url 'admin_users' %}" class="sidebar-link"><i class="fas fa-users"></i> User Management</a>
+        <a href="{% url 'admin_volunteers' %}" class="sidebar-link"><i class="fas fa-hands-helping"></i> Volunteer Management</a>
+        <a href="{% url 'admin_requests' %}" class="sidebar-link"><i class="fas fa-list-alt"></i> Request Management</a>
+        <a href="{% url 'admin_analytics' %}" class="sidebar-link"><i class="fas fa-chart-bar"></i> Reports & Analytics</a>
+        <a href="{% url 'admin_badges' %}" class="sidebar-link"><i class="fas fa-certificate"></i> Badge Management</a>
+        <a href="{% url 'admin_contact_messages' %}" class="sidebar-link active"><i class="fas fa-envelope"></i> Support Inquiries</a>
+      </aside>
+
+      <main id="main-content" class="col-lg-10 p-4">
+        <!-- Django Messages -->
+        {% if messages %}
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show mb-4" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+        {% endif %}
+
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+          <div>
+            <h1 class="h3 fw-bold mb-1">Support & Contact Inquiries</h1>
+            <p class="text-muted mb-0">Review incoming questions from seekers, volunteers, and partner organizations.</p>
+          </div>
+          <div class="d-flex gap-2">
+            <a href="{% url 'admin_contact_messages' %}" class="btn btn-sm {% if not selected_status %}btn-primary-custom{% else %}btn-outline-custom{% endif %}">All ({{ total_inquiries }})</a>
+            <a href="{% url 'admin_contact_messages' %}?status=pending" class="btn btn-sm {% if selected_status == 'pending' %}btn-warning{% else %}btn-outline-warning{% endif %}">Unresolved ({{ unresolved_inquiries }})</a>
+            <a href="{% url 'admin_contact_messages' %}?status=resolved" class="btn btn-sm {% if selected_status == 'resolved' %}btn-success{% else %}btn-outline-success{% endif %}">Resolved</a>
+          </div>
+        </div>
+
+        <!-- Inquiries Table -->
+        <div class="card card-custom overflow-hidden">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Sender</th>
+                  <th>Role</th>
+                  <th>Message Preview</th>
+                  <th>Date Submitted</th>
+                  <th>Status</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for msg in inquiries %}
+                <tr class="{% if not msg.is_resolved %}table-light fw-semibold{% endif %}">
+                  <td>
+                    <div class="fw-bold">{{ msg.name }}</div>
+                    <small class="text-muted">{{ msg.email }}</small>
+                  </td>
+                  <td>
+                    <span class="badge badge-custom badge-blue text-capitalize">{{ msg.role|default:"Public User" }}</span>
+                  </td>
+                  <td style="max-width: 350px;">
+                    <div class="text-truncate">{{ msg.message }}</div>
+                  </td>
+                  <td>{{ msg.created_at|date:"M d, Y, h:i A" }}</td>
+                  <td>
+                    {% if msg.is_resolved %}
+                      <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Resolved</span>
+                    {% else %}
+                      <span class="badge bg-warning text-dark"><i class="fas fa-clock me-1"></i>Open</span>
+                    {% endif %}
+                  </td>
+                  <td class="text-end">
+                    <!-- View Full Message Modal Trigger -->
+                    <button class="btn btn-sm btn-outline-custom me-1" data-bs-toggle="modal" data-bs-target="#msgModal{{ msg.id }}" title="Read Full Message">
+                      <i class="fas fa-eye"></i>
+                    </button>
+
+                    <!-- Toggle Resolved Form -->
+                    <form method="POST" action="{% url 'admin_contact_messages' %}" class="d-inline">
+                      {% csrf_token %}
+                      <input type="hidden" name="message_id" value="{{ msg.id }}">
+                      <input type="hidden" name="action" value="toggle_resolve">
+                      <button type="submit" class="btn btn-sm {% if msg.is_resolved %}btn-outline-secondary{% else %}btn-outline-success{% endif %}" title="{% if msg.is_resolved %}Mark as Open{% else %}Mark as Resolved{% endif %}">
+                        <i class="fas {% if msg.is_resolved %}fa-undo{% else %}fa-check{% endif %}"></i>
+                      </button>
+                    </form>
+
+                    <!-- Delete Form -->
+                    <form method="POST" action="{% url 'admin_contact_messages' %}" class="d-inline" onsubmit="return confirm('Delete this inquiry message?');">
+                      {% csrf_token %}
+                      <input type="hidden" name="message_id" value="{{ msg.id }}">
+                      <input type="hidden" name="action" value="delete">
+                      <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete Message">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+
+                <!-- Read Full Message Modal -->
+                <div class="modal fade" id="msgModal{{ msg.id }}" tabindex="-1" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content card-custom">
+                      <div class="modal-header">
+                        <h5 class="modal-title fw-bold"><i class="fas fa-envelope-open-text text-primary me-2"></i>Inquiry from {{ msg.name }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body text-start">
+                        <div class="mb-3">
+                          <small class="text-muted fw-bold d-block">Sender Info</small>
+                          <div><strong>{{ msg.name }}</strong> ({{ msg.email }})</div>
+                          <div class="text-muted small">Role: <span class="text-capitalize">{{ msg.role|default:"Public User" }}</span> | Submitted: {{ msg.created_at|date:"F d, Y, h:i A" }}</div>
+                        </div>
+                        <div class="mb-3">
+                          <small class="text-muted fw-bold d-block">Message Content</small>
+                          <div class="p-3 bg-body rounded border mt-1" style="white-space: pre-wrap;">{{ msg.message }}</div>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-between">
+                          <span>Status: {% if msg.is_resolved %}<span class="badge bg-success">Resolved</span>{% else %}<span class="badge bg-warning text-dark">Open / Pending</span>{% endif %}</span>
+                          <a href="mailto:{{ msg.email }}?subject=Reply to your Companio inquiry" class="btn btn-sm btn-primary-custom"><i class="fas fa-reply me-1"></i>Reply via Email</a>
+                        </div>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {% empty %}
+                <tr>
+                  <td colspan="6" class="text-center text-muted py-4">
+                    <i class="fas fa-inbox fs-1 d-block mb-2 opacity-50"></i>
+                    No contact messages found.
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div class="accessibility-bar">
+    <button id="btn-font-increase">A+</button>
+    <button id="btn-font-reset">A</button>
+    <button id="btn-font-decrease">A-</button>
+    <button id="btn-contrast-toggle"><i class="fas fa-adjust"></i></button>
+    <button id="btn-tts-toggle"><i class="fas fa-volume-up"></i></button>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

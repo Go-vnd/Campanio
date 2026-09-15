@@ -14,9 +14,10 @@
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
 
+  <!-- Admin Header -->
   <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
     <div class="container-fluid px-lg-4">
-      <a class="navbar-brand text-danger" href="{% url 'home' %}"><i class="fas fa-user-shield me-2"></i>Companio Admin Control Panel</a>
+      <a class="navbar-brand text-danger" href="{% url 'admin_dashboard' %}"><i class="fas fa-user-shield me-2"></i>Companio Admin Control Panel</a>
       <div class="d-flex align-items-center gap-3 ms-auto">
         <button class="btn btn-link nav-link p-2 theme-toggle-btn"><i class="theme-toggle-icon fas fa-moon fs-5"></i></button>
         <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-custom btn-sm">Dashboard</a>
@@ -34,71 +35,245 @@
         <a href="{% url 'admin_requests' %}" class="sidebar-link"><i class="fas fa-list-alt"></i> Request Management</a>
         <a href="{% url 'admin_analytics' %}" class="sidebar-link"><i class="fas fa-chart-bar"></i> Reports & Analytics</a>
         <a href="{% url 'admin_badges' %}" class="sidebar-link"><i class="fas fa-certificate"></i> Badge Management</a>
+        <a href="{% url 'admin_contact_messages' %}" class="sidebar-link"><i class="fas fa-envelope"></i> Support Inquiries</a>
       </aside>
 
       <main id="main-content" class="col-lg-10 p-4">
-        <h1 class="h3 fw-bold mb-4">Volunteer Management & Background Checks</h1>
+        <!-- Django Messages -->
+        {% if messages %}
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show mb-4" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+        {% endif %}
 
-        <div class="card card-custom p-3 mb-4">
-          <div class="row g-3">
-            <div class="col-md-6">
-              <input type="text" class="form-control" placeholder="Search volunteer by name, skill, or rating...">
-            </div>
-            <div class="col-md-3">
-              <select class="form-select">
-                <option value="">All Verification Statuses</option>
-                <option value="verified">Background Verified</option>
-                <option value="pending">Pending Approval</option>
-              </select>
-            </div>
-            <div class="col-md-3">
-              <select class="form-select">
-                <option value="">All Skills</option>
-                <option value="tech">Tech Tutor</option>
-                <option value="mobility">Mobility</option>
-                <option value="sign">Sign Language</option>
-              </select>
-            </div>
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+          <div>
+            <h1 class="h3 fw-bold mb-1">Volunteer Management & Background Checks</h1>
+            <p class="text-muted mb-0">Verify credentials, review submitted skills, and issue awards and certificates.</p>
           </div>
         </div>
 
+        <!-- Search & Filter Form -->
+        <div class="card card-custom p-3 mb-4">
+          <form method="GET" action="{% url 'admin_volunteers' %}" class="row g-3">
+            <div class="col-md-5">
+              <div class="input-group">
+                <span class="input-group-text bg-body"><i class="fas fa-search text-muted"></i></span>
+                <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Search volunteer by name, email, or skill...">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <select name="verification" class="form-select">
+                <option value="">All Verification Statuses</option>
+                <option value="verified" {% if selected_verification == 'verified' %}selected{% endif %}>Background Verified & Cleared</option>
+                <option value="pending" {% if selected_verification == 'pending' %}selected{% endif %}>Pending Verification</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <input type="text" name="skill" value="{{ selected_skill }}" class="form-control" placeholder="Filter by skill...">
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+              <button type="submit" class="btn btn-primary-custom w-100">Filter</button>
+              {% if query or selected_verification or selected_skill %}
+                <a href="{% url 'admin_volunteers' %}" class="btn btn-outline-secondary" title="Reset Filters"><i class="fas fa-undo"></i></a>
+              {% endif %}
+            </div>
+          </form>
+        </div>
+
+        <!-- Volunteers Table -->
         <div class="card card-custom overflow-hidden">
           <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
               <thead class="table-light">
                 <tr>
                   <th>Volunteer</th>
-                  <th>Verified Skills</th>
-                  <th>Hours Given</th>
+                  <th>Submitted Skills</th>
+                  <th>Completed Tasks</th>
                   <th>Rating</th>
-                  <th>Background Check</th>
+                  <th>Verification Status</th>
                   <th class="text-end">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {% for volunteer in volunteers %}
+                {% for v in volunteers %}
                 <tr>
                   <td>
                     <div class="d-flex align-items-center gap-2">
-                      <img src="https://ui-avatars.com/api/?name={{ volunteer.first_name }}+{{ volunteer.last_name }}&background=random" class="rounded-circle" width="36" height="36" alt="{{ volunteer.first_name }} {{ volunteer.last_name }}">
+                      <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 36px; height: 36px;">
+                        {{ v.first_name|first|default:v.username|first|upper }}
+                      </div>
                       <div>
-                        <div class="fw-bold">{{ volunteer.first_name }} {{ volunteer.last_name }}</div>
-                        <small class="text-muted">{{ volunteer.email }}</small>
+                        <div class="fw-bold">{{ v.get_full_name|default:v.username }}</div>
+                        <small class="text-muted">{{ v.email }} {% if v.phone %}| {{ v.phone }}{% endif %}</small>
                       </div>
                     </div>
                   </td>
-                  <td><span class="badge badge-custom badge-blue">{{ volunteer.profile.skills|default:"General Helper" }}</span></td>
-                  <td>{{ volunteer.profile.hours_completed|default:0 }} hrs</td>
-                  <td><span class="fw-bold text-warning">{{ volunteer.profile.rating|default:"N/A" }} ⭐</span></td>
-                  <td><span class="badge bg-success">Passed & Cleared</span></td>
+                  <td>
+                    {% for skill in v.skills.all %}
+                      <span class="badge {% if skill.verified %}badge-custom badge-blue{% else %}bg-warning text-dark{% endif %} me-1">
+                        {{ skill.name }} {% if not skill.verified %}(Review){% endif %}
+                      </span>
+                    {% empty %}
+                      <span class="text-muted small">No skills registered</span>
+                    {% endfor %}
+                  </td>
+                  <td>
+                    <span class="badge bg-info text-dark">{{ v.completed_tasks }} Task{{ v.completed_tasks|pluralize }}</span>
+                  </td>
+                  <td>
+                    {% if v.avg_rating %}
+                      <span class="fw-bold text-warning">{{ v.avg_rating|floatformat:1 }} <i class="fas fa-star text-warning"></i></span>
+                    {% else %}
+                      <span class="text-muted small">No ratings</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if v.is_verified or v.profile.background_verified %}
+                      <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Passed & Cleared</span>
+                    {% else %}
+                      <span class="badge bg-warning text-dark"><i class="fas fa-clock me-1"></i>Pending Review</span>
+                    {% endif %}
+                  </td>
                   <td class="text-end">
-                    <button class="btn btn-sm btn-outline-custom me-1" onclick="showToast('Viewing Volunteer Profile...', 'info')"><i class="fas fa-eye"></i></button>
-                    <button class="btn btn-sm btn-outline-success" onclick="showToast('Certificate Issued!', 'success')"><i class="fas fa-award"></i></button>
+                    <!-- View Profile Modal Button -->
+                    <button class="btn btn-sm btn-outline-custom me-1" data-bs-toggle="modal" data-bs-target="#volunteerModal{{ v.id }}" title="View Profile & Skills">
+                      <i class="fas fa-eye"></i>
+                    </button>
+
+                    <!-- Issue Award / Certificate Modal Button -->
+                    <button class="btn btn-sm btn-outline-warning me-1" data-bs-toggle="modal" data-bs-target="#awardModal{{ v.id }}" title="Award Badge / Issue Certificate">
+                      <i class="fas fa-award"></i>
+                    </button>
+
+                    <!-- Toggle Verification Button -->
+                    <form method="POST" action="{% url 'admin_volunteer_toggle_verify' v.id %}" class="d-inline admin-action-form" onsubmit="return confirm('Change verification status for this volunteer?');">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-sm {% if v.is_verified or v.profile.background_verified %}btn-outline-danger{% else %}btn-outline-success{% endif %}" title="Toggle Background Verification">
+                        <i class="fas {% if v.is_verified or v.profile.background_verified %}fa-user-slash{% else %}fa-user-check{% endif %}"></i>
+                      </button>
+                    </form>
                   </td>
                 </tr>
+
+                <!-- Volunteer Profile Modal -->
+                <div class="modal fade" id="volunteerModal{{ v.id }}" tabindex="-1" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content card-custom">
+                      <div class="modal-header">
+                        <h5 class="modal-title fw-bold"><i class="fas fa-hands-helping text-success me-2"></i>Volunteer: {{ v.get_full_name|default:v.username }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body text-start">
+                        <div class="row g-3">
+                          <div class="col-6">
+                            <small class="text-muted fw-bold d-block">Username</small>
+                            <div>@{{ v.username }}</div>
+                          </div>
+                          <div class="col-6">
+                            <small class="text-muted fw-bold d-block">Email Address</small>
+                            <div>{{ v.email }}</div>
+                          </div>
+                          <div class="col-6">
+                            <small class="text-muted fw-bold d-block">Phone Number</small>
+                            <div>{{ v.phone|default:"Not specified" }}</div>
+                          </div>
+                          <div class="col-6">
+                            <small class="text-muted fw-bold d-block">Service Radius</small>
+                            <div>{{ v.profile.service_radius_miles }} miles</div>
+                          </div>
+                          <div class="col-12">
+                            <small class="text-muted fw-bold d-block">Bio / Qualifications</small>
+                            <div class="text-muted bg-body p-2 rounded border">{{ v.profile.bio|default:"No volunteer bio provided." }}</div>
+                          </div>
+                          <div class="col-12">
+                            <small class="text-muted fw-bold d-block mb-1">Registered Skills & Documents</small>
+                            {% for skill in v.skills.all %}
+                              <div class="d-flex justify-content-between align-items-center bg-body p-2 rounded border mb-2">
+                                <div>
+                                  <strong>{{ skill.name }}</strong>
+                                  <div class="small text-muted">{{ skill.description }}</div>
+                                </div>
+                                <div class="text-end">
+                                  {% if skill.certification_document %}
+                                    <a href="{{ skill.certification_document.url }}" target="_blank" class="btn btn-sm btn-outline-primary mb-1"><i class="fas fa-file-pdf me-1"></i>Doc</a>
+                                  {% endif %}
+                                  {% if skill.verified %}
+                                    <span class="badge bg-success d-block">Verified</span>
+                                  {% else %}
+                                    <span class="badge bg-warning text-dark d-block">Review</span>
+                                  {% endif %}
+                                </div>
+                              </div>
+                            {% empty %}
+                              <div class="text-muted small">No specific skills registered.</div>
+                            {% endfor %}
+                          </div>
+                        </div>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Award Badge & Issue Certificate Modal -->
+                <div class="modal fade" id="awardModal{{ v.id }}" tabindex="-1" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content card-custom">
+                      <div class="modal-header">
+                        <h5 class="modal-title fw-bold"><i class="fas fa-award text-warning me-2"></i>Recognize Volunteer: {{ v.get_full_name|default:v.username }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body text-start">
+                        <!-- Award Badge Form -->
+                        <h6 class="fw-bold mb-2">Award Achievement Badge</h6>
+                        <form method="POST" action="{% url 'admin_award_volunteer_badge' v.id %}" class="mb-4 admin-action-form">
+                          {% csrf_token %}
+                          <div class="mb-3">
+                            <label class="form-label small fw-bold">Select Badge</label>
+                            <select name="badge_id" class="form-select" required>
+                              {% for badge in all_badges %}
+                                <option value="{{ badge.id }}">{{ badge.title }} - {{ badge.criteria }}</option>
+                              {% empty %}
+                                <option value="" disabled>No active badges available</option>
+                              {% endfor %}
+                            </select>
+                          </div>
+                          <button type="submit" class="btn btn-sm btn-primary-custom w-100" {% if not all_badges %}disabled{% endif %}><i class="fas fa-medal me-1"></i>Grant Badge</button>
+                        </form>
+
+                        <hr>
+
+                        <!-- Issue Certificate Form -->
+                        <h6 class="fw-bold mb-2">Issue Digital Recognition Certificate</h6>
+                        <form method="POST" action="{% url 'admin_issue_certificate' v.id %}" class="admin-action-form">
+                          {% csrf_token %}
+                          <div class="mb-3">
+                            <label class="form-label small fw-bold">Certificate Title</label>
+                            <input type="text" name="title" class="form-control" value="Certificate of Community Excellence" required>
+                          </div>
+                          <div class="mb-3">
+                            <label class="form-label small fw-bold">Hours Recognized</label>
+                            <input type="number" step="0.5" name="hours" class="form-control" value="10" required>
+                          </div>
+                          <button type="submit" class="btn btn-sm btn-success w-100"><i class="fas fa-certificate me-1"></i>Generate & Issue Certificate</button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 {% empty %}
                 <tr>
-                  <td colspan="6" class="text-center text-muted py-4">No volunteers found</td>
+                  <td colspan="6" class="text-center text-muted py-4">
+                    <i class="fas fa-hands-helping fs-1 d-block mb-2 opacity-50"></i>
+                    No volunteers found matching your criteria.
+                  </td>
                 </tr>
                 {% endfor %}
               </tbody>
