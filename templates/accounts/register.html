@@ -36,6 +36,16 @@
           </div>
 
           <form id="registerForm" method="post" action="{% url 'register' %}">{% csrf_token %}
+            {% if form.errors %}
+            <div class="alert alert-danger">
+              <strong>Please correct the following errors:</strong>
+              <ul>
+              {% for field, errors in form.errors.items %}
+                <li>{{ field|title }}: {{ errors|join:", " }}</li>
+              {% endfor %}
+              </ul>
+            </div>
+            {% endif %}
             <!-- Account Role Selection Cards -->
             <div class="row g-3 mb-4">
               <div class="col-md-6">
@@ -74,6 +84,11 @@
               <div class="col-md-6">
                 <label for="regLastName" class="form-label fw-semibold">Last Name</label>
                 <input type="text" class="form-control" name="last_name" id="regLastName" placeholder="Doe">
+              </div>
+              
+              <div class="col-12">
+                <label for="regPhone" class="form-label fw-semibold">Phone Number</label>
+                <input type="tel" class="form-control" name="phone" id="regPhone" placeholder="+1 (555) 123-4567">
               </div>
 
               <div class="col-md-6">

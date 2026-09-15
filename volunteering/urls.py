@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import dashboard, accepted_requests, accept_request, complete_request, skills, availability, rewards, chat, profile
+from .views import dashboard, accepted_requests, accept_request, complete_request, skills, remove_skill, availability, rewards, chat, profile
 
 urlpatterns = [
     path("dashboard/", dashboard, name="volunteer_dashboard"),
@@ -7,6 +7,7 @@ urlpatterns = [
     path("accept/<int:request_id>/", accept_request, name="accept_request"),
     path("complete/<int:request_id>/", complete_request, name="complete_request"),
     path("skills/", skills, name="volunteer_skills"),
+    path("skills/remove/<int:skill_id>/", remove_skill, name="remove_skill"),
     path("availability/", availability, name="volunteer_availability"),
     path("rewards/", rewards, name="volunteer_rewards"),
     path("chat/", chat, name="volunteer_chat"),

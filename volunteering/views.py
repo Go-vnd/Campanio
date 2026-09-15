@@ -5,6 +5,7 @@ from django.db.models import Avg, Count
 from assistance.models import AssistanceRequest, Feedback
 from rewards.models import BadgeAward, Certificate
 from .models import Skill, Availability
+from .forms import SkillForm
 
 @login_required
 def dashboard(request):
@@ -66,7 +67,26 @@ def complete_request(request, request_id):
     return redirect("accepted_requests")
 
 @login_required
-def skills(request): return render(request,"volunteer/skills.html")
+def skills(request):
+    if request.method == "POST":
+        form = SkillForm(request.POST, request.FILES)
+        if form.is_valid():
+            skill = form.save(commit=False)
+            skill.volunteer = request.user
+            skill.save()
+            return redirect("volunteer_skills")
+    else:
+        form = SkillForm()
+        
+    user_skills = Skill.objects.filter(volunteer=request.user).order_by("-id")
+    return render(request, "volunteer/skills.html", {"skills": user_skills, "form": form})
+
+@login_required
+def remove_skill(request, skill_id):
+    if request.method == "POST":
+        skill = get_object_or_404(Skill, pk=skill_id, volunteer=request.user)
+        skill.delete()
+    return redirect("volunteer_skills")
 @login_required
 def availability(request): return render(request,"volunteer/availability.html")
 @login_required

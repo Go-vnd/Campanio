@@ -46,47 +46,36 @@
           <button class="btn btn-primary-custom" data-bs-toggle="modal" data-bs-target="#addSkillModal"><i class="fas fa-plus me-1"></i>Add New Skill</button>
         </div>
 
-        <!-- Active Verified Skills -->
+        <!-- Active Skills -->
         <div class="row g-4 mb-4">
+          {% for skill in skills %}
           <div class="col-md-6">
-            <div class="card card-custom p-4 border-start border-4 border-success">
+            <div class="card card-custom p-4 border-start border-4 {% if skill.verified %}border-success{% else %}border-warning{% endif %}">
               <div class="d-flex justify-content-between align-items-start mb-2">
-                <h5 class="fw-bold mb-0">Assistive Technology Setup</h5>
+                <h5 class="fw-bold mb-0">{{ skill.name }}</h5>
+                {% if skill.verified %}
                 <span class="badge bg-success">Admin Verified</span>
+                {% else %}
+                <span class="badge bg-warning text-dark"><i class="fas fa-clock me-1"></i>Under Review</span>
+                {% endif %}
               </div>
-              <p class="text-muted small mb-3">NVDA, JAWS screen reader configuration, voice typing, and mobile accessibility settings.</p>
+              <p class="text-muted small mb-3">{{ skill.description }}</p>
               <div class="d-flex justify-content-between align-items-center">
-                <small class="text-muted">Requests Fulfilled: 22</small>
-                <button class="btn btn-sm btn-outline-danger" onclick="showToast('Skill removed from profile', 'info')">Remove Skill</button>
+                <small class="text-muted">Requests Fulfilled: {{ skill.requests_fulfilled }}</small>
+                <form method="post" action="{% url 'remove_skill' skill.id %}" onsubmit="return confirm('Remove this skill?');">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-outline-danger">Remove Skill</button>
+                </form>
               </div>
             </div>
           </div>
-
-          <div class="col-md-6">
-            <div class="card card-custom p-4 border-start border-4 border-success">
-              <div class="d-flex justify-content-between align-items-start mb-2">
-                <h5 class="fw-bold mb-0">Audio Document Reading</h5>
-                <span class="badge bg-success">Admin Verified</span>
-              </div>
-              <p class="text-muted small mb-3">Reading official mail, textbooks, tax forms, and visual media description.</p>
-              <div class="d-flex justify-content-between align-items-center">
-                <small class="text-muted">Requests Fulfilled: 16</small>
-                <button class="btn btn-sm btn-outline-danger" onclick="showToast('Skill removed from profile', 'info')">Remove Skill</button>
-              </div>
-            </div>
+          {% empty %}
+          <div class="col-12 text-center py-5">
+            <i class="fas fa-cogs text-muted fs-1 mb-3"></i>
+            <h5>No Skills Added Yet</h5>
+            <p class="text-muted">Add skills to help seekers find you for assistance.</p>
           </div>
-        </div>
-
-        <!-- Pending Skill Verifications -->
-        <h5 class="fw-bold mb-3">Skill Verification Queue</h5>
-        <div class="card card-custom p-4">
-          <div class="d-flex align-items-center justify-content-between">
-            <div>
-              <h6 class="fw-bold mb-1">ASL Sign Language Interpretation (Level 2)</h6>
-              <small class="text-muted">Certification document submitted to Admin for verification.</small>
-            </div>
-            <span class="badge bg-warning text-dark px-3 py-2"><i class="fas fa-clock me-1"></i>Under Review</span>
-          </div>
+          {% endfor %}
         </div>
       </main>
     </div>
@@ -101,25 +90,19 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <form onsubmit="event.preventDefault(); showToast('Skill verification request submitted!', 'success'); bootstrap.Modal.getInstance(document.getElementById('addSkillModal')).hide();">
+          <form method="post" action="{% url 'volunteer_skills' %}" enctype="multipart/form-data">
+            {% csrf_token %}
             <div class="mb-3">
-              <label class="form-label fw-semibold">Skill Category</label>
-              <select class="form-select" required>
-                <option value="">Select Category...</option>
-                <option value="tech">Assistive Technology</option>
-                <option value="sign">Sign Language Interpretation</option>
-                <option value="mobility">Mobility & Navigation Escort</option>
-                <option value="audio">Audio & Document Reading</option>
-                <option value="social">Social Companionship</option>
-              </select>
+              <label class="form-label fw-semibold">Skill Title / Category</label>
+              <input type="text" name="name" class="form-control" required placeholder="e.g. Assistive Technology Setup">
             </div>
             <div class="mb-3">
-              <label class="form-label fw-semibold">Skill Title & Description</label>
-              <textarea class="form-control" rows="3" placeholder="Describe your experience and qualifications..." required></textarea>
+              <label class="form-label fw-semibold">Skill Description</label>
+              <textarea name="description" class="form-control" rows="3" placeholder="Describe your experience and qualifications..." required></textarea>
             </div>
             <div class="mb-3">
               <label class="form-label fw-semibold">Certification Document (PDF/Image)</label>
-              <input type="file" class="form-control">
+              <input type="file" name="certification_document" class="form-control">
               <small class="text-muted">Optional proof document for admin verification.</small>
             </div>
             <button type="submit" class="btn btn-primary-custom w-100">Submit Skill Request</button>
