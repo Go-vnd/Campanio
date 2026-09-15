@@ -143,7 +143,10 @@
               </div>
               <h5 class="fw-bold mb-1">{{ req.title }}</h5>
               <p class="text-muted small mb-3">Requested by {{ req.seeker.first_name|default:req.seeker.username }} • Preferred Date: {{ req.scheduled_at|date:"M d, g:i A" }}</p>
-              <a href="{% url 'accept_request' req.id %}" class="btn btn-outline-custom w-100"><i class="fas fa-check me-1"></i>Accept Assistance Request</a>
+              <form method="post" action="{% url 'accept_request' req.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-custom w-100"><i class="fas fa-check me-1"></i>Accept Assistance Request</button>
+              </form>
             </div>
           </div>
           {% empty %}

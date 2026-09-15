@@ -69,7 +69,10 @@
                       <td><span class="badge bg-success">{{ task.get_status_display|default:task.status }}</span></td>
                       <td>
                         <a href="{% url 'volunteer_chat' %}" class="btn btn-sm btn-outline-custom me-1"><i class="fas fa-comments me-1"></i>Chat</a>
-                        <button class="btn btn-sm btn-outline-success" onclick="showToast('Assistance marked completed!', 'success')"><i class="fas fa-check me-1"></i>Complete</button>
+                        <form method="post" action="{% url 'complete_request' task.id %}" class="d-inline">
+                          {% csrf_token %}
+                          <button type="submit" class="btn btn-sm btn-outline-success"><i class="fas fa-check me-1"></i>Complete</button>
+                        </form>
                       </td>
                     </tr>
                   {% endfor %}

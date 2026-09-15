@@ -49,6 +49,16 @@
 
             <form id="createRequestForm" method="post" action="{% url 'create_request' %}">
               {% csrf_token %}
+              {% if form.errors %}
+              <div class="alert alert-danger">
+                <strong>Please correct the following errors:</strong>
+                <ul>
+                {% for field, errors in form.errors.items %}
+                  <li>{{ field|title }}: {{ errors|join:", " }}</li>
+                {% endfor %}
+                </ul>
+              </div>
+              {% endif %}
               
               <!-- Service Category -->
               <div class="mb-4">
@@ -77,13 +87,9 @@
 
               <div class="row g-3 mb-4">
                 <!-- Preferred Date & Time -->
-                <div class="col-md-6">
-                  <label for="requestDate" class="form-label fw-bold">Date <span class="text-danger">*</span></label>
-                  <input type="date" class="form-control" name="scheduled_date" id="requestDate" required>
-                </div>
-                <div class="col-md-6">
-                  <label for="requestTime" class="form-label fw-bold">Time Slot <span class="text-danger">*</span></label>
-                  <input type="time" class="form-control" name="scheduled_time" id="requestTime" required>
+                <div class="col-md-12">
+                  <label for="requestDateTime" class="form-label fw-bold">Scheduled Date & Time <span class="text-danger">*</span></label>
+                  <input type="datetime-local" class="form-control" name="scheduled_at" id="requestDateTime" required>
                 </div>
 
                 <!-- Mode -->
@@ -116,6 +122,7 @@
                     <label class="form-check-label fw-bold mb-0" for="urgentSwitch">Mark as Urgent Priority Request</label>
                     <small class="text-muted d-block">Urgent requests dispatch high-priority notifications to nearby volunteers within 5 miles.</small>
                   </div>
+                  <input type="hidden" name="priority" value="normal">
                   <input class="form-check-input fs-4 m-0" type="checkbox" name="priority" value="urgent" id="urgentSwitch">
                 </div>
               </div>
