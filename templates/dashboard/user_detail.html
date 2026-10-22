@@ -1,0 +1,770 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if is_volunteer %}Volunteer: {{ user_obj.username }}{% else %}User: {{ user_obj.username }}{% endif %} — Admin Dashboard
+{% endblock %}
+
+{% block content %}
+<div class="page-header fade-in">
+    <div class="d-flex align-items-center gap-3">
+        <a href="{% url 'dashboard:manage_users' %}" class="btn btn-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i>Back to Users
+        </a>
+        <div class="d-flex align-items-center gap-3 flex-wrap">
+            <div class="user-avatar"
+                 style="width:48px;height:48px;border-radius:50%;background:var(--gradient-main);display:flex;align-items:center;justify-content:center;font-size:1.25rem;font-weight:700;color:#fff;">
+                {{ user_obj.username|first|upper }}
+            </div>
+            <div>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <h1 class="h3 mb-0">{{ user_obj.username }}</h1>
+                    <span class="badge badge-{% if user_obj.role == 'volunteer' %}assigned{% elif user_obj.role == 'admin' %}completed{% else %}open{% endif %}">
+                        {{ user_obj.get_role_display }}
+                    </span>
+                    {% if user_obj.is_verified %}
+                    <span class="badge" style="background:rgba(20,184,166,0.15);color:#14b8a6;border:1px solid rgba(20,184,166,0.3);">
+                        <i class="bi bi-patch-check-fill me-1"></i>Verified
+                    </span>
+                    {% else %}
+                    <span class="badge" style="background:rgba(100,116,139,0.15);color:#94a3b8;border:1px solid rgba(100,116,139,0.3);">
+                        Unverified
+                    </span>
+                    {% endif %}
+                    {% if user_obj.is_active %}
+                    <span class="badge" style="background:rgba(34,197,94,0.15);color:#22c55e;border:1px solid rgba(34,197,94,0.3);">
+                        Active
+                    </span>
+                    {% else %}
+                    <span class="badge" style="background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.3);">
+                        Suspended / Inactive
+                    </span>
+                    {% endif %}
+                </div>
+                <p class="text-muted small mb-0 mt-1">
+                    {{ user_obj.email|default:"No email" }} · Joined {{ user_obj.date_joined|date:"M d, Y" }}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Alert banner if flagged for report threshold -->
+{% if is_flagged_for_reports %}
+<div class="alert alert-danger fade-in d-flex align-items-center gap-3 mb-4" role="alert"
+     style="background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.35);border-radius:var(--radius-md);">
+    <i class="bi bi-shield-fill-exclamation fs-3 text-danger flex-shrink-0"></i>
+    <div>
+        <strong class="text-light">Moderation Safety Flag: High Report Velocity</strong>
+        <p class="small text-muted mb-0">
+            This volunteer has received <strong>{{ reports_90d_count }} reports</strong> in the last 90 days (threshold: 3). Immediate staff investigation and review is recommended.
+        </p>
+    </div>
+</div>
+{% endif %}
+
+{% if is_volunteer %}
+<!-- ── Volunteer View ──────────────────────────────────────────────────────── -->
+<!-- Stats Strip -->
+<div class="row g-3 mb-4 fade-in delay-1">
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div class="stat-label">Points &amp; Tier</div>
+                <button type="button" class="btn btn-outline-info btn-sm py-0 px-2" data-bs-toggle="modal" data-bs-target="#adjustPointsModal" style="font-size: 0.72rem;">
+                    <i class="bi bi-pencil-square me-1"></i>Adjust
+                </button>
+            </div>
+            <div class="stat-value text-gradient">{{ points }} <span class="fs-6 text-muted">pts</span></div>
+            <div class="text-muted small mt-1">
+                <i class="bi bi-award me-1" style="color:var(--accent-amber);"></i>{{ tier }} Tier
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-label">Average Rating</div>
+            <div class="stat-value" style="color:var(--accent-amber);">
+                {% if avg_rating %}{{ avg_rating }}★{% else %}—{% endif %}
+            </div>
+            <div class="text-muted small mt-1">
+                {{ reviews_received|length }} review{{ reviews_received|length|pluralize }} ·
+                <span class="{% if low_rating_count > 0 %}text-danger fw-600{% endif %}">
+                    {{ low_rating_count }} low-rated (&le;2★)
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-label">Completed Tasks</div>
+            <div class="stat-value" style="color:var(--accent-green);">{{ completed_count }}</div>
+            <div class="text-muted small mt-1"><i class="bi bi-check-circle-fill me-1"></i>Successfully fulfilled</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-label">Cancellations / Withdrawals</div>
+            <div class="stat-value {% if cancelled_count > 0 %}text-warning{% endif %}">{{ cancelled_count }}</div>
+            <div class="text-muted small mt-1"><i class="bi bi-x-circle me-1"></i>Cancelled assignments</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Left Column: Profile Info & Badges/Certificates -->
+    <div class="col-lg-5">
+        <!-- Profile & Skills Card -->
+        <div class="card mb-4 fade-in">
+            <div class="card-header"><i class="bi bi-person-lines-fill me-2"></i>Profile Details</div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <span class="text-muted small d-block">Bio</span>
+                    <p class="small text-light mb-0">{{ profile.bio|default:"No bio provided." }}</p>
+                </div>
+                <div class="mb-3">
+                    <span class="text-muted small d-block">Location</span>
+                    <span class="small text-light">{{ profile.location|default:"Not specified" }}</span>
+                </div>
+                <div class="mb-3">
+                    <span class="text-muted small d-block">Skills Offered</span>
+                    {% if profile.skills %}
+                        <div class="d-flex flex-wrap gap-1 mt-1">
+                            {% for s in profile.skills.split %}
+                            <span class="skill-tag" style="font-size:0.75rem;">{{ s|cut:"," }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <span class="small text-muted">No skills listed</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Verification Status Card -->
+        <div class="card mb-4 fade-in">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-patch-check me-2 text-teal"></i>Verification Status</span>
+                {% if user_obj.is_verified %}
+                    <span class="badge" style="background:rgba(20,184,166,0.15);color:#14b8a6;border:1px solid rgba(20,184,166,0.3);">
+                        <i class="bi bi-patch-check-fill me-1"></i>Verified
+                    </span>
+                {% else %}
+                    <span class="badge" style="background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);">
+                        <i class="bi bi-hourglass-split me-1"></i>Unverified
+                    </span>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                {% if user_obj.is_verified %}
+                    <div class="small mb-2">
+                        <span class="text-muted d-block">Verified By</span>
+                        <span class="text-light fw-600">@{{ user_obj.verified_by.username|default:"Staff" }}</span>
+                    </div>
+                    <div class="small mb-2">
+                        <span class="text-muted d-block">Verified On</span>
+                        <span class="text-light">{{ user_obj.verified_at|date:"M d, Y • H:i" }}</span>
+                    </div>
+                    {% if user_obj.verification_notes %}
+                    <div class="small mb-3">
+                        <span class="text-muted d-block">Verification Notes</span>
+                        <div class="p-2 rounded mt-1" style="background:rgba(255,255,255,0.03);border:1px solid var(--border-glass);color:#cbd5e1;">
+                            {{ user_obj.verification_notes }}
+                        </div>
+                    </div>
+                    {% endif %}
+                    <button type="button" class="btn btn-sm btn-outline-danger w-100" data-bs-toggle="modal" data-bs-target="#userRevokeVerificationModal">
+                        <i class="bi bi-x-circle me-1"></i>Revoke Verification
+                    </button>
+                {% else %}
+                    <p class="small text-muted mb-3">
+                        This volunteer is currently unverified and restricted from accepting in-person assistance tasks.
+                    </p>
+                    {% if user_obj.verification_notes %}
+                    <div class="small mb-3">
+                        <span class="text-muted d-block">Previous Decision Notes</span>
+                        <div class="p-2 rounded mt-1" style="background:rgba(255,255,255,0.03);border:1px solid var(--border-glass);color:#f87171;">
+                            {{ user_obj.verification_notes }}
+                        </div>
+                    </div>
+                    {% endif %}
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-sm btn-success flex-fill" data-bs-toggle="modal" data-bs-target="#userApproveVerificationModal">
+                            <i class="bi bi-patch-check me-1"></i>Approve Verification
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-danger flex-fill" data-bs-toggle="modal" data-bs-target="#userRejectVerificationModal">
+                            <i class="bi bi-x-circle me-1"></i>Reject
+                        </button>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Badges & Certificates Card -->
+        <div class="card mb-4 fade-in">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-trophy-fill text-warning me-2"></i>Badges &amp; Certificates</span>
+                <span class="badge badge-secondary">{{ badges|length }} badge{{ badges|length|pluralize }}</span>
+            </div>
+            <div class="card-body">
+                <!-- Badges -->
+                <h6 class="small fw-700 text-muted text-uppercase mb-2">Earned Badges</h6>
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    {% for ub in badges %}
+                    <div class="p-2 rounded d-flex align-items-center justify-content-between gap-2" style="background:rgba(255,255,255,0.04);border:1px solid var(--border-glass); min-width: 200px;">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi {{ ub.badge.icon }} text-warning fs-5"></i>
+                            <div>
+                                <div class="small fw-600 text-light">{{ ub.badge.name }}</div>
+                                <div class="text-muted" style="font-size:0.65rem;">Awarded {{ ub.awarded_at|date:"M Y" }}</div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-link text-danger p-0 ms-auto" data-bs-toggle="modal" data-bs-target="#revokeBadgeModal{{ ub.pk }}" title="Revoke Badge">
+                            <i class="bi bi-x-circle fs-6"></i>
+                        </button>
+                    </div>
+                    {% empty %}
+                    <span class="text-muted small">No badges awarded yet.</span>
+                    {% endfor %}
+                </div>
+
+                <!-- Certificates -->
+                <h6 class="small fw-700 text-muted text-uppercase mb-2 pt-2 border-top border-secondary border-opacity-25">Milestone Certificates</h6>
+                <div class="d-flex flex-column gap-2">
+                    {% for cert in certificates %}
+                    <div class="p-2 rounded d-flex justify-content-between align-items-center" style="background:rgba(255,255,255,0.03);border:1px solid var(--border-glass);">
+                        <div>
+                            <div class="small fw-600 text-light"><i class="bi bi-patch-check text-info me-1"></i>{{ cert.title }}</div>
+                            <div class="text-muted" style="font-size:0.65rem;">Issued {{ cert.issue_date|date:"M d, Y" }}</div>
+                        </div>
+                        <button type="button" class="btn btn-link text-danger p-0" data-bs-toggle="modal" data-bs-target="#revokeCertModal{{ cert.pk }}" title="Revoke Certificate">
+                            <i class="bi bi-x-circle fs-6"></i>
+                        </button>
+                    </div>
+                    {% empty %}
+                    <span class="text-muted small">No certificates earned yet.</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Recent Requests, Reports Received with outcomes -->
+    <div class="col-lg-7">
+        <!-- Reports Received Card -->
+        <div class="card mb-4 fade-in">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-shield-exclamation text-danger me-2"></i>Reports Received &amp; Outcomes</span>
+                <span class="badge badge-{% if reports_received %}danger{% else %}success{% endif %}">
+                    {{ reports_received|length }} report{{ reports_received|length|pluralize }}
+                </span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0" style="font-size:0.8rem;">
+                        <thead>
+                            <tr>
+                                <th>Ref #</th>
+                                <th>Category</th>
+                                <th>Severity</th>
+                                <th>Status / Outcome</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for rep in reports_received %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'dashboard:report_detail' rep.pk %}" class="fw-700 font-monospace text-decoration-none">
+                                        {{ rep.reference_number }}
+                                    </a>
+                                </td>
+                                <td>{{ rep.get_category_display }}</td>
+                                <td>
+                                    <span class="badge" style="
+                                        {% if rep.severity == 'high' %}background:rgba(239,68,68,0.15);color:#ef4444;
+                                        {% else %}background:rgba(245,158,11,0.15);color:#f59e0b;{% endif %}border:1px solid currentColor;">
+                                        {{ rep.get_severity_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge badge-{% if rep.status == 'new' %}danger{% elif rep.status == 'in_review' %}warning{% elif rep.status == 'action_taken' %}primary{% elif rep.status == 'resolved' %}success{% else %}secondary{% endif %}">
+                                        {{ rep.get_status_display }}
+                                    </span>
+                                </td>
+                                <td class="text-muted">{{ rep.created_at|date:"M d, Y" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-muted text-center py-3">No reports received. Pristine safety record!</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Requests Handled -->
+        <div class="card mb-4 fade-in">
+            <div class="card-header"><i class="bi bi-card-checklist me-2"></i>Recent Assistance Requests</div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0" style="font-size:0.8rem;">
+                        <thead>
+                            <tr>
+                                <th>Request</th>
+                                <th>Requester</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for req in recent_requests %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'assist_requests:request_detail' req.pk %}" class="fw-600 text-decoration-none">
+                                        {{ req.title|truncatechars:35 }}
+                                    </a>
+                                </td>
+                                <td class="text-muted">{{ req.user.username }}</td>
+                                <td><span class="badge badge-{{ req.status }}">{{ req.get_status_display }}</span></td>
+                                <td class="text-muted">{{ req.created_at|date:"M d" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-muted text-center py-3">No requests assigned yet.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reviews Received & Moderation Section -->
+<div class="card mb-4 fade-in">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-star-fill text-warning me-2"></i>Reviews Received &amp; Content Moderation</span>
+        <span class="badge badge-secondary">{{ reviews_received|length }} review{{ reviews_received|length|pluralize }}</span>
+    </div>
+    <div class="card-body">
+        {% for rev in reviews_received %}
+        <div class="p-3 mb-3 rounded" style="background:rgba(255,255,255,0.03);border:1px solid var(--border-glass);">
+            <div class="d-flex justify-content-between align-items-start gap-2 flex-wrap">
+                <div>
+                    <span class="fw-700 text-light small me-2">{{ rev.reviewer.username }}</span>
+                    <span class="text-warning small">
+                        {% for i in "12345" %}{% if forloop.counter <= rev.rating %}⭐{% endif %}{% endfor %}
+                    </span>
+                    <span class="text-muted ms-2" style="font-size:0.75rem;">{{ rev.created_at|date:"M d, Y" }}</span>
+                    {% if rev.is_flagged %}
+                    <span class="badge ms-2" style="background:rgba(245,158,11,0.2);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);">
+                        <i class="bi bi-flag-fill me-1"></i>Flagged
+                    </span>
+                    {% endif %}
+                    {% if rev.is_hidden %}
+                    <span class="badge ms-1" style="background:rgba(239,68,68,0.2);color:#ef4444;border:1px solid rgba(239,68,68,0.3);">
+                        <i class="bi bi-eye-slash-fill me-1"></i>Hidden by Moderator
+                    </span>
+                    {% endif %}
+                </div>
+
+                <!-- Review Moderation Actions -->
+                <div class="d-flex align-items-center gap-1">
+                    <form method="post" action="{% url 'dashboard:toggle_review_hidden' rev.pk %}" class="d-inline">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="flag">
+                        <input type="hidden" name="return_to" value="{{ request.get_full_path }}">
+                        <button type="submit" class="btn btn-sm btn-outline-warning" title="Toggle flag">
+                            <i class="bi bi-flag"></i>
+                        </button>
+                    </form>
+
+                    {% if rev.is_hidden %}
+                    <form method="post" action="{% url 'dashboard:toggle_review_hidden' rev.pk %}" class="d-inline">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="unhide">
+                        <input type="hidden" name="return_to" value="{{ request.get_full_path }}">
+                        <button type="submit" class="btn btn-sm btn-outline-success">
+                            <i class="bi bi-eye me-1"></i>Unhide
+                        </button>
+                    </form>
+                    {% else %}
+                    <button type="button" class="btn btn-sm btn-outline-danger hide-review-btn"
+                            data-bs-toggle="modal" data-bs-target="#hideReviewModal"
+                            data-review-id="{{ rev.pk }}">
+                        <i class="bi bi-eye-slash me-1"></i>Hide Text
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Review text -->
+            <div class="mt-2">
+                <p class="small text-light mb-1 {% if rev.is_hidden %}fst-italic opacity-75{% endif %}">
+                    {{ rev.comments|default:"(No written comment)" }}
+                </p>
+                {% if rev.is_hidden and rev.hidden_reason %}
+                <div class="text-danger small" style="font-size:0.75rem;">
+                    <i class="bi bi-info-circle me-1"></i>Hidden Reason: {{ rev.hidden_reason }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <p class="text-muted small text-center py-3 mb-0">No reviews received yet.</p>
+        {% endfor %}
+    </div>
+</div>
+
+{% else %}
+<!-- ── Regular User View (Beneficiary) ────────────────────────────────────── -->
+<div class="row g-3 mb-4 fade-in delay-1">
+    <div class="col-6 col-md-4">
+        <div class="stat-card">
+            <div class="stat-label">Open Requests</div>
+            <div class="stat-value text-primary">{{ open_count }}</div>
+            <div class="text-muted small mt-1">Awaiting volunteer assistance</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4">
+        <div class="stat-card">
+            <div class="stat-label">Completed Requests</div>
+            <div class="stat-value" style="color:var(--accent-green);">{{ completed_count }}</div>
+            <div class="text-muted small mt-1">Successfully fulfilled</div>
+        </div>
+    </div>
+    <div class="col-12 col-md-4">
+        <div class="stat-card">
+            <div class="stat-label">Cancelled Requests</div>
+            <div class="stat-value text-muted">{{ cancelled_count }}</div>
+            <div class="text-muted small mt-1">Closed by requester</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- User Requests List -->
+    <div class="col-lg-7">
+        <div class="card mb-4 fade-in">
+            <div class="card-header"><i class="bi bi-card-checklist me-2"></i>Requests Created</div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0" style="font-size:0.8rem;">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Volunteer</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for req in user_requests %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'assist_requests:request_detail' req.pk %}" class="fw-600 text-decoration-none">
+                                        {{ req.title|truncatechars:35 }}
+                                    </a>
+                                </td>
+                                <td>{{ req.volunteer.username|default:"Unassigned" }}</td>
+                                <td><span class="badge badge-{{ req.status }}">{{ req.get_status_display }}</span></td>
+                                <td class="text-muted">{{ req.created_at|date:"M d, Y" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-muted text-center py-3">No requests created.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reports Filed & Received by this User -->
+    <div class="col-lg-5">
+        <div class="card mb-4 fade-in">
+            <div class="card-header"><i class="bi bi-shield-exclamation text-warning me-2"></i>Reports Filed &amp; Received</div>
+            <div class="card-body">
+                <h6 class="small fw-700 text-muted text-uppercase mb-2">Reports Filed by {{ user_obj.username }} ({{ reports_filed|length }})</h6>
+                <div class="d-flex flex-column gap-2 mb-3">
+                    {% for rf in reports_filed %}
+                    <div class="p-2 rounded d-flex justify-content-between align-items-center" style="background:rgba(255,255,255,0.03);border:1px solid var(--border-glass);">
+                        <div>
+                            <a href="{% url 'dashboard:report_detail' rf.pk %}" class="fw-600 font-monospace small text-decoration-none">
+                                {{ rf.reference_number }}
+                            </a>
+                            <div class="text-muted" style="font-size:0.7rem;">{{ rf.get_category_display }}</div>
+                        </div>
+                        <span class="badge badge-assigned">{{ rf.get_status_display }}</span>
+                    </div>
+                    {% empty %}
+                    <span class="text-muted small">No reports filed.</span>
+                    {% endfor %}
+                </div>
+
+                <h6 class="small fw-700 text-muted text-uppercase mb-2 pt-2 border-top border-secondary border-opacity-25">Reports Received ({{ reports_received|length }})</h6>
+                <div class="d-flex flex-column gap-2">
+                    {% for rr in reports_received %}
+                    <div class="p-2 rounded d-flex justify-content-between align-items-center" style="background:rgba(255,255,255,0.03);border:1px solid var(--border-glass);">
+                        <div>
+                            <a href="{% url 'dashboard:report_detail' rr.pk %}" class="fw-600 font-monospace small text-decoration-none">
+                                {{ rr.reference_number }}
+                            </a>
+                            <div class="text-muted" style="font-size:0.7rem;">{{ rr.get_category_display }}</div>
+                        </div>
+                        <span class="badge badge-{% if rr.status == 'action_taken' %}danger{% else %}secondary{% endif %}">
+                            {{ rr.get_status_display }}
+                        </span>
+                    </div>
+                    {% empty %}
+                    <span class="text-muted small">No reports received against this user.</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Hide Review Modal -->
+<div class="modal fade" id="hideReviewModal" tabindex="-1" aria-labelledby="hideReviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background:var(--bg-secondary);border:1px solid var(--border-glass);backdrop-filter:blur(20px);">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-700 text-danger" id="hideReviewModalLabel">
+                    <i class="bi bi-eye-slash me-2"></i>Hide Abusive Review Text
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" id="hide-review-form" action="">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="hide">
+                <input type="hidden" name="return_to" value="{{ request.get_full_path }}">
+                <div class="modal-body">
+                    <p class="text-muted small mb-3">
+                        The review comment will be hidden from the public request page and replaced with a moderation notice. Please state the policy violation reason.
+                    </p>
+                    <div class="mb-3">
+                        <label for="review-hidden-reason" class="form-label small">Mandatory Reason <span class="text-danger">*</span></label>
+                        <textarea name="reason" id="review-hidden-reason" rows="3" class="form-control" required
+                                  placeholder="e.g., Harassment, hate speech, vulgarity, or personal info..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Hide Review Text</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Adjust Points Modal -->
+{% if is_volunteer %}
+<div class="modal fade text-start" id="adjustPointsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background:#13151f; border:1px solid rgba(56,189,248,0.3); color:#fff;">
+            <form method="POST" action="{% url 'dashboard:adjust_points' user_obj.pk %}">
+                {% csrf_token %}
+                <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+                    <h5 class="modal-title"><i class="bi bi-pencil-square text-info me-2"></i>Adjust Points for @{{ user_obj.username }}</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="small text-muted mb-3">
+                        Current points: <strong class="text-white">{{ points }}</strong> ({{ tier }} Tier).
+                        Enter a positive or negative adjustment delta (e.g., <code>+20</code> or <code>-15</code>).
+                    </p>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Points Delta (+/-) <span class="text-danger">*</span></label>
+                        <input type="number" name="points_delta" class="form-control" required placeholder="e.g. 25 or -10" style="background:rgba(255,255,255,0.05); color:#fff; border-color:rgba(255,255,255,0.15);">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Mandatory Justification / Reason <span class="text-danger">*</span></label>
+                        <textarea name="reason" class="form-control" rows="3" required placeholder="State the policy or investigation reason for modifying points..." style="background:rgba(255,255,255,0.05); color:#fff; border-color:rgba(255,255,255,0.15);"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid rgba(255,255,255,0.08);">
+                    <button type="button" class="btn btn-outline-light btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-info btn-sm text-dark fw-bold"><i class="bi bi-check2-circle me-1"></i>Save Points Adjustment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Approve Verification Modal -->
+<div class="modal fade text-start" id="userApproveVerificationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background:#13151f; border:1px solid rgba(45,212,191,0.3); color:#fff;">
+            <form method="POST" action="{% url 'dashboard:verification_action' user_obj.pk %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="approve">
+                <input type="hidden" name="return_to" value="{{ request.get_full_path }}">
+                <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+                    <h5 class="modal-title"><i class="bi bi-patch-check-fill text-teal me-2"></i>Approve Verification</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="small text-muted mb-3">
+                        You are verifying <strong>@{{ user_obj.username }}</strong>. This permits them to accept high-risk and in-person assistance tasks.
+                    </p>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Verification Note / Reference <span class="text-danger">*</span></label>
+                        <textarea name="notes" class="form-control" rows="3" required placeholder="e.g. Identity verified via government ID, background check cleared, phone orientation completed..." style="background:rgba(255,255,255,0.05); color:#fff; border-color:rgba(255,255,255,0.15);"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid rgba(255,255,255,0.08);">
+                    <button type="button" class="btn btn-outline-light btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success btn-sm"><i class="bi bi-check-lg me-1"></i>Confirm Approval</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Reject Verification Modal -->
+<div class="modal fade text-start" id="userRejectVerificationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background:#13151f; border:1px solid rgba(239,68,68,0.3); color:#fff;">
+            <form method="POST" action="{% url 'dashboard:verification_action' user_obj.pk %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="reject">
+                <input type="hidden" name="return_to" value="{{ request.get_full_path }}">
+                <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+                    <h5 class="modal-title"><i class="bi bi-x-circle-fill text-danger me-2"></i>Reject Verification</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="small text-muted mb-3">
+                        Rejecting verification for <strong>@{{ user_obj.username }}</strong> will keep them restricted to low-risk tasks.
+                    </p>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Rejection Reason <span class="text-danger">*</span></label>
+                        <textarea name="notes" class="form-control" rows="3" required placeholder="e.g. Incomplete ID document, unverifiable phone number, failed screening..." style="background:rgba(255,255,255,0.05); color:#fff; border-color:rgba(255,255,255,0.15);"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid rgba(255,255,255,0.08);">
+                    <button type="button" class="btn btn-outline-light btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-x-circle me-1"></i>Confirm Rejection</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Revoke Verification Modal -->
+<div class="modal fade text-start" id="userRevokeVerificationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background:#13151f; border:1px solid rgba(239,68,68,0.3); color:#fff;">
+            <form method="POST" action="{% url 'dashboard:verification_action' user_obj.pk %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="reject">
+                <input type="hidden" name="return_to" value="{{ request.get_full_path }}">
+                <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+                    <h5 class="modal-title"><i class="bi bi-shield-x text-danger me-2"></i>Revoke Verification</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="small text-muted mb-3">
+                        Are you sure you want to revoke verification from <strong>@{{ user_obj.username }}</strong>? They will immediately be restricted from in-person requests.
+                    </p>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Revocation Reason <span class="text-danger">*</span></label>
+                        <textarea name="notes" class="form-control" rows="3" required placeholder="e.g. Repeated safety complaints, revoked background check clearance..." style="background:rgba(255,255,255,0.05); color:#fff; border-color:rgba(255,255,255,0.15);"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid rgba(255,255,255,0.08);">
+                    <button type="button" class="btn btn-outline-light btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-shield-x me-1"></i>Confirm Revocation</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Revoke Badge Modals -->
+{% for ub in badges %}
+<div class="modal fade text-start" id="revokeBadgeModal{{ ub.pk }}" tabindex="-1" aria-labelledby="revokeBadgeModalLabel{{ ub.pk }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background:#13151f; border:1px solid rgba(239,68,68,0.3); color:#fff; box-shadow: 0 10px 40px rgba(0,0,0,0.8);">
+            <form method="POST" action="{% url 'dashboard:revoke_badge' ub.pk %}">
+                {% csrf_token %}
+                <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+                    <h5 class="modal-title" id="revokeBadgeModalLabel{{ ub.pk }}"><i class="bi bi-shield-x text-danger me-2"></i>Revoke Badge: {{ ub.badge.name }}</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="small text-muted mb-3">
+                        Are you sure you want to revoke the badge <strong>{{ ub.badge.name }}</strong> from <strong>@{{ user_obj.username }}</strong>?
+                    </p>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Required Reason <span class="text-danger">*</span></label>
+                        <textarea name="reason" class="form-control" rows="3" required placeholder="State why this badge is being revoked..." style="background:rgba(255,255,255,0.05); color:#fff; border-color:rgba(255,255,255,0.15);"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid rgba(255,255,255,0.08);">
+                    <button type="button" class="btn btn-outline-light btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash3 me-1"></i>Confirm Revocation</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<!-- Revoke Certificate Modals -->
+{% for cert in certificates %}
+<div class="modal fade text-start" id="revokeCertModal{{ cert.pk }}" tabindex="-1" aria-labelledby="revokeCertModalLabel{{ cert.pk }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background:#13151f; border:1px solid rgba(239,68,68,0.3); color:#fff; box-shadow: 0 10px 40px rgba(0,0,0,0.8);">
+            <form method="POST" action="{% url 'dashboard:revoke_certificate' cert.pk %}">
+                {% csrf_token %}
+                <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+                    <h5 class="modal-title" id="revokeCertModalLabel{{ cert.pk }}"><i class="bi bi-patch-minus text-danger me-2"></i>Revoke Certificate: {{ cert.title }}</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="small text-muted mb-3">
+                        Are you sure you want to revoke the certificate <strong>{{ cert.title }}</strong> from <strong>@{{ user_obj.username }}</strong>?
+                    </p>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Required Reason <span class="text-danger">*</span></label>
+                        <textarea name="reason" class="form-control" rows="3" required placeholder="State why this certificate is being revoked..." style="background:rgba(255,255,255,0.05); color:#fff; border-color:rgba(255,255,255,0.15);"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid rgba(255,255,255,0.08);">
+                    <button type="button" class="btn btn-outline-light btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash3 me-1"></i>Confirm Revocation</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+(function() {
+    'use strict';
+    const hideModal = document.getElementById('hideReviewModal');
+    if (hideModal) {
+        document.querySelectorAll('.hide-review-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const reviewId = this.getAttribute('data-review-id');
+                const form = document.getElementById('hide-review-form');
+                form.action = `/dashboard/reviews/${reviewId}/toggle-hide/`;
+                document.getElementById('review-hidden-reason').value = '';
+            });
+        });
+    }
+})();
+</script>
+{% endblock %}

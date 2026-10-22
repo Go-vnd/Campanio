@@ -1,0 +1,342 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Users — Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-header fade-in">
+    <div class="d-flex align-items-center gap-3">
+        <a href="{% url 'dashboard:dashboard_home' %}" class="btn btn-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>Back
+        </a>
+        <div>
+            <h1><i class="bi bi-people-fill me-2" aria-hidden="true"></i>Manage Users</h1>
+            <p class="text-muted mb-0">View, filter, and manage all registered accounts</p>
+        </div>
+    </div>
+</div>
+
+<!-- Quick-filter chips -->
+<div class="d-flex flex-wrap align-items-center gap-2 mb-3 fade-in" role="list" aria-label="Quick filters">
+    <span class="text-muted small me-1" aria-hidden="true">Quick&nbsp;filters:</span>
+    <a href="?role=volunteer&verified=0"
+       class="chip{% if f_role == 'volunteer' and f_verified == '0' and not f_tier and not f_low_rated %} chip-active{% endif %}"
+       role="listitem"><i class="bi bi-person-check-fill me-1" style="color:var(--accent-teal);" aria-hidden="true"></i>Unverified Volunteers</a>
+    <a href="?role=volunteer&low_rated=1"
+       class="chip{% if f_role == 'volunteer' and f_low_rated %} chip-active{% endif %}"
+       role="listitem"><i class="bi bi-star-half me-1" style="color:var(--accent-amber);" aria-hidden="true"></i>Low-Rated Volunteers</a>
+    <a href="?role=user&no_vol_req=1"
+       class="chip{% if f_role == 'user' and f_no_vol_req %} chip-active{% endif %}"
+       role="listitem">Users with Unassigned Requests</a>
+    <a href="?active=0"
+       class="chip{% if f_active == '0' and not f_role %} chip-active{% endif %}"
+       role="listitem"><i class="bi bi-slash-circle me-1" aria-hidden="true"></i>Deactivated Accounts</a>
+</div>
+
+<!-- Filter form -->
+<div class="card mb-3 fade-in">
+    <div class="card-body py-3">
+        <form method="get" action="" id="user-filter-form" role="search" aria-label="Filter users">
+            <div class="row g-2 align-items-end">
+                <!-- Search -->
+                <div class="col-12 col-lg-3">
+                    <label for="user-q" class="form-label">Search</label>
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text" aria-hidden="true"><i class="bi bi-search"></i></span>
+                        <input type="text" id="user-q" name="q" class="form-control"
+                               value="{{ f_q }}" placeholder="Username or email…">
+                    </div>
+                </div>
+                <!-- Role -->
+                <div class="col-6 col-sm-3 col-lg-2">
+                    <label for="user-role" class="form-label">Role</label>
+                    <select id="user-role" name="role" class="form-select form-select-sm" id="role-select">
+                        <option value="">All roles</option>
+                        <option value="user"{% if f_role == 'user' %} selected{% endif %}>User (Beneficiary)</option>
+                        <option value="volunteer"{% if f_role == 'volunteer' %} selected{% endif %}>Volunteer</option>
+                        <option value="admin"{% if f_role == 'admin' %} selected{% endif %}>Admin</option>
+                    </select>
+                </div>
+                <!-- Active -->
+                <div class="col-6 col-sm-3 col-lg-1">
+                    <label for="user-active" class="form-label">Active</label>
+                    <select id="user-active" name="active" class="form-select form-select-sm">
+                        <option value="">All</option>
+                        <option value="1"{% if f_active == '1' %} selected{% endif %}>Active</option>
+                        <option value="0"{% if f_active == '0' %} selected{% endif %}>Inactive</option>
+                    </select>
+                </div>
+                <!-- Verified -->
+                <div class="col-6 col-sm-3 col-lg-1">
+                    <label for="user-verified" class="form-label">Verified</label>
+                    <select id="user-verified" name="verified" class="form-select form-select-sm">
+                        <option value="">All</option>
+                        <option value="1"{% if f_verified == '1' %} selected{% endif %}>Verified</option>
+                        <option value="0"{% if f_verified == '0' %} selected{% endif %}>Unverified</option>
+                    </select>
+                </div>
+                <!-- Joined from -->
+                <div class="col-6 col-sm-3 col-lg-2">
+                    <label for="user-joined-from" class="form-label">Joined from</label>
+                    <input type="date" id="user-joined-from" name="joined_from" class="form-control form-control-sm"
+                           value="{{ f_joined_from }}">
+                </div>
+                <!-- Joined to -->
+                <div class="col-6 col-sm-3 col-lg-2">
+                    <label for="user-joined-to" class="form-label">Joined to</label>
+                    <input type="date" id="user-joined-to" name="joined_to" class="form-control form-control-sm"
+                           value="{{ f_joined_to }}">
+                </div>
+
+                <!-- Volunteer-specific filters (shown/hidden by JS) -->
+                <div id="vol-filters" class="col-12" style="{% if f_role != 'volunteer' and not f_tier and not f_skills and not f_low_rated %}display:none;{% endif %}">
+                    <div class="row g-2">
+                        <div class="col-6 col-sm-4 col-lg-2">
+                            <label for="user-tier" class="form-label">Points Tier</label>
+                            <select id="user-tier" name="tier" class="form-select form-select-sm">
+                                <option value="">All tiers</option>
+                                <option value="none"{% if f_tier == 'none' %} selected{% endif %}>Below Bronze (&lt;50)</option>
+                                <option value="bronze"{% if f_tier == 'bronze' %} selected{% endif %}>Bronze (50–99)</option>
+                                <option value="silver"{% if f_tier == 'silver' %} selected{% endif %}>Silver (100–199)</option>
+                                <option value="gold"{% if f_tier == 'gold' %} selected{% endif %}>Gold (200+)</option>
+                            </select>
+                        </div>
+                        <div class="col-6 col-sm-4 col-lg-3">
+                            <label for="user-skills" class="form-label">Skills</label>
+                            <input type="text" id="user-skills" name="skills" class="form-control form-control-sm"
+                                   value="{{ f_skills }}" placeholder="e.g. Python…">
+                        </div>
+                        <div class="col-6 col-sm-4 col-lg-auto d-flex align-items-end pb-1">
+                            <div class="form-check form-switch mb-0">
+                                <input class="form-check-input" type="checkbox" role="switch"
+                                       id="user-low-rated" name="low_rated" value="1"
+                                       {% if f_low_rated %}checked{% endif %}>
+                                <label class="form-check-label small" for="user-low-rated">Recently low-rated</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User-specific filters -->
+                <div id="user-specific-filters" class="col-12" style="{% if f_role != 'user' and not f_no_vol_req %}display:none;{% endif %}">
+                    <div class="form-check form-switch mb-0 d-inline-flex align-items-center gap-2">
+                        <input class="form-check-input" type="checkbox" role="switch"
+                               id="user-no-vol-req" name="no_vol_req" value="1"
+                               {% if f_no_vol_req %}checked{% endif %}>
+                        <label class="form-check-label small" for="user-no-vol-req">
+                            Has an open request with no volunteer assigned
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Apply / Clear -->
+                <div class="col-12 col-lg-auto d-flex gap-2 mt-1">
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="bi bi-funnel-fill me-1" aria-hidden="true"></i>Apply
+                    </button>
+                    {% if has_filters %}
+                    <a href="{% url 'dashboard:manage_users' %}" class="btn btn-secondary btn-sm">
+                        <i class="bi bi-x-circle me-1" aria-hidden="true"></i>Clear filters
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Result count + sort -->
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-2 gap-2 fade-in">
+    <p class="text-muted small mb-0" aria-live="polite" aria-atomic="true">
+        Showing <strong>{{ page_obj|length }}</strong> of <strong>{{ total_count }}</strong>
+        user{{ total_count|pluralize }}
+        {% if has_filters %}
+        <span class="badge ms-1" style="background:rgba(124,58,237,0.2);color:#a78bfa;border:1px solid rgba(124,58,237,0.3);">Filtered</span>
+        {% endif %}
+    </p>
+    <div class="d-flex align-items-center gap-1 flex-wrap" role="group" aria-label="Sort options">
+        <span class="text-muted small me-1">Sort:</span>
+        <a href="?{{ qs_pg }}&sort={% if f_sort == 'username' %}-username{% else %}username{% endif %}"
+           class="btn btn-sm btn-secondary{% if f_sort == 'username' or f_sort == '-username' %} active{% endif %}"
+           aria-pressed="{% if f_sort == 'username' or f_sort == '-username' %}true{% else %}false{% endif %}">
+            Username{% if f_sort == 'username' %} <i class="bi bi-arrow-up-short" aria-hidden="true"></i>{% elif f_sort == '-username' %} <i class="bi bi-arrow-down-short" aria-hidden="true"></i>{% endif %}
+        </a>
+        <a href="?{{ qs_pg }}&sort={% if f_sort == '-date_joined' %}date_joined{% else %}-date_joined{% endif %}"
+           class="btn btn-sm btn-secondary{% if f_sort == 'date_joined' or f_sort == '-date_joined' %} active{% endif %}"
+           aria-pressed="{% if f_sort == 'date_joined' or f_sort == '-date_joined' %}true{% else %}false{% endif %}">
+            Joined{% if f_sort == 'date_joined' %} <i class="bi bi-arrow-up-short" aria-hidden="true"></i>{% elif f_sort == '-date_joined' %} <i class="bi bi-arrow-down-short" aria-hidden="true"></i>{% endif %}
+        </a>
+    </div>
+</div>
+
+<!-- Table -->
+{% if page_obj %}
+<div class="card fade-in">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0" aria-label="Users list">
+                <thead>
+                    <tr>
+                        <th scope="col">User</th>
+                        <th scope="col">Role</th>
+                        <th scope="col">Joined</th>
+                        <th scope="col">Verified</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Points</th>
+                        <th scope="col" class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in page_obj %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="user-avatar" aria-hidden="true"
+                                     style="width:32px;height:32px;border-radius:50%;background:var(--gradient-main);display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;color:#fff;flex-shrink:0;">
+                                    {{ u.username|first|upper }}
+                                </div>
+                                <div class="min-w-0">
+                                    <a href="{% url 'dashboard:user_detail' u.pk %}" class="fw-600 small text-decoration-none text-light">
+                                        {{ u.username }}
+                                    </a>
+                                    <div class="text-muted" style="font-size:.75rem;">{{ u.email }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge badge-{% if u.role == 'volunteer' %}assigned{% elif u.role == 'admin' %}completed{% else %}open{% endif %}">
+                                {{ u.get_role_display }}
+                            </span>
+                        </td>
+                        <td class="text-muted small">{{ u.date_joined|date:"M d, Y" }}</td>
+                        <td>
+                            {% if u.is_verified %}
+                            <span class="small" style="color:var(--accent-teal);">
+                                <i class="bi bi-patch-check-fill me-1" aria-hidden="true"></i>Verified
+                            </span>
+                            {% else %}
+                            <span class="small text-muted">
+                                <i class="bi bi-dash-circle me-1" aria-hidden="true"></i>Unverified
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if u.is_active %}
+                            <span class="small" style="color:var(--accent-green);">
+                                <i class="bi bi-circle-fill me-1" style="font-size:.5rem;" aria-hidden="true"></i>Active
+                            </span>
+                            {% else %}
+                            <span class="small text-muted">
+                                <i class="bi bi-circle-fill me-1" style="font-size:.5rem;color:#ef4444;" aria-hidden="true"></i>Inactive
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td class="small text-muted">
+                            {% if u.role == 'volunteer' %}
+                                {{ u.volunteer_profile.points|default:"0" }} pts
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <form method="post" class="d-inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="user_id" value="{{ u.pk }}">
+                                <input type="hidden" name="action" value="toggle_active">
+                                <input type="hidden" name="return_to" value="{{ request.get_full_path }}">
+                                <button type="submit"
+                                        class="btn btn-sm btn-outline-{% if u.is_active %}danger{% else %}success{% endif %}"
+                                        aria-label="{% if u.is_active %}Deactivate{% else %}Activate{% endif %} user {{ u.username }}">
+                                    {% if u.is_active %}Deactivate{% else %}Activate{% endif %}
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
+<nav class="mt-4 d-flex justify-content-center" aria-label="Page navigation">
+    <ul class="pagination mb-0">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?{{ qs_pg }}&page={{ page_obj.previous_page_number }}" aria-label="Previous page">
+                <i class="bi bi-chevron-left" aria-hidden="true"></i>
+            </a>
+        </li>
+        {% else %}
+        <li class="page-item disabled"><span class="page-link"><i class="bi bi-chevron-left" aria-hidden="true"></i></span></li>
+        {% endif %}
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <li class="page-item active" aria-current="page"><span class="page-link">{{ num }}</span></li>
+            {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %}
+            <li class="page-item"><a class="page-link" href="?{{ qs_pg }}&page={{ num }}">{{ num }}</a></li>
+            {% endif %}
+        {% endfor %}
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?{{ qs_pg }}&page={{ page_obj.next_page_number }}" aria-label="Next page">
+                <i class="bi bi-chevron-right" aria-hidden="true"></i>
+            </a>
+        </li>
+        {% else %}
+        <li class="page-item disabled"><span class="page-link"><i class="bi bi-chevron-right" aria-hidden="true"></i></span></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+{% else %}
+<!-- Empty state -->
+<div class="card fade-in">
+    <div class="card-body text-center py-5">
+        <i class="bi bi-people fs-1 d-block mb-3" style="color:var(--text-muted);" aria-hidden="true"></i>
+        <p class="fw-600 mb-1">No users found</p>
+        <p class="text-muted small mb-3">
+            {% if has_filters %}No users match your current filters.{% else %}No users have registered yet.{% endif %}
+        </p>
+        {% if has_filters %}
+        <a href="{% url 'dashboard:manage_users' %}" class="btn btn-secondary btn-sm">
+            <i class="bi bi-x-circle me-1" aria-hidden="true"></i>Clear all filters
+        </a>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+(function () {
+    'use strict';
+    // Show/hide volunteer and user specific filters based on role selection
+    const roleSelect = document.getElementById('user-role');
+    const volFilters  = document.getElementById('vol-filters');
+    const userFilters = document.getElementById('user-specific-filters');
+
+    function updateVisibility() {
+        const role = roleSelect.value;
+        if (role === 'volunteer') {
+            volFilters.style.display  = '';
+            userFilters.style.display = 'none';
+        } else if (role === 'user') {
+            volFilters.style.display  = 'none';
+            userFilters.style.display = '';
+        } else {
+            // Show both when no role is selected (filters might apply from before)
+            volFilters.style.display  = 'none';
+            userFilters.style.display = 'none';
+        }
+    }
+
+    roleSelect.addEventListener('change', updateVisibility);
+    // On initial load, run once but respect server-set visibility via inline style
+    if (roleSelect.value) updateVisibility();
+}());
+</script>
+{% endblock %}

@@ -1,0 +1,343 @@
+{% extends 'base.html' %}
+
+{% block title %}Report {{ report.reference_number }} — Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-header fade-in">
+    <div class="d-flex align-items-center gap-3">
+        <a href="{% url 'dashboard:manage_reports' %}" class="btn btn-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i>Back to Reports
+        </a>
+        <div>
+            <div class="d-flex align-items-center gap-2">
+                <h1 class="h3 mb-0 font-monospace">{{ report.reference_number }}</h1>
+                <span class="badge" style="
+                    {% if report.severity == 'high' %}background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.3);
+                    {% elif report.severity == 'medium' %}background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);
+                    {% else %}background:rgba(59,130,246,0.15);color:#3b82f6;border:1px solid rgba(59,130,246,0.3);{% endif %}">
+                    {{ report.get_severity_display }} Severity
+                </span>
+                <span class="badge badge-{% if report.status == 'new' %}danger{% elif report.status == 'in_review' %}warning{% elif report.status == 'action_taken' %}primary{% elif report.status == 'resolved' %}success{% else %}secondary{% endif %}">
+                    {{ report.get_status_display }}
+                </span>
+            </div>
+            <p class="text-muted small mb-0 mt-1">
+                Submitted {{ report.created_at|date:"M d, Y H:i" }} · Neutral allegation review
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Left Column: Report Context & Quick Links -->
+    <div class="col-lg-7">
+        <!-- Allegation Details Card -->
+        <div class="card mb-4 fade-in">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-file-text me-2"></i>Allegation Details</span>
+                <span class="text-muted small">{{ report.get_report_type_display }}</span>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <span class="text-muted small d-block">Category / Reason:</span>
+                    <h5 class="fw-700 text-light mt-1">{{ report.get_category_display }}</h5>
+                </div>
+                <div class="mb-3">
+                    <span class="text-muted small d-block">Description / Details:</span>
+                    <p class="p-3 rounded-2 text-light" style="background:rgba(255,255,255,0.03);border:1px solid var(--border-glass);white-space:pre-wrap;">
+                        {{ report.description|default:"No written description provided by reporter." }}
+                    </p>
+                </div>
+
+                <!-- Quick Links Panel -->
+                <h6 class="fw-600 text-secondary mb-2 mt-4"><i class="bi bi-link-45deg me-1"></i>Related Platform Context</h6>
+                <div class="row g-2">
+                    {% if report.related_request %}
+                    <div class="col-sm-6">
+                        <a href="{% url 'assist_requests:request_detail' report.related_request.pk %}"
+                           class="d-flex align-items-center gap-2 p-2 rounded text-decoration-none"
+                           style="background:rgba(255,255,255,0.04);border:1px solid var(--border-glass);">
+                            <i class="bi bi-card-checklist text-primary fs-5"></i>
+                            <div class="text-truncate">
+                                <div class="small fw-600 text-light">Request #{{ report.related_request.pk }}</div>
+                                <div class="text-muted" style="font-size:0.75rem;">{{ report.related_request.title|truncatechars:25 }}</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-sm-6">
+                        <a href="{% url 'dashboard:request_messages' report.related_request.pk %}?report_id={{ report.pk }}"
+                           class="d-flex align-items-center gap-2 p-2 rounded text-decoration-none"
+                           style="background:rgba(255,255,255,0.04);border:1px solid var(--border-glass);">
+                            <i class="bi bi-chat-dots-fill text-info fs-5"></i>
+                            <div class="text-truncate">
+                                <div class="small fw-600 text-light">Request Conversation</div>
+                                <div class="text-muted" style="font-size:0.75rem;">View messages (tied to report)</div>
+                            </div>
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    {% if report.reported_user %}
+                    <div class="col-sm-6">
+                        <a href="{% url 'dashboard:user_detail' report.reported_user.pk %}"
+                           class="d-block p-2 rounded text-decoration-none" style="background:rgba(255,255,255,0.04);border:1px solid var(--border-glass);">
+                            <div class="small fw-600 text-light">
+                                <i class="bi bi-person-x-fill text-danger me-1"></i>Reported: {{ report.reported_user.username }}
+                                <i class="bi bi-arrow-up-right-square ms-1 text-muted small"></i>
+                            </div>
+                            <div class="text-muted" style="font-size:0.75rem;">
+                                Role: {{ report.reported_user.role|title }} ·
+                                Active: {{ report.reported_user.is_active|yesno:"Yes,Suspended" }} ·
+                                Verified: {{ report.reported_user.is_verified|yesno:"Yes,No" }}
+                            </div>
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    <div class="col-sm-6">
+                        <a href="{% url 'dashboard:user_detail' report.reporter.pk %}"
+                           class="d-block p-2 rounded text-decoration-none" style="background:rgba(255,255,255,0.04);border:1px solid var(--border-glass);">
+                            <div class="small fw-600 text-light">
+                                <i class="bi bi-person-check-fill text-success me-1"></i>Reporter: {{ report.reporter.username }}
+                                <i class="bi bi-arrow-up-right-square ms-1 text-muted small"></i>
+                            </div>
+                            <div class="text-muted" style="font-size:0.75rem;">
+                                Role: {{ report.reporter.role|title }} · Joined: {{ report.reporter.date_joined|date:"M Y" }}
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Moderation Actions Card -->
+        <div class="card mb-4 fade-in">
+            <div class="card-header border-0 pb-0">
+                <i class="bi bi-hammer text-warning me-2"></i>Moderation Actions (Audit-Logged)
+            </div>
+            <div class="card-body">
+                <p class="text-muted small mb-3">
+                    Executing an action will update the report, create an in-app audit log entry, and notify parties accordingly.
+                </p>
+                <div class="d-flex flex-wrap gap-2">
+                    <!-- Warn User -->
+                    {% if report.reported_user %}
+                    <button type="button" class="btn btn-outline-warning btn-sm"
+                            data-bs-toggle="modal" data-bs-target="#actionModal"
+                            data-action="warn" data-action-title="Issue Warning to {{ report.reported_user.username }}">
+                        <i class="bi bi-exclamation-circle me-1"></i>Warn {{ report.reported_user.role|title }}
+                    </button>
+
+                    <!-- Remove Verification -->
+                    {% if report.reported_user.role == 'volunteer' and report.reported_user.is_verified %}
+                    <button type="button" class="btn btn-outline-danger btn-sm"
+                            data-bs-toggle="modal" data-bs-target="#actionModal"
+                            data-action="remove_verification" data-action-title="Revoke Verification for {{ report.reported_user.username }}">
+                        <i class="bi bi-patch-minus me-1"></i>Revoke Verification
+                    </button>
+                    {% endif %}
+
+                    <!-- Suspend Account -->
+                    {% if report.reported_user.is_active %}
+                    <button type="button" class="btn btn-danger btn-sm"
+                            data-bs-toggle="modal" data-bs-target="#actionModal"
+                            data-action="suspend" data-action-title="Suspend Account: {{ report.reported_user.username }}">
+                        <i class="bi bi-slash-circle me-1"></i>Suspend Account
+                    </button>
+                    {% endif %}
+                    {% endif %}
+
+                    <!-- Dismiss Report -->
+                    <button type="button" class="btn btn-secondary btn-sm"
+                            data-bs-toggle="modal" data-bs-target="#actionModal"
+                            data-action="dismiss" data-action-title="Dismiss Allegation">
+                        <i class="bi bi-x-circle me-1"></i>Dismiss Report
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reply to Reporter Card -->
+        <div class="card fade-in">
+            <div class="card-header"><i class="bi bi-reply-fill text-info me-2"></i>Reply to Reporter</div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action_type" value="reply_reporter">
+                    <div class="mb-3">
+                        <label for="reply_message" class="form-label small text-muted">
+                            Sends an in-app notification directly to {{ report.reporter.username }}
+                        </label>
+                        <textarea name="reply_message" id="reply_message" rows="3" class="form-control"
+                                  placeholder="e.g., Thank you for alerting us. Our moderation team has addressed this matter..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="bi bi-send me-1"></i>Send Notification
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Status & Assignment, Internal Staff Notes, Status History -->
+    <div class="col-lg-5">
+        <!-- Status & Assignment Form -->
+        <div class="card mb-4 fade-in">
+            <div class="card-header"><i class="bi bi-sliders me-2"></i>Workflow &amp; Assignment</div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action_type" value="update_status">
+                    <div class="mb-3">
+                        <label for="status-select" class="form-label small text-muted">Report Status</label>
+                        <select name="status" id="status-select" class="form-select form-select-sm">
+                            {% for code, label in status_choices %}
+                            <option value="{{ code }}"{% if report.status == code %} selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="staff-select" class="form-label small text-muted">Assigned Staff</label>
+                        <select name="assigned_staff" id="staff-select" class="form-select form-select-sm">
+                            <option value="">Unassigned</option>
+                            {% for staff in staff_members %}
+                            <option value="{{ staff.pk }}"{% if report.assigned_staff == staff %} selected{% endif %}>
+                                {{ staff.username }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="status_reason" class="form-label small text-muted">Status Transition Reason</label>
+                        <input type="text" name="status_reason" id="status_reason" class="form-control form-control-sm"
+                               placeholder="Optional explanation for audit trail">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm w-100">
+                        Update Status / Assignment
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Internal Staff Notes -->
+        <div class="card mb-4 fade-in">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-journal-text me-2"></i>Internal Staff Notes</span>
+                <span class="badge badge-secondary">{{ notes|length }}</span>
+            </div>
+            <div class="card-body">
+                <div class="notes-list mb-3" style="max-height:280px;overflow-y:auto;">
+                    {% for n in notes %}
+                    <div class="p-2 mb-2 rounded" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="small fw-600 text-info">{{ n.staff.username }}</span>
+                            <span class="text-muted" style="font-size:0.7rem;">{{ n.created_at|date:"M d, H:i" }}</span>
+                        </div>
+                        <p class="small text-light mb-0" style="white-space:pre-wrap;">{{ n.note }}</p>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted small text-center py-3">No internal staff notes yet.</p>
+                    {% endfor %}
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action_type" value="add_note">
+                    <div class="mb-2">
+                        <textarea name="note" class="form-control form-control-sm" rows="2" required
+                                  placeholder="Add an internal note (visible only to staff)..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-secondary btn-sm w-100">
+                        <i class="bi bi-plus-circle me-1"></i>Add Staff Note
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Status History -->
+        <div class="card fade-in">
+            <div class="card-header"><i class="bi bi-clock-history me-2"></i>Audit Trail &amp; History</div>
+            <div class="card-body p-0">
+                <div class="table-responsive" style="max-height:200px;overflow-y:auto;">
+                    <table class="table table-sm mb-0" style="font-size:0.75rem;">
+                        <thead>
+                            <tr>
+                                <th>Transition</th>
+                                <th>Staff</th>
+                                <th>When</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for h in history %}
+                            <tr>
+                                <td>
+                                    <span class="text-muted">{{ h.old_status }}</span> &rarr;
+                                    <span class="fw-600 text-light">{{ h.new_status }}</span>
+                                    {% if h.reason %}<div class="text-muted small">{{ h.reason }}</div>{% endif %}
+                                </td>
+                                <td>{{ h.changed_by.username|default:"System" }}</td>
+                                <td class="text-muted">{{ h.timestamp|date:"M d H:i" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3" class="text-muted text-center py-2">No status transitions recorded yet.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Moderation Confirmation Modal -->
+<div class="modal fade" id="actionModal" tabindex="-1" aria-labelledby="actionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background:var(--bg-secondary);border:1px solid var(--border-glass);backdrop-filter:blur(20px);">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-700 text-warning" id="actionModalLabel">Action Confirmation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" id="moderation-form">
+                {% csrf_token %}
+                <input type="hidden" name="action_type" value="moderation_action">
+                <input type="hidden" name="action" id="modal-action-type">
+                <div class="modal-body">
+                    <p class="text-muted small mb-3" id="modal-action-desc">
+                        Please provide a mandatory reason for this moderation action. This reason will be recorded in the Admin Audit Log.
+                    </p>
+                    <div class="mb-3">
+                        <label for="modal-reason" class="form-label small">Mandatory Reason <span class="text-danger">*</span></label>
+                        <textarea name="reason" id="modal-reason" rows="3" class="form-control" required
+                                  placeholder="Specify the findings, investigation notes, or rationale..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger" id="modal-submit-btn">Execute Action</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+(function() {
+    'use strict';
+    const actionModal = document.getElementById('actionModal');
+    if (actionModal) {
+        actionModal.addEventListener('show.bs.modal', function(event) {
+            const btn = event.relatedTarget;
+            const action = btn.getAttribute('data-action');
+            const title = btn.getAttribute('data-action-title');
+            document.getElementById('modal-action-type').value = action;
+            document.getElementById('actionModalLabel').textContent = title;
+            document.getElementById('modal-reason').value = '';
+        });
+    }
+})();
+</script>
+{% endblock %}

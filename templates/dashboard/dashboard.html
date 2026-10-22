@@ -1,0 +1,456 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard — Companio{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="page-header fade-in">
+    <h1><i class="bi bi-speedometer2 me-2"></i>Admin Dashboard</h1>
+    <p class="text-muted mb-0">Platform analytics and activity overview</p>
+</div>
+
+<!-- ── Attention Needed strip ──────────────────────────────────────────── -->
+<section class="mb-4 fade-in" aria-labelledby="attention-heading">
+    <h2 id="attention-heading" class="visually-hidden">Attention Needed</h2>
+    {% if all_clear %}
+    <div class="attention-clear d-flex align-items-center gap-3 px-4 py-3 rounded-3"
+         style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);"
+         role="status">
+        <i class="bi bi-check-circle-fill fs-5" style="color:var(--accent-green);" aria-hidden="true"></i>
+        <div>
+            <span class="fw-600" style="color:#4ade80;">All clear</span>
+            <span class="text-muted small ms-2">No items need your attention right now.</span>
+        </div>
+    </div>
+    {% else %}
+    <div class="d-flex align-items-center gap-2 mb-2">
+        <i class="bi bi-bell-fill" style="color:var(--accent-amber);" aria-hidden="true"></i>
+        <span class="fw-600 small text-muted text-uppercase" style="letter-spacing:.06em;">Attention Needed</span>
+    </div>
+    <div class="row g-3" role="list">
+        {% for item in attention_items %}{% if item.count > 0 %}
+        <div class="col-6 col-sm-4 col-lg-auto flex-lg-fill" role="listitem">
+            <a href="{{ item.url }}"
+               class="attention-card d-flex align-items-center gap-3 px-4 py-3 text-decoration-none"
+               style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:var(--radius-md);transition:all .2s ease;"
+               aria-label="{{ item.label }}: {{ item.count }} item{{ item.count|pluralize }}">
+                <i class="bi {{ item.icon }} fs-5 flex-shrink-0" style="color:{{ item.color }};" aria-hidden="true"></i>
+                <div class="min-w-0">
+                    <div class="fw-700" style="font-size:1.5rem;color:{{ item.color }};line-height:1.1;">{{ item.count }}</div>
+                    <div class="text-muted small text-truncate">{{ item.label }}</div>
+                </div>
+            </a>
+        </div>
+        {% endif %}{% endfor %}
+    </div>
+    {% endif %}
+</section>
+
+<!-- Stat Cards -->
+<div class="row g-4 mb-5 fade-in delay-1">
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-label">Total Users</div>
+            <div class="stat-value">{{ total_users }}</div>
+            <div class="text-muted small mt-1"><i class="bi bi-person-fill me-1" style="color:var(--accent-blue);"></i>Registered users</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-label">Volunteers</div>
+            <div class="stat-value" style="background:var(--gradient-teal);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">{{ total_volunteers }}</div>
+            <div class="text-muted small mt-1"><i class="bi bi-heart-fill me-1" style="color:var(--accent-teal);"></i>Active volunteers</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-label">Total Requests</div>
+            <div class="stat-value" style="background:var(--gradient-warm);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">{{ total_requests }}</div>
+            <div class="text-muted small mt-1"><i class="bi bi-card-list me-1" style="color:var(--accent-pink);"></i>Requests created</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-label">Completed</div>
+            <div class="stat-value" style="background:linear-gradient(135deg,#22c55e,#16a34a);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">{{ completed_requests }}</div>
+            <div class="text-muted small mt-1"><i class="bi bi-check-circle-fill me-1" style="color:var(--accent-green);"></i>Fulfilled requests</div>
+        </div>
+    </div>
+</div>
+
+<!-- Phase 3: Reports & Moderation Overview Strip -->
+<div class="row g-4 mb-5 fade-in delay-1">
+    <div class="col-6 col-md-4">
+        <a href="{% url 'dashboard:manage_reports' %}" class="text-decoration-none">
+            <div class="stat-card">
+                <div class="stat-label"><i class="bi bi-shield-exclamation text-danger me-1"></i>Open Reports</div>
+                <div class="stat-value text-danger">{{ open_reports_count }}</div>
+                <div class="text-muted small mt-1">Pending review &amp; action</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6 col-md-4">
+        <a href="{% url 'dashboard:manage_reports' %}" class="text-decoration-none">
+            <div class="stat-card">
+                <div class="stat-label"><i class="bi bi-calendar-month text-primary me-1"></i>Reports This Month</div>
+                <div class="stat-value" style="color:var(--accent-blue);">{{ reports_this_month }}</div>
+                <div class="text-muted small mt-1">New allegations filed</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-12 col-md-4">
+        <div class="stat-card">
+            <div class="stat-label"><i class="bi bi-stopwatch text-warning me-1"></i>Avg Time to Resolve</div>
+            <div class="stat-value text-warning">{{ avg_resolve_time }}</div>
+            <div class="text-muted small mt-1">From submission to resolution</div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts -->
+<div class="row g-4 mb-5 fade-in delay-2">
+    <div class="col-md-4">
+        <div class="chart-card">
+            <div class="chart-title"><i class="bi bi-pie-chart me-1"></i>Request Status Breakdown</div>
+            <canvas id="statusChart" height="220"></canvas>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="chart-card">
+            <div class="chart-title"><i class="bi bi-bar-chart me-1"></i>Requests by Category</div>
+            <canvas id="categoryChart" height="220"></canvas>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="chart-card">
+            <div class="chart-title"><i class="bi bi-shield-shaded me-1"></i>Reports by Type</div>
+            <canvas id="reportTypeChart" height="220"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Top Volunteers -->
+{% if top_volunteers %}
+<div class="row g-4 mb-5 fade-in delay-3">
+    <div class="col-lg-5">
+        <div class="card">
+            <div class="card-header"><i class="bi bi-trophy-fill text-warning me-2"></i>Top Volunteers</div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table mb-0">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Volunteer</th>
+                                <th class="text-end">Points</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for profile in top_volunteers %}
+                            <tr>
+                                <td class="text-muted">{{ forloop.counter }}</td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div style="width:30px;height:30px;border-radius:50%;background:var(--gradient-main);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:#fff;">
+                                            {{ profile.user.username|first|upper }}
+                                        </div>
+                                        {{ profile.user.username }}
+                                    </div>
+                                </td>
+                                <td class="text-end">
+                                    <span class="text-gradient fw-700">{{ profile.points }}</span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Requests -->
+    <div class="col-lg-7">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-clock-history me-2"></i>Recent Requests</span>
+                <a href="/admin/" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-database-gear me-1"></i>Advanced / Database Admin
+                                </a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table mb-0">
+                        <thead>
+                            <tr>
+                                <th>Request</th>
+                                <th>By</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for req in recent_requests %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'assist_requests:request_detail' req.pk %}" class="fw-600 small text-decoration-none">
+                                        {{ req.title|truncatechars:30 }}
+                                    </a>
+                                </td>
+                                <td class="text-muted small">{{ req.user.username }}</td>
+                                <td><span class="badge badge-{{ req.status }}">{{ req.get_status_display }}</span></td>
+                                <td class="text-muted small">{{ req.created_at|date:"M d" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Phase 6: Suspicious Activity Detection Panel -->
+<div class="row g-4 mb-5 fade-in delay-3">
+    <div class="col-12">
+        <div class="card" style="border: 1px solid rgba(239, 68, 68, 0.35);">
+            <div class="card-header d-flex justify-content-between align-items-center" style="background: rgba(239, 68, 68, 0.08);">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-shield-exclamation text-danger fs-5"></i>
+                    <span class="fw-bold text-white">Suspicious Activity Detection</span>
+                    <span class="badge" style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4);">
+                        {{ suspicious_flags|length }} Flagged Events
+                    </span>
+                </div>
+                <small class="text-muted">Thresholds: Settings-driven (&ge;3 completions/pair, &le;10m duration, 0 chat messages, new account clusters)</small>
+            </div>
+            <div class="card-body p-0">
+                {% if suspicious_flags %}
+                <div class="table-responsive">
+                    <table class="table mb-0 align-middle">
+                        <thead>
+                            <tr>
+                                <th style="width: 220px;">Pattern Flag</th>
+                                <th style="width: 100px;">Severity</th>
+                                <th>Incident Summary</th>
+                                <th style="width: 140px;" class="text-end">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for flag in suspicious_flags %}
+                            <tr>
+                                <td>
+                                    <span class="badge" style="background: rgba(255,255,255,0.06); color: #e2e8f0; border: 1px solid rgba(255,255,255,0.12);">
+                                        {{ flag.type }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge" style="background: {{ flag.badge_color }}22; color: {{ flag.badge_color }}; border: 1px solid {{ flag.badge_color }}66;">
+                                        {{ flag.severity|upper }}
+                                    </span>
+                                </td>
+                                <td class="text-light small">
+                                    {{ flag.summary }}
+                                </td>
+                                <td class="text-end">
+                                    <a href="{{ flag.action_url }}" class="btn btn-sm btn-outline-light" style="font-size: 0.75rem;">
+                                        <i class="bi bi-box-arrow-up-right me-1"></i>{{ flag.action_label }}
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="p-4 text-center text-muted">
+                    <i class="bi bi-shield-check text-success fs-3 d-block mb-2"></i>
+                    <div class="text-light fw-600">No suspicious activity detected</div>
+                    <small>Pair completions, rapid completion velocity, zero-chat interactions, and account clusters are currently healthy.</small>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Phase 6: Supply and Demand Insights -->
+<div class="row g-4 mb-5 fade-in delay-3">
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header d-flex align-items-center gap-2">
+                <i class="bi bi-exclamation-diamond text-warning"></i>
+                <span class="fw-bold">Categories Without Matching Volunteers</span>
+            </div>
+            <div class="card-body">
+                {% if categories_without_volunteers %}
+                    <p class="small text-muted mb-3">The following categories have zero active volunteers with matching profile skills listed:</p>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for cat in categories_without_volunteers %}
+                            <span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); font-size: 0.8rem; padding: 6px 10px;">
+                                <i class="bi bi-slash-circle me-1"></i>{{ cat }}
+                            </span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-3 text-muted">
+                        <i class="bi bi-check-circle text-success fs-4 d-block mb-1"></i>
+                        <span class="small text-light">All request categories have volunteer coverage.</span>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header d-flex align-items-center gap-2">
+                <i class="bi bi-stopwatch text-info"></i>
+                <span class="fw-bold">Avg Time to Acceptance</span>
+            </div>
+            <div class="card-body">
+                {% if acceptance_by_cat %}
+                    <p class="small text-muted mb-2">Average response latency from requester publication to volunteer acceptance:</p>
+                    <ul class="list-group list-group-flush small" style="background: transparent;">
+                        {% for item in acceptance_by_cat %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2" style="background: transparent; border-color: rgba(255,255,255,0.06); color: #cbd5e1;">
+                                <span>{{ item.category }}</span>
+                                <span class="badge bg-secondary">{{ item.avg_hours }}h</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="text-center py-3 text-muted">
+                        <i class="bi bi-hourglass-split text-info fs-4 d-block mb-1"></i>
+                        <span class="small text-light">Not enough historical accepted requests yet.</span>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header d-flex align-items-center gap-2">
+                <i class="bi bi-patch-question text-danger"></i>
+                <span class="fw-bold">Unmatched Open Requests</span>
+            </div>
+            <div class="card-body">
+                {% if unmatched_open_requests %}
+                    <p class="small text-muted mb-2">Open requests with required skills missing from all active volunteer profiles:</p>
+                    <ul class="list-group list-group-flush small" style="background: transparent;">
+                        {% for o_req in unmatched_open_requests %}
+                            <li class="list-group-item px-0 py-2" style="background: transparent; border-color: rgba(255,255,255,0.06);">
+                                <div class="d-flex justify-content-between">
+                                    <a href="{% url 'assist_requests:request_detail' o_req.pk %}" class="fw-bold text-decoration-none text-light">
+                                        #{{ o_req.pk }} {{ o_req.title|truncatechars:22 }}
+                                    </a>
+                                    <span class="badge bg-danger">{{ o_req.priority }}</span>
+                                </div>
+                                <div class="text-muted" style="font-size: 0.72rem;">Required: {{ o_req.required_skills }}</div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="text-center py-3 text-muted">
+                        <i class="bi bi-stars text-success fs-4 d-block mb-1"></i>
+                        <span class="small text-light">No open requests currently blocked on unmatched skills.</span>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+const statusData = {{ requests_status_data|safe }};
+const categoryData = {{ requests_category_data|safe }};
+const reportTypeData = {{ reports_type_data|safe }};
+
+const chartDefaults = {
+    plugins: {
+        legend: { labels: { color: '#94a3b8', font: { family: 'Inter', size: 12 } } }
+    },
+};
+
+// Status doughnut chart
+new Chart(document.getElementById('statusChart'), {
+    type: 'doughnut',
+    data: {
+        labels: statusData.labels,
+        datasets: [{
+            data: statusData.data,
+            backgroundColor: ['#22c55e', '#3b82f6', '#7c3aed', '#ef4444'],
+            borderColor: 'rgba(13,15,26,0.8)',
+            borderWidth: 3,
+            hoverOffset: 8,
+        }]
+    },
+    options: {
+        ...chartDefaults,
+        cutout: '65%',
+        plugins: {
+            ...chartDefaults.plugins,
+        }
+    }
+});
+
+// Category bar chart
+new Chart(document.getElementById('categoryChart'), {
+    type: 'bar',
+    data: {
+        labels: categoryData.labels,
+        datasets: [{
+            label: 'Requests',
+            data: categoryData.data,
+            backgroundColor: 'rgba(124,58,237,0.6)',
+            borderColor: '#7c3aed',
+            borderWidth: 1.5,
+            borderRadius: 6,
+        }]
+    },
+    options: {
+        ...chartDefaults,
+        scales: {
+            x: {
+                ticks: { color: '#94a3b8', font: { family: 'Inter' } },
+                grid: { color: 'rgba(255,255,255,0.04)' },
+            },
+            y: {
+                ticks: { color: '#94a3b8', font: { family: 'Inter' } },
+                grid: { color: 'rgba(255,255,255,0.06)' },
+                beginAtZero: true,
+            }
+        },
+    }
+});
+
+// Reports by Type doughnut chart
+new Chart(document.getElementById('reportTypeChart'), {
+    type: 'doughnut',
+    data: {
+        labels: reportTypeData.labels,
+        datasets: [{
+            data: reportTypeData.data,
+            backgroundColor: ['#38bdf8', '#fbbf24', '#f43f5e', '#a855f7'],
+            borderColor: 'rgba(13,15,26,0.8)',
+            borderWidth: 3,
+            hoverOffset: 8,
+        }]
+    },
+    options: {
+        ...chartDefaults,
+        cutout: '60%',
+        plugins: {
+            ...chartDefaults.plugins,
+        }
+    }
+});
+</script>
+{% endblock %}
