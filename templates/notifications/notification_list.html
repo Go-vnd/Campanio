@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Notifications — Companio{% endblock %}
+
+{% block content %}
+<div class="page-header fade-in">
+    <h1><i class="bi bi-bell-fill me-2"></i>Notifications</h1>
+    <p class="text-muted mb-0">Your recent activity and alerts</p>
+</div>
+
+{% if notifications %}
+    <div class="fade-in delay-1">
+        {% for notif in notifications %}
+        <div class="notif-item {% if not notif.is_read %}unread{% endif %}">
+            {% if not notif.is_read %}
+                <div class="notif-dot"></div>
+            {% else %}
+                <div style="width:8px;height:8px;border-radius:50%;background:var(--text-muted);margin-top:6px;flex-shrink:0;"></div>
+            {% endif %}
+            <div class="flex-grow-1">
+                {% if not notif.is_read %}
+                    <p class="mb-1 small fw-600">{{ notif.message }}</p>
+                {% else %}
+                    <p class="mb-1 small">{{ notif.message }}</p>
+                {% endif %}
+                <span class="text-muted" style="font-size:0.72rem;">
+                    <i class="bi bi-clock me-1"></i>{{ notif.created_at|timesince }} ago
+                </span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="text-center py-5 fade-in delay-1">
+        <div style="font-size:4rem;opacity:0.3;">🔔</div>
+        <h4 class="text-muted mt-3">All caught up!</h4>
+        <p class="text-muted small">You have no notifications right now.</p>
+        <a href="{% url 'assist_requests:request_list' %}" class="btn btn-primary mt-2">
+            <i class="bi bi-grid me-2"></i>Browse Requests
+        </a>
+    </div>
+{% endif %}
+{% endblock %}

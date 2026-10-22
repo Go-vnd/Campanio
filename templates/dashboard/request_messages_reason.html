@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Access Reason Required — Request #{{ assist_req.pk }} — Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center py-5 fade-in">
+    <div class="col-lg-6 col-md-8">
+        <div class="card p-4 p-md-5">
+            <div class="d-flex align-items-center gap-3 mb-4">
+                <div style="width:50px;height:50px;border-radius:50%;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:var(--accent-pink);display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;">
+                    <i class="bi bi-shield-lock-fill"></i>
+                </div>
+                <div>
+                    <h2 class="h4 fw-700 mb-1">Reason Required to Access Messages</h2>
+                    <p class="text-muted small mb-0">Confidential User Communications Policy</p>
+                </div>
+            </div>
+
+            <p class="text-muted small mb-3">
+                To protect user privacy, direct message logs between <strong>{{ assist_req.user.username }}</strong> and
+                <strong>{{ assist_req.volunteer.username|default:"the volunteer" }}</strong> cannot be browsed globally.
+                Opening conversations not automatically tied to an open report requires a documented investigation justification.
+            </p>
+
+            <div class="alert alert-warning d-flex align-items-center gap-2 p-2 small mb-4" style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);">
+                <i class="bi bi-info-circle-fill text-warning fs-6"></i>
+                <span>This access event, your username, and your reason will be permanently recorded in the Admin Audit Log.</span>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+                {% if report_id %}
+                <input type="hidden" name="report_id" value="{{ report_id }}">
+                {% endif %}
+                <div class="mb-4">
+                    <label for="access_reason" class="form-label fw-600 small">
+                        Investigation Justification <span class="text-danger">*</span>
+                    </label>
+                    <textarea name="access_reason" id="access_reason" rows="3" class="form-control" required minlength="5"
+                              placeholder="e.g., Investigating safety report #42 regarding no-show allegation..."></textarea>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center">
+                    <a href="{% url 'assist_requests:request_detail' assist_req.pk %}" class="btn btn-secondary">
+                        Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-unlock-fill me-1"></i>Authorize &amp; View Messages
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

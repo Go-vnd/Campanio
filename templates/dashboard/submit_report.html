@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block title %}Submit a Report — Companio{% endblock %}
+
+{% block content %}
+<div class="page-header fade-in">
+    <div class="d-flex align-items-center gap-3">
+        {% if related_req %}
+        <a href="{% url 'assist_requests:request_detail' related_req.pk %}" class="btn btn-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i>Back
+        </a>
+        {% else %}
+        <a href="javascript:history.back()" class="btn btn-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i>Back
+        </a>
+        {% endif %}
+        <div>
+            <h1><i class="bi bi-shield-exclamation me-2 text-warning"></i>Tell Us What Happened</h1>
+            <p class="text-muted mb-0">Help us keep the Companio community safe, supportive, and respectful.</p>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card fade-in">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-file-earmark-text me-2"></i>Report Details</span>
+                <span class="badge" style="background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.3);">
+                    Confidential &amp; Secure
+                </span>
+            </div>
+            <div class="card-body">
+                <!-- Context Summary Box -->
+                <div class="p-3 mb-4 rounded-3" style="background:rgba(255,255,255,0.03);border:1px solid var(--border-glass);">
+                    <div class="row g-2 small">
+                        {% if related_req %}
+                        <div class="col-sm-6">
+                            <span class="text-muted d-block">Related Request:</span>
+                            <strong class="text-light">{{ related_req.title }}</strong>
+                        </div>
+                        {% endif %}
+                        {% if reported_user %}
+                        <div class="col-sm-6">
+                            <span class="text-muted d-block">Reported User:</span>
+                            <span class="badge badge-{% if reported_user.role == 'volunteer' %}assigned{% else %}open{% endif %} me-1">
+                                {{ reported_user.role|title }}
+                            </span>
+                            <strong class="text-light">{{ reported_user.username }}</strong>
+                        </div>
+                        {% endif %}
+                        <div class="col-12 mt-2 pt-2 border-top border-secondary border-opacity-25 text-muted" style="font-size:0.8rem;">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Your report is reviewed privately by Companio staff. The reported user will not see who submitted this report.
+                        </div>
+                    </div>
+                </div>
+
+                <form method="post" id="report-form" novalidate>
+                    {% csrf_token %}
+                    {% if related_req %}
+                    <input type="hidden" name="request_id" value="{{ related_req.pk }}">
+                    {% endif %}
+                    {% if reported_user %}
+                    <input type="hidden" name="user_id" value="{{ reported_user.pk }}">
+                    {% endif %}
+                    <input type="hidden" name="type" value="{{ report_type }}">
+
+                    <!-- Category Options (Accessible radios) -->
+                    <div class="mb-4">
+                        <label class="form-label fw-600 mb-2">
+                            Select the reason that best describes what happened <span class="text-danger">*</span>
+                        </label>
+                        <div class="d-flex flex-column gap-2" role="radiogroup" aria-required="true">
+                            {% for radio in form.category %}
+                            <div class="p-2 rounded-2" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);">
+                                <label for="{{ radio.id_for_label }}" class="form-check-label d-flex align-items-center gap-2 cursor-pointer mb-0">
+                                    {{ radio.tag }}
+                                    <span class="small">{{ radio.choice_label }}</span>
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% if form.category.errors %}
+                        <div class="text-danger small mt-1">{{ form.category.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Description Textarea -->
+                    <div class="mb-4">
+                        <label for="{{ form.description.id_for_label }}" class="form-label fw-600">
+                            {{ form.description.label }}
+                        </label>
+                        {{ form.description }}
+                        <div class="form-text text-muted small">
+                            Optional. You can provide any specific context, messages, or details you feel are helpful.
+                        </div>
+                        {% if form.description.errors %}
+                        <div class="text-danger small mt-1">{{ form.description.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-4">
+                        {% if related_req %}
+                        <a href="{% url 'assist_requests:request_detail' related_req.pk %}" class="btn btn-secondary">
+                            Cancel
+                        </a>
+                        {% else %}
+                        <a href="javascript:history.back()" class="btn btn-secondary">Cancel</a>
+                        {% endif %}
+                        <button type="submit" class="btn btn-danger px-4">
+                            <i class="bi bi-send me-1"></i>Submit Report
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Audit Logs — Companio Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-header fade-in">
+    <div class="d-flex align-items-center gap-3">
+        <a href="{% url 'dashboard:dashboard_home' %}" class="btn btn-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i>Back
+        </a>
+        <div>
+            <h1><i class="bi bi-journal-check me-2 text-primary"></i>Admin Audit Logs</h1>
+            <p class="text-muted mb-0">Immutable records of data-changing admin actions and message access justifications.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card mb-3 fade-in">
+    <div class="card-body py-3">
+        <form method="get" action="" class="row g-2 align-items-end" role="search" aria-label="Filter audit logs">
+            <div class="col-12 col-md-3">
+                <label for="log-q" class="form-label small">Search Target / Reason</label>
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text" id="log-q" name="q" class="form-control"
+                           value="{{ f_q }}" placeholder="Reason or target…">
+                </div>
+            </div>
+            <div class="col-6 col-md-2">
+                <label for="log-action" class="form-label small">Action</label>
+                <select id="log-action" name="action" class="form-select form-select-sm">
+                    <option value="">All actions</option>
+                    {% for a in action_types %}
+                    <option value="{{ a }}"{% if f_action == a %} selected{% endif %}>{{ a }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-6 col-md-2">
+                <label for="log-target" class="form-label small">Target Type</label>
+                <select id="log-target" name="target_type" class="form-select form-select-sm">
+                    <option value="">All types</option>
+                    {% for t in target_types %}
+                    <option value="{{ t }}"{% if f_target_type == t %} selected{% endif %}>{{ t }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-6 col-md-2">
+                <label for="log-staff" class="form-label small">Staff Member</label>
+                <select id="log-staff" name="staff" class="form-select form-select-sm">
+                    <option value="">All staff</option>
+                    {% for s in staff_members %}
+                    <option value="{{ s.pk }}"{% if f_staff == s.pk|stringformat:'s' %} selected{% endif %}>{{ s.username }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-6 col-md-1">
+                <label for="log-date-from" class="form-label small">From</label>
+                <input type="date" id="log-date-from" name="date_from" class="form-control form-control-sm"
+                       value="{{ f_date_from }}">
+            </div>
+            <div class="col-6 col-md-1">
+                <label for="log-date-to" class="form-label small">To</label>
+                <input type="date" id="log-date-to" name="date_to" class="form-control form-control-sm"
+                       value="{{ f_date_to }}">
+            </div>
+            <div class="col-6 col-md-1 d-flex gap-1">
+                <button type="submit" class="btn btn-primary btn-sm w-100">Apply</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-2 fade-in">
+    <p class="text-muted small mb-0">
+        Showing <strong>{{ page_obj|length }}</strong> of <strong>{{ total_count }}</strong>
+        audit log{{ total_count|pluralize }}
+        {% if has_filters %}
+        <span class="badge ms-1" style="background:rgba(124,58,237,0.2);color:#a78bfa;border:1px solid rgba(124,58,237,0.3);">Filtered</span>
+        {% endif %}
+    </p>
+    {% if has_filters %}
+    <a href="{% url 'dashboard:audit_logs' %}" class="btn btn-secondary btn-sm">Clear filters</a>
+    {% endif %}
+</div>
+
+<!-- Table -->
+{% if page_obj %}
+<div class="card fade-in">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0" style="font-size:0.85rem;" aria-label="Audit logs table">
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Staff Member</th>
+                        <th>Action</th>
+                        <th>Target</th>
+                        <th>Reason / Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in page_obj %}
+                    <tr>
+                        <td class="text-muted small text-nowrap">{{ log.timestamp|date:"M d, Y H:i:s" }}</td>
+                        <td>
+                            <strong class="text-light small">{{ log.staff.username|default:"System" }}</strong>
+                        </td>
+                        <td>
+                            <span class="badge" style="background:rgba(124,58,237,0.15);color:#a78bfa;border:1px solid rgba(124,58,237,0.3);">
+                                {{ log.action }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="text-muted small">{{ log.target_type }} #{{ log.target_id }}:</span>
+                            <span class="text-light small fw-600">{{ log.target_repr|truncatechars:35 }}</span>
+                        </td>
+                        <td class="small text-light">
+                            {{ log.reason|default:"—" }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
+<nav class="mt-4 d-flex justify-content-center" aria-label="Page navigation">
+    <ul class="pagination mb-0">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?{{ qs_pg }}&page={{ page_obj.previous_page_number }}">
+                <i class="bi bi-chevron-left"></i>
+            </a>
+        </li>
+        {% endif %}
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+            {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %}
+            <li class="page-item"><a class="page-link" href="?{{ qs_pg }}&page={{ num }}">{{ num }}</a></li>
+            {% endif %}
+        {% endfor %}
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?{{ qs_pg }}&page={{ page_obj.next_page_number }}">
+                <i class="bi bi-chevron-right"></i>
+            </a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+{% else %}
+<div class="card fade-in">
+    <div class="card-body text-center py-5">
+        <i class="bi bi-journal-x fs-1 text-muted d-block mb-2"></i>
+        <p class="fw-600 mb-1">No audit log entries found</p>
+        <p class="text-muted small">No administrative actions have been recorded matching your query.</p>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

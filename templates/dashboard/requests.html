@@ -1,0 +1,402 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Requests — Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-header fade-in">
+    <div class="d-flex align-items-center gap-3">
+        <a href="{% url 'dashboard:dashboard_home' %}" class="btn btn-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>Back
+        </a>
+        <div>
+            <h1><i class="bi bi-card-list me-2" aria-hidden="true"></i>Manage Requests</h1>
+            <p class="text-muted mb-0">View, filter, and manage all assistance requests</p>
+        </div>
+    </div>
+</div>
+
+<!-- Quick-filter chips -->
+<div class="d-flex flex-wrap align-items-center gap-2 mb-3 fade-in" role="list" aria-label="Quick filters">
+    <span class="text-muted small me-1" aria-hidden="true">Quick&nbsp;filters:</span>
+    <a href="?status=open&unassigned=1"
+       class="chip{% if f_status == 'open' and f_unassigned and not f_priority %} chip-active{% endif %}"
+       role="listitem">Open &amp; Unassigned</a>
+    <a href="?status=open&priority=High&unassigned=1"
+       class="chip{% if f_status == 'open' and f_priority == 'High' and f_unassigned %} chip-active{% endif %}"
+       role="listitem"><i class="bi bi-exclamation-triangle-fill me-1" style="color:var(--accent-pink);" aria-hidden="true"></i>High Priority Unassigned</a>
+    <a href="?status=cancelled&date_from={{ week_ago }}"
+       class="chip{% if f_status == 'cancelled' and f_date_from == week_ago %} chip-active{% endif %}"
+       role="listitem">Cancelled This Week</a>
+    <a href="?stale=1"
+       class="chip{% if f_stale and not f_status %} chip-active{% endif %}"
+       role="listitem"><i class="bi bi-clock-history me-1" style="color:var(--accent-amber);" aria-hidden="true"></i>Stale (&gt;{{ unassigned_days }}d)</a>
+    <a href="?archived=1"
+       class="chip{% if f_archived %} chip-active{% endif %}"
+       role="listitem"><i class="bi bi-archive me-1" aria-hidden="true"></i>Archived</a>
+</div>
+
+<!-- Filter form -->
+<div class="card mb-3 fade-in" id="filter-panel">
+    <div class="card-body py-3">
+        <form method="get" action="" id="filter-form" role="search" aria-label="Filter requests">
+            <div class="row g-2 align-items-end">
+                <!-- Search -->
+                <div class="col-12 col-lg-3">
+                    <label for="req-q" class="form-label">Search</label>
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text" aria-hidden="true"><i class="bi bi-search"></i></span>
+                        <input type="text" id="req-q" name="q" class="form-control"
+                               value="{{ f_q }}" placeholder="Title or description…">
+                    </div>
+                </div>
+                <!-- Status -->
+                <div class="col-6 col-sm-3 col-lg-1">
+                    <label for="req-status" class="form-label">Status</label>
+                    <select id="req-status" name="status" class="form-select form-select-sm">
+                        <option value="">All</option>
+                        <option value="open"{% if f_status == 'open' %} selected{% endif %}>Open</option>
+                        <option value="assigned"{% if f_status == 'assigned' %} selected{% endif %}>Assigned</option>
+                        <option value="completed"{% if f_status == 'completed' %} selected{% endif %}>Completed</option>
+                        <option value="cancelled"{% if f_status == 'cancelled' %} selected{% endif %}>Cancelled</option>
+                    </select>
+                </div>
+                <!-- Priority -->
+                <div class="col-6 col-sm-3 col-lg-1">
+                    <label for="req-priority" class="form-label">Priority</label>
+                    <select id="req-priority" name="priority" class="form-select form-select-sm">
+                        <option value="">All</option>
+                        <option value="High"{% if f_priority == 'High' %} selected{% endif %}>High</option>
+                        <option value="Medium"{% if f_priority == 'Medium' %} selected{% endif %}>Medium</option>
+                        <option value="Low"{% if f_priority == 'Low' %} selected{% endif %}>Low</option>
+                    </select>
+                </div>
+                <!-- Category -->
+                <div class="col-6 col-sm-4 col-lg-2">
+                    <label for="req-category" class="form-label">Category</label>
+                    <select id="req-category" name="category" class="form-select form-select-sm">
+                        <option value="">All categories</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.pk }}"{% if f_category == cat.pk|stringformat:'s' %} selected{% endif %}>{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <!-- Requester -->
+                <div class="col-6 col-sm-4 col-lg-2">
+                    <label for="req-requester" class="form-label">Requester</label>
+                    <input type="text" id="req-requester" name="requester" class="form-control form-control-sm"
+                           value="{{ f_requester }}" placeholder="Username…"
+                           autocomplete="off" list="requester-suggestions">
+                </div>
+                <!-- Volunteer -->
+                <div class="col-6 col-sm-4 col-lg-2">
+                    <label for="req-volunteer" class="form-label">Volunteer</label>
+                    <input type="text" id="req-volunteer" name="volunteer" class="form-control form-control-sm"
+                           value="{{ f_volunteer }}" placeholder="Username…"
+                           autocomplete="off" list="volunteer-suggestions">
+                </div>
+                <!-- Skills -->
+                <div class="col-6 col-sm-4 col-lg-2">
+                    <label for="req-skills" class="form-label">Required Skills</label>
+                    <input type="text" id="req-skills" name="skills" class="form-control form-control-sm"
+                           value="{{ f_skills }}" placeholder="e.g. Python…">
+                </div>
+                <!-- Date from -->
+                <div class="col-6 col-sm-3 col-lg-2">
+                    <label for="req-date-from" class="form-label">Created from</label>
+                    <input type="date" id="req-date-from" name="date_from" class="form-control form-control-sm"
+                           value="{{ f_date_from }}">
+                </div>
+                <!-- Date to -->
+                <div class="col-6 col-sm-3 col-lg-2">
+                    <label for="req-date-to" class="form-label">Created to</label>
+                    <input type="date" id="req-date-to" name="date_to" class="form-control form-control-sm"
+                           value="{{ f_date_to }}">
+                </div>
+                <!-- Toggles -->
+                <div class="col-12 col-lg-auto">
+                    <fieldset class="border-0 p-0 m-0">
+                        <legend class="form-label">Toggles</legend>
+                        <div class="d-flex gap-3 flex-wrap">
+                            <div class="form-check form-switch mb-0">
+                                <input class="form-check-input" type="checkbox" role="switch"
+                                       id="req-unassigned" name="unassigned" value="1"
+                                       {% if f_unassigned %}checked{% endif %}>
+                                <label class="form-check-label small" for="req-unassigned">Unassigned only</label>
+                            </div>
+                            <div class="form-check form-switch mb-0">
+                                <input class="form-check-input" type="checkbox" role="switch"
+                                       id="req-stale" name="stale" value="1"
+                                       {% if f_stale %}checked{% endif %}>
+                                <label class="form-check-label small" for="req-stale">Stale (&gt;{{ unassigned_days }}d)</label>
+                            </div>
+                            {% if f_archived %}<input type="hidden" name="archived" value="1">{% endif %}
+                        </div>
+                    </fieldset>
+                </div>
+                <!-- Actions -->
+                <div class="col-12 col-lg-auto d-flex gap-2 mt-1">
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="bi bi-funnel-fill me-1" aria-hidden="true"></i>Apply
+                    </button>
+                    {% if has_filters %}
+                    <a href="{% url 'dashboard:manage_requests' %}" class="btn btn-secondary btn-sm">
+                        <i class="bi bi-x-circle me-1" aria-hidden="true"></i>Clear filters
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Result count + sort -->
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-2 gap-2 fade-in">
+    <p class="text-muted small mb-0" aria-live="polite" aria-atomic="true">
+        Showing <strong>{{ page_obj|length }}</strong> of <strong>{{ total_count }}</strong>
+        {% if f_archived %}archived {% endif %}request{{ total_count|pluralize }}
+        {% if has_filters %}
+        <span class="badge ms-1" style="background:rgba(124,58,237,0.2);color:#a78bfa;border:1px solid rgba(124,58,237,0.3);">Filtered</span>
+        {% endif %}
+    </p>
+    <!-- Sort controls -->
+    <div class="d-flex align-items-center gap-1 flex-wrap" role="group" aria-label="Sort options">
+        <span class="text-muted small me-1">Sort:</span>
+        <a href="?{{ qs_pg }}&sort={% if f_sort == 'title' %}-title{% else %}title{% endif %}"
+           class="btn btn-sm btn-secondary{% if f_sort == 'title' or f_sort == '-title' %} active{% endif %}"
+           aria-pressed="{% if f_sort == 'title' or f_sort == '-title' %}true{% else %}false{% endif %}">
+            Title{% if f_sort == 'title' %} <i class="bi bi-arrow-up-short" aria-hidden="true"></i>{% elif f_sort == '-title' %} <i class="bi bi-arrow-down-short" aria-hidden="true"></i>{% endif %}
+        </a>
+        <a href="?{{ qs_pg }}&sort={% if f_sort == '-created_at' %}created_at{% else %}-created_at{% endif %}"
+           class="btn btn-sm btn-secondary{% if f_sort == 'created_at' or f_sort == '-created_at' %} active{% endif %}"
+           aria-pressed="{% if f_sort == 'created_at' or f_sort == '-created_at' %}true{% else %}false{% endif %}">
+            Date{% if f_sort == 'created_at' %} <i class="bi bi-arrow-up-short" aria-hidden="true"></i>{% elif f_sort == '-created_at' %} <i class="bi bi-arrow-down-short" aria-hidden="true"></i>{% endif %}
+        </a>
+        <a href="?{{ qs_pg }}&sort={% if f_sort == '-priority' %}priority{% else %}-priority{% endif %}"
+           class="btn btn-sm btn-secondary{% if f_sort == 'priority' or f_sort == '-priority' %} active{% endif %}"
+           aria-pressed="{% if f_sort == 'priority' or f_sort == '-priority' %}true{% else %}false{% endif %}">
+            Priority{% if f_sort == 'priority' %} <i class="bi bi-arrow-up-short" aria-hidden="true"></i>{% elif f_sort == '-priority' %} <i class="bi bi-arrow-down-short" aria-hidden="true"></i>{% endif %}
+        </a>
+        <a href="?{{ qs_pg }}&sort={% if f_sort == '-status' %}status{% else %}-status{% endif %}"
+           class="btn btn-sm btn-secondary{% if f_sort == 'status' or f_sort == '-status' %} active{% endif %}"
+           aria-pressed="{% if f_sort == 'status' or f_sort == '-status' %}true{% else %}false{% endif %}">
+            Status
+        </a>
+    </div>
+</div>
+
+<!-- Table -->
+{% if page_obj %}
+<div class="card fade-in">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0" aria-label="Requests list">
+                <thead>
+                    <tr>
+                        <th scope="col">Title</th>
+                        <th scope="col">Requester</th>
+                        <th scope="col">Volunteer</th>
+                        <th scope="col">Category</th>
+                        <th scope="col">Priority</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Created</th>
+                        <th scope="col" class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for req in page_obj %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'assist_requests:request_detail' req.pk %}"
+                               class="fw-600 text-decoration-none small">
+                                {{ req.title|truncatechars:45 }}
+                            </a>
+                            {% if req.is_archived %}
+                            <span class="badge ms-1" style="background:rgba(100,116,139,0.2);color:#94a3b8;border:1px solid rgba(100,116,139,0.3);font-size:.65rem;"
+                                  title="Archived: {{ req.archive_reason }}">Archived</span>
+                            {% endif %}
+                        </td>
+                        <td class="small text-muted">
+                            <a href="{% url 'dashboard:user_detail' req.user.pk %}" class="text-decoration-none text-light">
+                                {{ req.user.username }}
+                            </a>
+                        </td>
+                        <td class="small text-muted">
+                            {% if req.volunteer %}
+                            <a href="{% url 'dashboard:user_detail' req.volunteer.pk %}" class="text-decoration-none text-light">
+                                {{ req.volunteer.username }}
+                            </a>
+                            {% else %}
+                            —
+                            {% endif %}
+                        </td>
+                        <td class="small text-muted">{{ req.category.name|default:"—" }}</td>
+                        <td>
+                            <span class="badge" style="
+                                {% if req.priority == 'High' %}background:rgba(239,68,68,0.15);color:#ef4444;
+                                {% elif req.priority == 'Medium' %}background:rgba(245,158,11,0.15);color:#f59e0b;
+                                {% else %}background:rgba(59,130,246,0.15);color:#3b82f6;{% endif %}
+                                border:1px solid currentColor;">
+                                {{ req.priority }}
+                            </span>
+                        </td>
+                        <td><span class="badge badge-{{ req.status }}">{{ req.get_status_display }}</span></td>
+                        <td class="small text-muted">{{ req.created_at|date:"M d, Y" }}</td>
+                        <td class="text-end">
+                            {% if req.is_archived %}
+                            <form method="post" class="d-inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="request_id" value="{{ req.pk }}">
+                                <input type="hidden" name="action" value="restore">
+                                <input type="hidden" name="return_to" value="{{ request.get_full_path }}">
+                                <button type="submit" class="btn btn-sm btn-outline-success"
+                                        aria-label="Restore request: {{ req.title }}">
+                                    <i class="bi bi-arrow-counterclockwise me-1" aria-hidden="true"></i>Restore
+                                </button>
+                            </form>
+                            {% else %}
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-warning archive-btn"
+                                    data-req-id="{{ req.pk }}"
+                                    data-req-title="{{ req.title|escapejs }}"
+                                    data-return-to="{{ request.get_full_path }}"
+                                    aria-label="Archive request: {{ req.title }}">
+                                <i class="bi bi-archive me-1" aria-hidden="true"></i>Archive
+                            </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
+<nav class="mt-4 d-flex justify-content-center" aria-label="Page navigation">
+    <ul class="pagination mb-0">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?{{ qs_pg }}&page={{ page_obj.previous_page_number }}" aria-label="Previous page">
+                <i class="bi bi-chevron-left" aria-hidden="true"></i>
+            </a>
+        </li>
+        {% else %}
+        <li class="page-item disabled"><span class="page-link" aria-hidden="true"><i class="bi bi-chevron-left"></i></span></li>
+        {% endif %}
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <li class="page-item active" aria-current="page"><span class="page-link">{{ num }}</span></li>
+            {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %}
+            <li class="page-item"><a class="page-link" href="?{{ qs_pg }}&page={{ num }}">{{ num }}</a></li>
+            {% endif %}
+        {% endfor %}
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?{{ qs_pg }}&page={{ page_obj.next_page_number }}" aria-label="Next page">
+                <i class="bi bi-chevron-right" aria-hidden="true"></i>
+            </a>
+        </li>
+        {% else %}
+        <li class="page-item disabled"><span class="page-link" aria-hidden="true"><i class="bi bi-chevron-right"></i></span></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+{% else %}
+<!-- Empty state -->
+<div class="card fade-in">
+    <div class="card-body text-center py-5">
+        <i class="bi bi-inbox fs-1 d-block mb-3" style="color:var(--text-muted);" aria-hidden="true"></i>
+        <p class="fw-600 mb-1">No requests found</p>
+        <p class="text-muted small mb-3">
+            {% if has_filters %}No requests match your current filters.{% else %}No requests have been created yet.{% endif %}
+        </p>
+        {% if has_filters %}
+        <a href="{% url 'dashboard:manage_requests' %}" class="btn btn-secondary btn-sm">
+            <i class="bi bi-x-circle me-1" aria-hidden="true"></i>Clear all filters
+        </a>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Archive Confirmation Modal -->
+<div class="modal fade" id="archiveModal" tabindex="-1"
+     aria-labelledby="archiveModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content"
+             style="background:var(--bg-secondary);border:1px solid var(--border-glass);backdrop-filter:blur(20px);">
+            <div class="modal-header border-0 pb-0">
+                <h2 class="modal-title h5 fw-700" id="archiveModalLabel">
+                    <i class="bi bi-archive me-2" style="color:var(--accent-amber);" aria-hidden="true"></i>Archive Request
+                </h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" id="archive-form" novalidate>
+                {% csrf_token %}
+                <div class="modal-body">
+                    <p class="text-muted small mb-3">
+                        You are archiving <strong id="archive-req-title"></strong>.
+                        The request and all its data will be preserved and can be restored later.
+                        It will be hidden from the active list by default.
+                    </p>
+                    <div class="mb-2">
+                        <label for="archive-reason" class="form-label">
+                            Reason <span class="text-danger" aria-hidden="true">*</span>
+                            <span class="visually-hidden">(required)</span>
+                        </label>
+                        <textarea id="archive-reason" name="reason" class="form-control" rows="3"
+                                  required minlength="5"
+                                  placeholder="Briefly explain why this request is being archived…"></textarea>
+                    </div>
+                    <input type="hidden" name="request_id" id="archive-req-id">
+                    <input type="hidden" name="action" value="archive">
+                    <input type="hidden" name="return_to" id="archive-return-to">
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning">
+                        <i class="bi bi-archive me-1" aria-hidden="true"></i>Archive Request
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+(function () {
+    'use strict';
+    // Wire up archive buttons to modal
+    const modal = document.getElementById('archiveModal');
+    document.querySelectorAll('.archive-btn').forEach(function (btn) {
+        btn.setAttribute('data-bs-toggle', 'modal');
+        btn.setAttribute('data-bs-target', '#archiveModal');
+    });
+    modal.addEventListener('show.bs.modal', function (event) {
+        const btn = event.relatedTarget;
+        document.getElementById('archive-req-id').value   = btn.dataset.reqId;
+        document.getElementById('archive-req-title').textContent = btn.dataset.reqTitle;
+        document.getElementById('archive-return-to').value = btn.dataset.returnTo;
+        document.getElementById('archive-reason').value   = '';
+    });
+    // Basic client-side validation
+    document.getElementById('archive-form').addEventListener('submit', function (e) {
+        const reason = document.getElementById('archive-reason').value.trim();
+        if (reason.length < 5) {
+            e.preventDefault();
+            document.getElementById('archive-reason').classList.add('is-invalid');
+            document.getElementById('archive-reason').focus();
+        }
+    });
+    document.getElementById('archive-reason').addEventListener('input', function () {
+        this.classList.remove('is-invalid');
+    });
+}());
+</script>
+{% endblock %}

@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block title %}Request #{{ assist_req.pk }} Messages — Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-header fade-in">
+    <div class="d-flex align-items-center gap-3">
+        {% if tied_report %}
+        <a href="{% url 'dashboard:report_detail' tied_report.pk %}" class="btn btn-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i>Back to Report
+        </a>
+        {% else %}
+        <a href="{% url 'assist_requests:request_detail' assist_req.pk %}" class="btn btn-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i>Back to Request
+        </a>
+        {% endif %}
+        <div>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <h1 class="h3 mb-0">Conversation: Request #{{ assist_req.pk }}</h1>
+                <span class="badge" style="background:rgba(59,130,246,0.15);color:#3b82f6;border:1px solid rgba(59,130,246,0.3);">
+                    Audit-Logged Access
+                </span>
+            </div>
+            <p class="text-muted small mb-0 mt-1">
+                Participants: <strong>{{ assist_req.user.username }}</strong> (User) and
+                <strong>{{ assist_req.volunteer.username|default:"Unassigned" }}</strong> (Volunteer)
+                · Task: {{ assist_req.title }}
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Panel -->
+<div class="card mb-3 fade-in">
+    <div class="card-body py-3">
+        <form method="get" action="" class="row g-2 align-items-end" role="search" aria-label="Filter messages">
+            {% if tied_report %}
+            <input type="hidden" name="report_id" value="{{ tied_report.pk }}">
+            {% endif %}
+            <div class="col-12 col-md-4">
+                <label for="msg-q" class="form-label small">Keyword Search</label>
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text" id="msg-q" name="q" class="form-control"
+                           value="{{ f_q }}" placeholder="Search message text…">
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <label for="msg-sender" class="form-label small">Sender</label>
+                <select id="msg-sender" name="sender" class="form-select form-select-sm">
+                    <option value="">All senders</option>
+                    <option value="{{ assist_req.user.pk }}"{% if f_sender == assist_req.user.pk|stringformat:'s' %} selected{% endif %}>
+                        {{ assist_req.user.username }} (User)
+                    </option>
+                    {% if assist_req.volunteer %}
+                    <option value="{{ assist_req.volunteer.pk }}"{% if f_sender == assist_req.volunteer.pk|stringformat:'s' %} selected{% endif %}>
+                        {{ assist_req.volunteer.username }} (Volunteer)
+                    </option>
+                    {% endif %}
+                </select>
+            </div>
+            <div class="col-6 col-md-2">
+                <label for="msg-date-from" class="form-label small">From</label>
+                <input type="date" id="msg-date-from" name="date_from" class="form-control form-control-sm"
+                       value="{{ f_date_from }}">
+            </div>
+            <div class="col-6 col-md-2">
+                <label for="msg-date-to" class="form-label small">To</label>
+                <input type="date" id="msg-date-to" name="date_to" class="form-control form-control-sm"
+                       value="{{ f_date_to }}">
+            </div>
+            <div class="col-6 col-md-1 d-flex gap-1">
+                <button type="submit" class="btn btn-primary btn-sm w-100">Filter</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Threaded Messages View -->
+<div class="card fade-in">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-chat-left-text me-2"></i>Threaded Message History</span>
+        <span class="badge badge-secondary">{{ total_messages_count }} message{{ total_messages_count|pluralize }}</span>
+    </div>
+    <div class="card-body p-4" style="max-height:600px;overflow-y:auto;background:rgba(0,0,0,0.15);">
+        {% if messages_list %}
+            <div class="d-flex flex-column gap-3">
+                {% for msg in messages_list %}
+                <div class="d-flex flex-column {% if msg.sender == assist_req.user %}align-items-start{% else %}align-items-end{% endif %}">
+                    <div class="d-flex align-items-center gap-2 mb-1 px-1">
+                        <span class="small fw-700 {% if msg.sender == assist_req.user %}text-info{% else %}text-warning{% endif %}">
+                            {{ msg.sender.username }}
+                            <span class="text-muted fw-normal" style="font-size:0.75rem;">
+                                ({% if msg.sender == assist_req.user %}Requester{% else %}Volunteer{% endif %})
+                            </span>
+                        </span>
+                        <span class="text-muted" style="font-size:0.7rem;">
+                            {{ msg.timestamp|date:"M d, Y H:i:s" }}
+                        </span>
+                    </div>
+                    <div class="p-3 rounded-3" style="
+                        max-width:80%;
+                        {% if msg.sender == assist_req.user %}
+                            background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#e2e8f0;
+                        {% else %}
+                            background:rgba(124,58,237,0.18);border:1px solid rgba(124,58,237,0.35);color:#e2e8f0;
+                        {% endif %}">
+                        <p class="mb-0 small" style="white-space:pre-wrap;word-break:break-word;">{{ msg.content }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-chat-dots fs-1 text-muted d-block mb-2"></i>
+                <p class="fw-600 mb-1">No messages found</p>
+                <p class="text-muted small">
+                    {% if has_filters %}No messages match your search criteria.{% else %}No messages have been sent on this request.{% endif %}
+                </p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
