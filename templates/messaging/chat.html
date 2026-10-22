@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block title %}Chat — {{ assist_request.title }} — Companio{% endblock %}
+
+{% block content %}
+<div class="page-header fade-in">
+    <div class="d-flex align-items-center gap-3">
+        <a href="{% url 'messaging:inbox' %}" class="btn btn-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i>Back
+        </a>
+        <div>
+            <h1 class="h4 mb-0">{{ assist_request.title }}</h1>
+            <p class="text-muted mb-0 small">
+                {% if user == assist_request.user %}
+                    Chatting with
+                    {% if assist_request.volunteer %}{{ assist_request.volunteer.username }}{% else %}No volunteer yet{% endif %}
+                {% else %}
+                    Chatting with {{ assist_request.user.username }}
+                {% endif %}
+                · <span class="badge badge-{{ assist_request.status }}">{{ assist_request.get_status_display }}</span>
+            </p>
+        </div>
+        <div class="d-flex align-items-center gap-2 ms-auto">
+            <a href="{% url 'dashboard:submit_report' %}?request_id={{ assist_request.pk }}" class="btn btn-outline-danger btn-sm" title="Report safety issue or inappropriate messages">
+                <i class="bi bi-flag-fill me-1"></i>Report
+            </a>
+            <a href="{% url 'assist_requests:request_detail' assist_request.pk %}" class="btn btn-outline-primary btn-sm">
+                <i class="bi bi-eye me-1"></i>View Request
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="chat-container fade-in">
+    <!-- Messages Area -->
+    <div class="chat-messages" id="chat-messages">
+        {% if messages %}
+            {% for msg in messages %}
+                <div class="d-flex flex-column {% if msg.sender == user %}align-items-end{% else %}align-items-start{% endif %}">
+                    <div class="message-bubble {% if msg.sender == user %}sent{% else %}received{% endif %}">
+                        {{ msg.content }}
+                    </div>
+                    <div class="message-meta {% if msg.sender == user %}text-end pe-1{% else %}ps-1{% endif %}">
+                        <span>{{ msg.sender.username }}</span> ·
+                        <span>{{ msg.timestamp|date:"H:i" }}</span>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="text-center py-4">
+                <div style="font-size:3rem;opacity:0.3;">👋</div>
+                <p class="text-muted small mt-2">No messages yet. Say hello!</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Send Message Form -->
+    {% if assist_request.status == 'assigned' or assist_request.status == 'completed' %}
+        {% if user == assist_request.user or user == assist_request.volunteer %}
+        <form method="post" class="chat-input-area" id="chat-form">
+            {% csrf_token %}
+            <input type="text" name="content" class="form-control"
+                   id="chat-message-input"
+                   placeholder="Type a message..."
+                   autocomplete="off" autofocus>
+            <button type="submit" class="btn btn-primary" id="send-message-btn"
+                    style="width:44px;height:44px;border-radius:50%;padding:0;flex-shrink:0;">
+                <i class="bi bi-send-fill"></i>
+            </button>
+        </form>
+        {% else %}
+            <div class="chat-input-area justify-content-center">
+                <p class="text-muted small mb-0">You are not a participant in this conversation.</p>
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="chat-input-area justify-content-center">
+            <p class="text-muted small mb-0">
+                <i class="bi bi-lock me-1"></i>
+                {% if assist_request.status == 'open' %}Messaging opens once a volunteer accepts this request.
+                {% else %}This request is {{ assist_request.get_status_display|lower }}.{% endif %}
+            </p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Auto-scroll to bottom of messages
+    const chatMessages = document.getElementById('chat-messages');
+    if (chatMessages) {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Submit on Enter (Shift+Enter for new line)
+    const input = document.getElementById('chat-message-input');
+    if (input) {
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                document.getElementById('chat-form').submit();
+            }
+        });
+    }
+</script>
+{% endblock %}
