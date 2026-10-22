@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+{% load request_tags %}
+
+{% block title %}Requests — Companio{% endblock %}
+
+{% block content %}
+<div class="page-header fade-in">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <div>
+            {% if view_mode == 'volunteer' %}
+                <h1><i class="bi bi-search-heart me-2"></i>Browse Requests</h1>
+                <p class="text-muted mb-0">Open assistance requests — skill matches highlighted first</p>
+            {% elif view_mode == 'user' %}
+                <h1><i class="bi bi-card-list me-2"></i>My Requests</h1>
+                <p class="text-muted mb-0">Track your assistance requests</p>
+            {% elif view_mode == 'admin' %}
+                <h1><i class="bi bi-shield-lock me-2"></i>All Requests</h1>
+                <p class="text-muted mb-0">Admin view of all assistance requests</p>
+            {% else %}
+                <h1><i class="bi bi-grid me-2"></i>Open Requests</h1>
+                <p class="text-muted mb-0">Explore open assistance requests on Companio</p>
+            {% endif %}
+        </div>
+        {% if user.is_authenticated and user.role == 'user' %}
+            <a href="{% url 'assist_requests:request_create' %}" class="btn btn-primary" id="create-request-btn">
+                <i class="bi bi-plus-lg me-2"></i>New Request
+            </a>
+        {% endif %}
+    </div>
+</div>
+
+{% if view_mode != 'public' %}
+<!-- Filters & Quick Chips -->
+<div class="card fade-in delay-1 mb-4">
+    <div class="card-body py-3">
+        <form method="get" class="row g-2 align-items-center" id="filter-form">
+            <div class="col-md-4">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text" name="q" value="{{ search_q }}" class="form-control"
+                           placeholder="Search requests..." id="search-input">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text"><i class="bi bi-geo-alt"></i></span>
+                    <input type="text" name="location" value="{{ location_filter }}" class="form-control"
+                           placeholder="City or location..." id="location-input">
+                </div>
+            </div>
+            {% if categories %}
+            <div class="col-md-3">
+                <select name="category" class="form-select form-select-sm" id="category-filter">
+                    <option value="">All Categories</option>
+                    {% for cat in categories %}
+                        <option value="{{ cat.id }}" {% if category_filter == cat.id|stringformat:"s" %}selected{% endif %}>
+                            {{ cat.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-primary btn-sm w-100" id="apply-filter-btn">Filter</button>
+                {% if search_q or category_filter or location_filter or near_me %}
+                    <a href="{% url 'assist_requests:request_list' %}" class="btn btn-outline-light btn-sm" title="Clear Filters">
+                        <i class="bi bi-x-lg"></i>
+                    </a>
+                {% endif %}
+            </div>
+
+            {% if view_mode == 'volunteer' and vol_location %}
+            <div class="col-12 mt-2 pt-2 border-top border-secondary border-opacity-25 d-flex align-items-center gap-2 flex-wrap">
+                <span class="small text-muted"><i class="bi bi-pin-map-fill text-danger me-1"></i>Your area: <strong>{{ vol_location }}</strong></span>
+                <a href="?near_me={% if near_me %}0{% else %}1{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}{% if search_q %}&q={{ search_q }}{% endif %}"
+                   class="btn btn-sm {% if near_me %}btn-teal text-white{% else %}btn-outline-teal{% endif %} py-0 px-2" style="font-size: 0.75rem; border-radius: 20px;">
+                    <i class="bi bi-crosshair me-1"></i>{% if near_me %}Showing: Near Me (Active){% else %}Filter: Near Me{% endif %}
+                </a>
+            </div>
+            {% endif %}
+        </form>
+    </div>
+</div>
+{% endif %}
+
+{% if requests %}
+    {% if view_mode == 'volunteer' %}
+        <div class="d-flex align-items-center gap-3 flex-wrap mb-3 fade-in delay-2 small">
+            {% if both_matched_count %}
+            <span class="badge" style="background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.4); font-size: 0.78rem; padding: 6px 10px;">
+                <i class="bi bi-stars me-1 text-warning"></i>{{ both_matched_count }} Skill &amp; Location Match (Top Pick)
+            </span>
+            {% endif %}
+            {% if loc_matched_count %}
+            <span class="badge" style="background: rgba(20, 184, 166, 0.15); color: #2dd4bf; border: 1px solid rgba(20, 184, 166, 0.4); font-size: 0.78rem; padding: 6px 10px;">
+                <i class="bi bi-geo-alt-fill me-1"></i>{{ loc_matched_count }} In Your Area
+            </span>
+            {% endif %}
+            {% if skill_matched_count %}
+            <span class="badge" style="background: rgba(124, 58, 237, 0.15); color: #c084fc; border: 1px solid rgba(124, 58, 237, 0.4); font-size: 0.78rem; padding: 6px 10px;">
+                <i class="bi bi-tools me-1"></i>{{ skill_matched_count }} Matches Your Skills
+            </span>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <div class="row g-4 fade-in delay-2">
+        {% for req in requests %}
+        <div class="col-md-6 col-lg-4">
+            <a href="{% url 'assist_requests:request_detail' req.pk %}" class="text-decoration-none">
+                <div class="request-card h-100 {% if view_mode == 'volunteer' and req.pk in matched_ids %}matched{% endif %}">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <span class="badge badge-{{ req.status }} me-1">
+                                {{ req.get_status_display }}
+                            </span>
+                            <span class="badge" style="
+                                {% if req.priority == 'High' %}background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.3);
+                                {% elif req.priority == 'Medium' %}background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);
+                                {% else %}background:rgba(59,130,246,0.15);color:#3b82f6;border:1px solid rgba(59,130,246,0.3);{% endif %}
+                            ">
+                                {{ req.priority }} Priority
+                            </span>
+                        </div>
+                        {% if req.category %}
+                            <span class="text-muted" style="font-size:0.75rem;">{{ req.category.name }}</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Location / Skill Matching Indicator Tags for Volunteers -->
+                    {% if view_mode == 'volunteer' %}
+                        <div class="d-flex gap-1 mb-2">
+                            {% if req.is_skill_match and req.is_location_match %}
+                                <span class="badge" style="background:rgba(34, 197, 94, 0.2); color:#4ade80; border:1px solid rgba(34,197,94,0.4); font-size:0.7rem;">
+                                    <i class="bi bi-check-all me-1"></i>Skill &amp; Area Match
+                                </span>
+                            {% elif req.is_location_match %}
+                                <span class="badge" style="background:rgba(20, 184, 166, 0.2); color:#2dd4bf; border:1px solid rgba(20,184,166,0.4); font-size:0.7rem;">
+                                    <i class="bi bi-geo-alt-fill me-1"></i>Near You
+                                </span>
+                            {% elif req.is_skill_match %}
+                                <span class="badge" style="background:rgba(124, 58, 237, 0.2); color:#c084fc; border:1px solid rgba(124,58,237,0.4); font-size:0.7rem;">
+                                    <i class="bi bi-tools me-1"></i>Skill Match
+                                </span>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+
+                    <h5 class="fw-700 mb-2" style="font-size:1rem;">{{ req.title }}</h5>
+                    <p class="text-muted small mb-3" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">
+                        {{ req.description }}
+                    </p>
+
+                    {% if req.required_skills %}
+                    <div class="mb-3">
+                        {% for skill in req.required_skills|split:',' %}
+                            <span class="skill-tag">{{ skill }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <div class="d-flex justify-content-between align-items-center mt-auto">
+                        <div class="d-flex align-items-center gap-2">
+                            <div style="width:28px;height:28px;border-radius:50%;background:var(--gradient-main);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:#fff;">
+                                {{ req.user.username|first|upper }}
+                            </div>
+                            <span class="text-muted small">{{ req.user.username }}</span>
+                        </div>
+                        {% if req.location %}
+                        <span class="text-muted small" style="font-size:0.75rem;">
+                            <i class="bi bi-geo-alt me-1 {% if req.is_location_match %}text-teal fw-bold{% endif %}"></i>{{ req.location }}
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    <div class="mt-2" style="font-size:0.72rem;color:var(--text-muted);">
+                        <i class="bi bi-clock me-1"></i>{{ req.created_at|timesince }} ago
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="text-center py-5 fade-in delay-2">
+        <div style="font-size:4rem;opacity:0.3;">📋</div>
+        <h4 class="text-muted mt-3">No requests found</h4>
+        {% if view_mode == 'user' %}
+            <p class="text-muted small">Create your first assistance request to get started.</p>
+            <a href="{% url 'assist_requests:request_create' %}" class="btn btn-primary mt-2">
+                <i class="bi bi-plus-lg me-2"></i>Create Request
+            </a>
+        {% else %}
+            <p class="text-muted small">Check back later for new requests.</p>
+        {% endif %}
+    </div>
+{% endif %}
+{% endblock %}
