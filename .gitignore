@@ -1,0 +1,25 @@
+# Python & Django ignores
+*.pyc
+__pycache__/
+*.py[cod]
+*$py.class
+
+# SQLite Database & local media
+db.sqlite3
+db.sqlite3-journal
+media/
+
+# Virtual environment
+venv/
+.venv/
+env/
+ENV/
+
+# IDE & OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Redundant nested folder
+Campanio/
