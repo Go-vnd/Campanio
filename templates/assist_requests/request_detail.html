@@ -1,0 +1,343 @@
+{% extends 'base.html' %}
+{% load request_tags %}
+
+{% block title %}{{ request_obj.title }} — Companio{% endblock %}
+
+{% block content %}
+<div class="page-header fade-in">
+    <div class="d-flex align-items-center gap-3">
+        <a href="{% url 'assist_requests:request_list' %}" class="btn btn-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i>Back
+        </a>
+        <div>
+            <h1>{{ request_obj.title }}</h1>
+            <p class="text-muted mb-0">
+                <i class="bi bi-person me-1"></i>Posted by {{ request_obj.user.username }} ·
+                <i class="bi bi-clock ms-2 me-1"></i>{{ request_obj.created_at|timesince }} ago
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Main Content -->
+    <div class="col-lg-8">
+        <div class="card fade-in">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-file-text me-2"></i>Request Details</span>
+                <div>
+                    <span class="badge" style="
+                        {% if request_obj.priority == 'High' %}background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.3);
+                        {% elif request_obj.priority == 'Medium' %}background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);
+                        {% else %}background:rgba(59,130,246,0.15);color:#3b82f6;border:1px solid rgba(59,130,246,0.3);{% endif %}
+                    ">
+                        {{ request_obj.priority }} Priority
+                    </span>
+                    <span class="badge badge-{{ request_obj.status }} px-3 py-2 ms-2">
+                        {{ request_obj.get_status_display }}
+                    </span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="fw-600 mb-0">Description</h5>
+                    <button class="btn btn-sm btn-outline-secondary" id="tts-btn" title="Read Aloud" aria-label="Read description aloud">
+                        <i class="bi bi-volume-up-fill me-1" aria-hidden="true"></i>Read Aloud
+                    </button>
+                </div>
+                <p class="text-muted mb-4" id="request-desc-text">{{ request_obj.description }}</p>
+
+                {% if request_obj.required_skills %}
+                <div class="mb-4">
+                    <h6 class="fw-600 text-secondary mb-2"><i class="bi bi-tools me-1"></i>Required Skills</h6>
+                    {% for skill in request_obj.required_skills|split:',' %}
+                        <span class="skill-tag">{{ skill }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% if request_obj.location %}
+                <div class="mb-4">
+                    <h6 class="fw-600 text-secondary mb-1"><i class="bi bi-geo-alt me-1"></i>Location</h6>
+                    <p class="text-muted mb-0">{{ request_obj.location }}</p>
+                </div>
+                {% endif %}
+
+                {% if request_obj.category %}
+                <div>
+                    <h6 class="fw-600 text-secondary mb-1"><i class="bi bi-tag me-1"></i>Category</h6>
+                    <span class="badge badge-assigned px-3 py-2">{{ request_obj.category.name }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="card fade-in delay-2 mt-4">
+            <div class="card-body">
+                <div class="d-flex flex-wrap gap-2">
+                    {% if user.is_authenticated %}
+
+                        {# --- Volunteer actions --- #}
+                        {% if user.role == 'volunteer' %}
+                            {% if request_obj.status == 'open' %}
+                                <form method="post" action="{% url 'assist_requests:request_accept' request_obj.pk %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-success" id="accept-request-btn">
+                                        <i class="bi bi-hand-thumbs-up me-2"></i>Accept Request
+                                    </button>
+                                </form>
+                            {% elif request_obj.status == 'assigned' and user == request_obj.volunteer %}
+                                <form method="post" action="{% url 'assist_requests:request_complete' request_obj.pk %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-primary" id="complete-request-btn">
+                                        <i class="bi bi-check-circle me-2"></i>Mark as Complete
+                                    </button>
+                                </form>
+                                <a href="{% url 'messaging:chat' request_obj.pk %}" class="btn btn-info" id="chat-btn-volunteer">
+                                    <i class="bi bi-chat-dots me-2"></i>Message Requester
+                                </a>
+                                <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#cancelModal"
+                                        data-title="Withdraw from Request" data-label="Reason for withdrawal">
+                                    <i class="bi bi-box-arrow-left me-1"></i>Withdraw from Request
+                                </button>
+                            {% endif %}
+                        {% endif %}
+
+                        {# --- Requester actions --- #}
+                        {% if user == request_obj.user %}
+                            {% if request_obj.status == 'assigned' %}
+                                <a href="{% url 'messaging:chat' request_obj.pk %}" class="btn btn-info" id="chat-btn-user">
+                                    <i class="bi bi-chat-dots me-2"></i>Message Volunteer
+                                </a>
+                            {% endif %}
+                            {% if request_obj.status == 'open' or request_obj.status == 'assigned' %}
+                                <button type="button" class="btn btn-danger" id="cancel-request-btn"
+                                        data-bs-toggle="modal" data-bs-target="#cancelModal"
+                                        data-title="Cancel Assistance Request" data-label="Reason for cancellation">
+                                    <i class="bi bi-x-circle me-2"></i>Cancel Request
+                                </button>
+                            {% endif %}
+                            {% if request_obj.status == 'completed' and not user_has_reviewed %}
+                                <a href="{% url 'feedback:submit_feedback' request_obj.pk %}" class="btn btn-warning" id="feedback-btn">
+                                    <i class="bi bi-star me-2"></i>Leave Feedback
+                                </a>
+                            {% endif %}
+                        {% endif %}
+
+                        {# --- Report Issue entry point for both parties --- #}
+                        {% if user == request_obj.user or user == request_obj.volunteer %}
+                        <a href="{% url 'dashboard:submit_report' %}?request_id={{ request_obj.pk }}"
+                           class="btn btn-outline-danger btn-sm align-self-center ms-auto"
+                           title="Report an issue or safety concern regarding this request">
+                            <i class="bi bi-flag-fill me-1"></i>Report Issue
+                        </a>
+                        {% endif %}
+
+                        {# --- Staff message review entry point --- #}
+                        {% if user.is_staff %}
+                        <a href="{% url 'dashboard:request_messages' request_obj.pk %}"
+                           class="btn btn-outline-secondary btn-sm align-self-center ms-2"
+                           title="Review request conversation (requires justification & audit log)">
+                            <i class="bi bi-chat-left-dots me-1 text-info"></i>View Messages (Admin Logged)
+                        </a>
+                        {% endif %}
+
+                    {% else %}
+                        <a href="{% url 'accounts:login' %}" class="btn btn-primary">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Login to Accept
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Reviews -->
+        {% if request_obj.reviews.all %}
+        <div class="card fade-in delay-3 mt-4">
+            <div class="card-header"><i class="bi bi-star-fill text-warning me-2"></i>Reviews</div>
+            <div class="card-body">
+                {% for review in request_obj.reviews.all %}
+                <div class="{% if not forloop.last %}mb-4 pb-4{% endif %}" style="{% if not forloop.last %}border-bottom: 1px solid var(--border-glass);{% endif %}">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <div style="width:32px;height:32px;border-radius:50%;background:var(--gradient-main);display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;color:#fff;">
+                            {{ review.reviewer.username|first|upper }}
+                        </div>
+                        <strong class="small">{{ review.reviewer.username }}</strong>
+                        <span class="text-warning">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= review.rating %}⭐{% endif %}
+                            {% endfor %}
+                        </span>
+                        <span class="text-muted" style="font-size:0.72rem;">{{ review.created_at|date:"M d, Y" }}</span>
+                    </div>
+                    {% if review.is_hidden %}
+                        <p class="text-muted small fst-italic mb-0">
+                            <i class="bi bi-shield-slash me-1 text-danger"></i>[Review comment hidden by moderator for policy violation]
+                        </p>
+                    {% elif review.comments %}
+                        <p class="text-muted small mb-0">{{ review.comments }}</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Requester info -->
+        <div class="card fade-in delay-1">
+            <div class="card-header"><i class="bi bi-person-circle me-2"></i>Requester</div>
+            <div class="card-body text-center">
+                <div class="profile-avatar-placeholder mx-auto mb-2" style="width:60px;height:60px;font-size:1.5rem;">
+                    {{ request_obj.user.username|first|upper }}
+                </div>
+                <h6 class="fw-700 mb-1">{{ request_obj.user.username }}</h6>
+                <span class="badge badge-open small">User</span>
+            </div>
+        </div>
+
+        <!-- Volunteer info -->
+        {% if request_obj.volunteer %}
+        <div class="card fade-in delay-2 mt-4">
+            <div class="card-header"><i class="bi bi-heart-fill me-2"></i>Assigned Volunteer</div>
+            <div class="card-body text-center">
+                <div class="profile-avatar-placeholder mx-auto mb-2" style="width:60px;height:60px;font-size:1.5rem;">
+                    {{ request_obj.volunteer.username|first|upper }}
+                </div>
+                <h6 class="fw-700 mb-1">{{ request_obj.volunteer.username }}</h6>
+                <div class="d-flex justify-content-center align-items-center gap-1 mb-2">
+                    <span class="badge badge-assigned small">Volunteer</span>
+                    {% if request_obj.volunteer.is_verified %}
+                    <span class="badge" style="background:rgba(20,184,166,0.18);color:#14b8a6;border:1px solid rgba(20,184,166,0.35);font-size:0.75rem;">
+                        <i class="bi bi-patch-check-fill me-1"></i>Verified Volunteer
+                    </span>
+                    {% endif %}
+                </div>
+                {% with vol_profile=request_obj.volunteer.volunteer_profile %}
+                    {% if vol_profile.skills %}
+                        <div class="mt-2">
+                            {% for skill in vol_profile.skills|split:',' %}
+                                <span class="skill-tag" style="font-size:0.65rem;">{{ skill }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <div class="mt-2">
+                        <span class="points-badge" style="font-size:0.8rem;padding:0.3rem 0.8rem;">
+                            <i class="bi bi-star-fill text-warning"></i>
+                            {{ vol_profile.points }} pts
+                        </span>
+                    </div>
+                {% endwith %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Timeline -->
+        <div class="card fade-in delay-3 mt-4">
+            <div class="card-header"><i class="bi bi-clock-history me-2"></i>Timeline</div>
+            <div class="card-body">
+                <div class="d-flex flex-column gap-3">
+                    <div class="d-flex align-items-start gap-2">
+                        <div style="width:8px;height:8px;border-radius:50%;background:var(--accent-purple);margin-top:6px;flex-shrink:0;"></div>
+                        <div>
+                            <div class="small fw-600">Created</div>
+                            <div class="text-muted" style="font-size:0.75rem;">{{ request_obj.created_at|date:"M d, Y • H:i" }}</div>
+                        </div>
+                    </div>
+                    {% if request_obj.status != 'open' %}
+                    <div class="d-flex align-items-start gap-2">
+                        <div style="width:8px;height:8px;border-radius:50%;background:var(--accent-blue);margin-top:6px;flex-shrink:0;"></div>
+                        <div>
+                            <div class="small fw-600">Updated</div>
+                            <div class="text-muted" style="font-size:0.75rem;">{{ request_obj.updated_at|date:"M d, Y • H:i" }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ttsBtn = document.getElementById('tts-btn');
+        if(ttsBtn && 'speechSynthesis' in window) {
+            let isSpeaking = false;
+            ttsBtn.addEventListener('click', function() {
+                if(isSpeaking) {
+                    window.speechSynthesis.cancel();
+                    isSpeaking = false;
+                    ttsBtn.innerHTML = '<i class="bi bi-volume-up-fill me-1" aria-hidden="true"></i>Read Aloud';
+                    ttsBtn.setAttribute('aria-label', 'Read description aloud');
+                } else {
+                    const text = document.getElementById('request-desc-text').textContent;
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.onend = () => {
+                        isSpeaking = false;
+                        ttsBtn.innerHTML = '<i class="bi bi-volume-up-fill me-1" aria-hidden="true"></i>Read Aloud';
+                        ttsBtn.setAttribute('aria-label', 'Read description aloud');
+                    };
+                    window.speechSynthesis.speak(utterance);
+                    isSpeaking = true;
+                    ttsBtn.innerHTML = '<i class="bi bi-stop-circle-fill me-1" aria-hidden="true"></i>Stop Reading';
+                    ttsBtn.setAttribute('aria-label', 'Stop reading aloud');
+                }
+            });
+        } else if(ttsBtn) {
+            ttsBtn.style.display = 'none'; // Hide if not supported
+        }
+
+        // Cancel / Withdraw Modal setup
+        const cancelModal = document.getElementById('cancelModal');
+        if (cancelModal) {
+            cancelModal.addEventListener('show.bs.modal', function(event) {
+                const btn = event.relatedTarget;
+                if (btn) {
+                    const title = btn.getAttribute('data-title');
+                    const label = btn.getAttribute('data-label');
+                    document.getElementById('cancelModalLabel').textContent = title || 'Cancel Request';
+                    document.getElementById('cancel-reason-label').textContent = label || 'Reason for cancellation';
+                    document.getElementById('cancellation_reason').value = '';
+                }
+            });
+        }
+    });
+</script>
+
+<!-- Cancellation / Withdrawal Reason Modal -->
+<div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background:var(--bg-secondary);border:1px solid var(--border-glass);backdrop-filter:blur(20px);">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-700 text-danger" id="cancelModalLabel">Cancel Assistance Request</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" action="{% url 'assist_requests:request_cancel' request_obj.pk %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <p class="text-muted small mb-3">
+                        Please let us know why you are cancelling or withdrawing from this request. This helps us ensure reliability and quality for our community.
+                    </p>
+                    <div class="mb-3">
+                        <label for="cancellation_reason" class="form-label small" id="cancel-reason-label">
+                            Reason (optional)
+                        </label>
+                        <textarea name="cancellation_reason" id="cancellation_reason" rows="3" class="form-control"
+                                  placeholder="e.g., Scheduling conflict, completed elsewhere, personal reasons..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Keep Request</button>
+                    <button type="submit" class="btn btn-danger">Confirm</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

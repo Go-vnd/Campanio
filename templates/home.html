@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+
+{% block title %}Companio — Volunteer Skill Exchange Platform{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <div class="fade-in">
+                    <span class="badge badge-open px-3 py-2 mb-3" style="font-size:0.75rem;">
+                        <i class="bi bi-circle-fill me-1" style="font-size:0.5rem;"></i>Open Platform — Free to Join
+                    </span>
+                    <h1 class="hero-title mb-4">
+                        Connect People.<br>
+                        <span class="hero-gradient-text">Share Skills.</span><br>
+                        Change Lives.
+                    </h1>
+                    <p class="hero-subtitle mb-5">
+                        Companio bridges people with disabilities seeking assistance with passionate volunteers offering their time and skills — completely free.
+                    </p>
+                    <div class="d-flex flex-wrap gap-3">
+                        <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-lg" id="hero-cta-register">
+                            <i class="bi bi-person-plus me-2"></i>Get Started Free
+                        </a>
+                        <a href="{% url 'accounts:login' %}" class="btn btn-secondary btn-lg" id="hero-cta-login">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 fade-in delay-2">
+                <!-- Stats floating card -->
+                <div class="card p-4">
+                    <div class="row g-3 text-center">
+                        <div class="col-4">
+                            <div class="text-gradient fw-800" style="font-size:2rem;">{{ total_users }}+</div>
+                            <div class="text-muted small">Users</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="fw-800" style="font-size:2rem;background:var(--gradient-teal);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">{{ total_volunteers }}+</div>
+                            <div class="text-muted small">Volunteers</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="fw-800" style="font-size:2rem;background:var(--gradient-warm);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">{{ completed }}+</div>
+                            <div class="text-muted small">Completed</div>
+                        </div>
+                    </div>
+                    <div class="section-divider my-3"></div>
+                    <!-- Recent open requests teaser -->
+                    {% for req in open_requests %}
+                    <div class="d-flex align-items-center gap-3 mb-2 p-2 rounded" style="background:rgba(255,255,255,0.03);border:1px solid var(--border-glass);">
+                        <div style="width:36px;height:36px;border-radius:50%;background:var(--gradient-main);display:flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:700;color:#fff;flex-shrink:0;">
+                            {{ req.user.username|first|upper }}
+                        </div>
+                        <div>
+                            <div class="small fw-600">{{ req.title|truncatechars:40 }}</div>
+                            <div class="text-muted" style="font-size:0.7rem;"><span class="badge badge-open me-1">Open</span>{{ req.created_at|timesince }} ago</div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted small text-center mb-0">Be the first to post a request!</p>
+                    {% endfor %}
+                    <a href="{% url 'assist_requests:request_list' %}" class="btn btn-outline-primary btn-sm w-100 mt-3" id="hero-browse-btn">
+                        View All Open Requests →
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5 fade-in">
+            <h2 class="fw-800 mb-2">How Companio Works</h2>
+            <p class="text-muted">Simple, safe, and meaningful — in three steps</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4 fade-in delay-1">
+                <div class="feature-card">
+                    <div class="feature-icon">📋</div>
+                    <h5 class="fw-700 mb-2">Post a Request</h5>
+                    <p class="text-muted small mb-0">
+                        Describe what assistance you need, specify required skills, and publish your request to connect with the right volunteer.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4 fade-in delay-2">
+                <div class="feature-card">
+                    <div class="feature-icon">🤝</div>
+                    <h5 class="fw-700 mb-2">Get Matched</h5>
+                    <p class="text-muted small mb-0">
+                        Volunteers with matching skills discover your request and accept it. The system highlights perfect skill matches automatically.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4 fade-in delay-3">
+                <div class="feature-card">
+                    <div class="feature-icon">🏆</div>
+                    <h5 class="fw-700 mb-2">Earn & Grow</h5>
+                    <p class="text-muted small mb-0">
+                        Volunteers earn points for every completed request. Reach milestones to unlock Bronze, Silver, and Gold certificates.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- More Features -->
+<section class="py-5">
+    <div class="container">
+        <div class="row g-4 align-items-center">
+            <div class="col-md-6 fade-in">
+                <h2 class="fw-800 mb-3">Everything you need, in one platform</h2>
+                <div class="d-flex flex-column gap-3">
+                    {% for feature in features %}
+                    <div class="d-flex align-items-start gap-3">
+                        <div style="width:36px;height:36px;border-radius:var(--radius-sm);background:var(--gradient-main);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">{{ feature.icon }}</div>
+                        <div>
+                            <div class="fw-600 small">{{ feature.title }}</div>
+                            <div class="text-muted small">{{ feature.desc }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="col-md-6 fade-in delay-2">
+                <div class="card p-4">
+                    <h5 class="fw-700 mb-3 text-gradient">Join Companio today</h5>
+                    <p class="text-muted small mb-4">Create your free account in under a minute. Choose to seek assistance or offer your skills as a volunteer.</p>
+                    <div class="d-flex gap-3 flex-wrap">
+                        <a href="{% url 'accounts:register' %}?role=user" class="btn btn-primary flex-fill" id="join-as-user">
+                            <i class="bi bi-person me-2"></i>I Need Help
+                        </a>
+                        <a href="{% url 'accounts:register' %}?role=volunteer" class="btn btn-info flex-fill" id="join-as-volunteer">
+                            <i class="bi bi-heart me-2"></i>I Want to Help
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
